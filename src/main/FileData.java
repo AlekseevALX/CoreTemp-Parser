@@ -48,7 +48,7 @@ public class FileData {
     }
 
     public void addColumn(Integer num, String str) {
-        this.columns.put(num, str);
+        this.columns.put(num, str + num);
     }
 
     public void addString(Integer num, String[] str){
@@ -81,6 +81,10 @@ public class FileData {
 
     public int getColumnCount() {
         return columnCount;
+    }
+
+    public HashMap<Integer, String> getColumns() {
+        return columns;
     }
 
     public HashMap<Integer, String[]> getStrings() {
