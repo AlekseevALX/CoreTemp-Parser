@@ -13,16 +13,12 @@ public class DBChecker {
         this.columns = columns;
     }
 
-    public HashMap<Integer, String> getColumns() {
-        return columns;
-    }
-
     private static String getExecuteText() {
         String text = "";
         String colName = "";
 
         text = text.concat("CREATE TABLE IF NOT EXISTS " + "CoreTemp(");
-        text = text.concat(columns.get(0) + " " + "date UNIQUE, ");
+        text = text.concat(columns.get(0) + " " + "timestamp UNIQUE, ");
 
         int ch = columns.size();
 

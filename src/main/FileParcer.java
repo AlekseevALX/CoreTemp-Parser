@@ -5,9 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Month;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class FileParcer {
@@ -43,28 +41,26 @@ public class FileParcer {
 
             if (step == 3) {
                 spltStr = oneString.split(",");
+                spltStr = prepareString(spltStr);
                 dataOfFile.addString(i, spltStr);
                 i += 1;
             }
 
             if (step == 2) {
-
                 spltStrCol = oneString.split(",");
                 int a = 0;
                 for (String s : spltStrCol) {
-                    s = prepareString(s);
-                    if (!s.equals("")) {
-                        dataOfFile.addColumn(a, s);
-                        a += 1;
-                    }
+                    s = prepareColName(s);
+                    dataOfFile.addColumn(a, s);
+                    a += 1;
                 }
-                dataOfFile.setColumnCount(a);
-
+                prepareColumns(dataOfFile);
                 step = 3;
             }
 
             if (step == 1) {
                 spltStr = oneString.split(",");
+
                 if (spltStr[0].equals("CPUID:")) {
                     dataOfFile.setCPUID(spltStr[1]);
                 }
@@ -93,14 +89,89 @@ public class FileParcer {
                     step = 2;
                 }
             }
-
         }
 
         bufferedReader.close();
         return dataOfFile;
     }
 
-    public static String prepareString(String s) {
+    private static void prepareColumns(FileData fileData) {
+        int coreCount = 0;
+        String currentCol = "";
+        String currentCore = "";
+        HashMap<Integer, String> newCols = new HashMap<>();
+        HashMap<Integer, String> columns = fileData.getColumns();
+
+        for (int i = 0; i < columns.size(); i++) {
+            if (!columns.get(i).equals("")) {
+                coreCount += 1;
+            } else break;
+        }
+
+        int a = 0;
+
+        for (int i = 0; i < columns.size(); i++) {
+            currentCol = columns.get(i);
+
+/*Time,Core0Temp,Core1Temp,Core2Temp,Core3Temp,Core4Temp,Core5Temp,,
+Core0,Lowtemp,Hightemp,Coreload,CorespeedMHz,
+Core1,Lowtemp,Hightemp,Coreload,CorespeedMHz,
+Core2,Lowtemp,Hightemp,Coreload,CorespeedMHz,
+Core3,Lowtemp,Hightemp,Coreload,CorespeedMHz,
+Core4,Lowtemp,Hightemp,Coreload,CorespeedMHz,
+Core5,Lowtemp,Hightemp,Coreload,CorespeedMHz,
+CPU0Power
+ */
+            if (currentCol.equals("")) continue;
+
+            if (currentCol.equals("Time")) {
+
+                newCols.put(a, currentCol);
+                a += 1;
+            }
+
+            if ((currentCol.length() > 5) && Pattern.matches("[0-9]", currentCol.substring(4, 5)) && (currentCol.length() >= 8) && (currentCol.substring(5, 9).equals("Temp"))) {
+                newCols.put(a, currentCol);
+                a += 1;
+            }
+
+            if ((currentCol.length() == 5) && (currentCol.substring(0, 4).equals("Core")) && Pattern.matches("[0-9]", currentCol.substring(4, 5))) {
+                currentCore = currentCol;
+            }
+
+            if (currentCol.equals("Lowtemp")) {
+                newCols.put(a, currentCore + currentCol);
+                a += 1;
+            }
+
+            if (currentCol.equals("Hightemp")) {
+                newCols.put(a, currentCore + currentCol);
+                a += 1;
+            }
+
+            if (currentCol.equals("Coreload")) {
+                newCols.put(a, currentCore + currentCol.substring(4, 8));
+                a += 1;
+            }
+
+            if (currentCol.equals("CorespeedMHz")) {
+                newCols.put(a, currentCore + currentCol.substring(4, 12));
+                a += 1;
+            }
+
+            //CPU0Power
+            if (currentCol.substring(0, 3).equals("CPU") && (currentCol.length() >= 8) && currentCol.substring(4, 9).equals("Power")) {
+                newCols.put(a, currentCol);
+                a += 1;
+            }
+
+        }
+
+        fileData.setColumnCount(a);
+        fileData.setColumns(newCols);
+    }
+
+    public static String prepareColName(String s) {
         //        Pattern.matches("[a-z]||[A-Z]||[а-я]||[А-Я]||[ё,Ё]||[\\.\\,]", st)
         String res = "";
         String[] spltStr = s.split("");
@@ -112,6 +183,29 @@ public class FileParcer {
         }
 
         return res;
+    }
+
+    public static String[] prepareString(String[] spltStr) {
+        String[] res = new String[spltStr.length];
+        String str;
+
+        int a = 0;
+
+        for (int i = 0; i < spltStr.length; i++) {
+            str = spltStr[i];
+            if (str.equals("")) continue;
+
+            res[a] = str;
+            a += 1;
+        }
+
+        String[] strArray = new String[a];
+
+        for (int i = 0; i < a; i++) {
+            strArray[i] = res[i];
+        }
+
+        return strArray;
     }
 
     public static Date parseSessionStart(String sessionStart) {

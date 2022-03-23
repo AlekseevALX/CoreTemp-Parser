@@ -48,7 +48,11 @@ public class FileData {
     }
 
     public void addColumn(Integer num, String str) {
-        this.columns.put(num, str + num);
+        this.columns.put(num, str);
+    }
+
+    public void setColumns(HashMap<Integer, String> columns) {
+        this.columns = columns;
     }
 
     public void addString(Integer num, String[] str){

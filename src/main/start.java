@@ -2,15 +2,12 @@ package main;
 //start repository
 
 import java.io.*;
+import java.sql.*;
 import java.time.Month;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Locale;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.regex.Pattern;
 
 public class start {
@@ -25,19 +22,16 @@ public class start {
 
         DBWriter dbWriter = new DBWriter(fd);
 
-    }
+        dbWriter.writeToBase();
 
+//        try {
+//            deleteBase();
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
 
-
-
-    public static void writeToBase(FileData fd) {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (Exception e) {
-
-        } finally {
-
-        }
     }
 
     public static void testBase() {
@@ -70,5 +64,15 @@ public class start {
         } finally {
 
         }
+    }
+
+    public static void deleteBase() throws ClassNotFoundException, SQLException {
+        Class.forName("org.postgresql.Driver");
+        String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
+        String login = "postgres";
+        String password = "postgres";
+        Connection con = DriverManager.getConnection(url, login, password);
+        Statement stm = con.createStatement();
+        stm.execute("DROP TABLE IF EXISTS CoreTemp");
     }
 }
