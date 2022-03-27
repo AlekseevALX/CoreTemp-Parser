@@ -1,23 +1,29 @@
 package main;
 
-import java.io.*;
 import java.sql.*;
-import java.time.Month;
+import java.util.*;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Locale;
 
 public class DBWriter {
     private FileData fileData;
     private String tableName = "CoreTemp";
+
+    String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
+    String login = "postgres";
+    String password = "postgres";
+    Connection con = null;
+    ResultSet resSel;
 
     public DBWriter(FileData fileData) {
         this.fileData = fileData;
     }
 
     public void writeToBase() {
+
+        deleteAlreadyExistsRecords();
+
         HashMap<Integer, String> columns = fileData.getColumns();
+
         int strCount = fileData.getStrings().size();
 
         try {
@@ -25,11 +31,8 @@ public class DBWriter {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
-        String login = "postgres";
-        String password = "postgres";
 
-        Connection con = null;
+
 
         try {
             con = DriverManager.getConnection(url, login, password);
@@ -39,7 +42,7 @@ public class DBWriter {
 
         PreparedStatement stm = null;
 
-        String queryText = getQueryText(columns);
+        String queryText = getQueryTextInsert(columns);
 
         try {
             stm = con.prepareStatement(queryText);
@@ -60,6 +63,65 @@ public class DBWriter {
             }
         }
 
+        try {
+            con.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            stm.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteAlreadyExistsRecords() {
+        HashMap<Integer, String> columns = fileData.getColumns();
+        HashMap<Integer, String[]> strings = fileData.getStrings();
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            con = DriverManager.getConnection(url, login, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        PreparedStatement stm = null;
+
+        String queryText = getQueryTextExists(columns);
+
+        try {
+            stm = con.prepareStatement(queryText);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        setupParametersToSelect(stm, fileData);
+
+        try {
+            resSel = stm.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            while (resSel.next()) {
+
+                try {
+                    seekAndDestroy(resSel.getTimestamp(1), strings);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         try {
             con.close();
@@ -74,7 +136,7 @@ public class DBWriter {
         }
     }
 
-    private String getQueryText(HashMap<Integer, String> columns) {
+    private String getQueryTextInsert(HashMap<Integer, String> columns) {
         //        String sql = "INSERT INTO JC_CONTACT (FIRST_NAME, LAST_NAME, PHONE, EMAIL) VALUES (?, ?, ?,?)";
         String text = "";
         int columnCount = fileData.getColumnCount();
@@ -101,12 +163,28 @@ public class DBWriter {
         return text;
     }
 
+    private String getQueryTextExists(HashMap<Integer, String> columns) {
+        //SELECT TIME FROM CORETEMP WHERE TIME >= ? and TIME <= ?
+        String text = "";
+        String colName = columns.get(0);
+
+        text = text.concat("SELECT ");
+        text = text.concat(colName);
+        text = text.concat(" FROM " + tableName);
+        text = text.concat(" WHERE ");
+        text = text.concat(colName + " >= ?");
+        text = text.concat(" and ");
+        text = text.concat(colName + " <= ?");
+
+        return text;
+    }
+
     private void setupParameters(PreparedStatement stm, String[] oneString) {
 
         for (int i = 0; i < oneString.length; i++) {
             try {
                 if (i == 0) {
-                    java.sql.Timestamp dd = parseDate(oneString[i]);
+                    java.sql.Timestamp dd = parseDateToTimeStamp(oneString[i]);
                     stm.setTimestamp(i + 1, dd);
                 } else {
                     stm.setString(i + 1, oneString[i]);
@@ -119,7 +197,40 @@ public class DBWriter {
 
     }
 
-    private static java.sql.Timestamp parseDate(String dateString) {
+    private void setupParametersToSelect(PreparedStatement stm, FileData fileData) {
+//        java.sql.Timestamp dd = parseDate(oneString[i]);
+//        stm.setTimestamp(i + 1, dd);
+
+        java.sql.Timestamp d1 = parseDateToTimeStamp(fileData.getStrings().get(0)[0]);
+        java.sql.Timestamp d2 = parseDateToTimeStamp(fileData.getStrings().get(fileData.getStringcount() - 1)[0]);
+
+        try {
+            stm.setTimestamp(1, d1);
+            stm.setTimestamp(2, d2);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void seekAndDestroy(Timestamp timestamp, HashMap<Integer, String[]> strings) {
+        String dateStr;
+
+        Iterator<Map.Entry<Integer, String[]>> iterator = strings.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, String[]> pair = iterator.next();
+            String[] value = pair.getValue();
+            dateStr = value[0];
+            Timestamp ts = parseDateToTimeStamp(dateStr);
+
+            if (ts.getTime() == timestamp.getTime()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private static java.sql.Timestamp parseDateToTimeStamp(String dateString) {
         //16:07:11 03/06/22
         String[] spltDate = dateString.split(" ");
         String[] spltTime = spltDate[0].split(":");
@@ -129,8 +240,8 @@ public class DBWriter {
         Integer minute = Integer.parseInt(spltTime[1]);
         Integer second = Integer.parseInt(spltTime[2]);
 
-        Integer month = Integer.parseInt(spltDay[1]);
-        Integer date = Integer.parseInt(spltDay[0]);
+        Integer month = Integer.parseInt(spltDay[0]);
+        Integer date = Integer.parseInt(spltDay[1]);
         Integer year = 2000 + Integer.parseInt(spltDay[2]); //dobavlaem Vladivostok
 
         GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
@@ -138,6 +249,7 @@ public class DBWriter {
         Date res = calendar.getTime();
 
         java.sql.Timestamp sqlDate = new java.sql.Timestamp(res.getTime());
+        sqlDate.setNanos(0);
 
 //        int mo = Month.valueOf()
         return sqlDate;

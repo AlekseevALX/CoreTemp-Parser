@@ -13,7 +13,7 @@ public class FileParcer {
     public static FileData parceFile() throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 
-        String file = new String();
+        String file;
 
         file = bufferedReader.readLine();
 
@@ -40,6 +40,9 @@ public class FileParcer {
             if (oneString.equals("")) continue;
 
             if (step == 3) {
+                if (oneString.substring(0, 11).equals("Session end")) {
+                    continue;
+                }
                 spltStr = oneString.split(",");
                 spltStr = prepareString(spltStr);
                 dataOfFile.addString(i, spltStr);
@@ -92,6 +95,9 @@ public class FileParcer {
         }
 
         bufferedReader.close();
+
+        dataOfFile.setStringcount(i);
+
         return dataOfFile;
     }
 

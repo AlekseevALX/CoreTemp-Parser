@@ -12,6 +12,7 @@ public class FileData {
     private String lithography = "";
     private Date sessionStart;
     private int columnCount;
+    private int stringcount;
     private HashMap<Integer, String> columns = new HashMap<>();
     private HashMap<Integer, String[]> strings = new HashMap<>();
 
@@ -45,6 +46,14 @@ public class FileData {
 
     public void setColumnCount(int columnCount) {
         this.columnCount = columnCount;
+    }
+
+    public int getStringcount() {
+        return stringcount;
+    }
+
+    public void setStringcount(int stringcount) {
+        this.stringcount = stringcount;
     }
 
     public void addColumn(Integer num, String str) {
