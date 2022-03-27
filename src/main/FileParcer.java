@@ -10,12 +10,14 @@ import java.util.regex.Pattern;
 
 public class FileParcer {
 
-    public static FileData parceFile() throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+    public static FileData parceFile(String fileName) throws IOException {
+//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 
         String file;
 
-        file = bufferedReader.readLine();
+//        file = bufferedReader.readLine();
+
+        file = fileName;
 
         FileData fd = fileParsing(file);
 

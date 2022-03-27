@@ -10,29 +10,12 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-public class start {
-    public static void main(String[] args) throws IOException {
-        System.out.println("Hello! This is parcer for CoreTemp");
-
-        FileData fd = FileParcer.parceFile();
-
-        DBChecker dbChecker = new DBChecker(fd.getColumns());
-
-        dbChecker.checkDB();
-
-        DBWriter dbWriter = new DBWriter(fd);
-
-        dbWriter.writeToBase();
-
-//        try {
-//            deleteBase();
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-
+public class start implements Runnable {
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
+
+    public String fileName = "";
 
     public static void testBase() {
         try {
@@ -74,5 +57,29 @@ public class start {
         Connection con = DriverManager.getConnection(url, login, password);
         Statement stm = con.createStatement();
         stm.execute("DROP TABLE IF EXISTS CoreTemp");
+    }
+
+    @Override
+    public void run() {
+
+        System.out.println("Starting thread to read file " + fileName);
+
+        if (fileName.equals("")) return;
+
+        FileData fd = null;
+
+        try {
+            fd = FileParcer.parceFile(fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        DBChecker dbChecker = new DBChecker(fd.getColumns());
+
+        dbChecker.checkDB();
+
+        DBWriter dbWriter = new DBWriter(fd);
+
+        dbWriter.writeToBase();
     }
 }
