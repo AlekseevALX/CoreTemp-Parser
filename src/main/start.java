@@ -17,6 +17,7 @@ public class start implements Runnable {
 
     public String fileName = "";
 
+    //testing functions+
     public static void testBase() {
         try {
             Class.forName("org.postgresql.Driver");
@@ -58,6 +59,7 @@ public class start implements Runnable {
         Statement stm = con.createStatement();
         stm.execute("DROP TABLE IF EXISTS CoreTemp");
     }
+    //testing functions-
 
     @Override
     public void run() {
@@ -74,9 +76,14 @@ public class start implements Runnable {
             e.printStackTrace();
         }
 
-        DBChecker dbChecker = new DBChecker(fd.getColumns());
+        if (!MainClass.dbChecked) {
+            DBChecker dbChecker = new DBChecker(fd.getColumns());
 
-        dbChecker.checkDB();
+            dbChecker.checkDB();
+
+            MainClass.dbChecked = true;
+        }
+
 
         DBWriter dbWriter = new DBWriter(fd);
 
