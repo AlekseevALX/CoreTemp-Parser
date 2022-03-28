@@ -1,7 +1,8 @@
 package main;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.FilenameFilter;
+import java.util.*;
 
 public class MainClass {
 
@@ -9,26 +10,67 @@ public class MainClass {
 
     public static void main(String[] args) {
 
-        String[] files = new String[5];
+
+        Calendar cal = new GregorianCalendar();
+        System.out.println("Start: " + cal.getTime());
+        Date strt = cal.getTime();
+
+        ArrayList<Start> threads = new ArrayList<>();
+
         String fileName;
         String directory;
+        String ext;
 
-        directory = "C:\\1\\CoreTemp\\";
-        
+//        directory = "C:\\1\\CoreTemp";
+        directory = "E:\\Core Temp";
+        ext = "csv";
 
-        files[0] = "C:\\1\\CoreTemp\\CT-Log 2020-08-12 23-39-05.csv";
-        files[1] = "C:\\1\\CoreTemp\\CT-Log 2020-08-13 09-25-29.csv";
-        files[2] = "C:\\1\\CoreTemp\\CT-Log 2020-08-13 23-33-18.csv";
-        files[3] = "C:\\1\\CoreTemp\\CT-Log 2022-03-06 16-07-01.csv";
-        files[4] = "C:\\1\\CoreTemp\\CT-Log 2022-03-25 08-49-09.csv";
+        File file = new File(directory);
 
-        for (int i = 0; i < 5; i++) {
-            fileName = files[i];
-            start mainThread = new start();
-            mainThread.setFileName(fileName);
-            mainThread.run();
+        if (!file.exists()) {
+            System.out.println("Directory " + directory + " doesn't exist!");
+            return;
         }
 
+        File[] listFiles = file.listFiles(new FileFilter(ext));
+
+        if (listFiles.length == 0) {
+            System.out.println("Finded 0 files in directory " + directory);
+            return;
+        } else {
+            System.out.println("Finded " + listFiles.length + " files.");
+        }
+
+        for (File f : listFiles) {
+
+            threads.add(new Start(f.getPath()));
+
+//            new Start(f.getPath());
+
+        }
+
+        for (Start t : threads) {
+            t.run();
+        }
+
+        System.out.println("Start: " + strt);
+        cal = new GregorianCalendar();
+        System.out.println("Finish: " + cal.getTime());
+
+    }
+
+    public static class FileFilter implements FilenameFilter {
+
+        private String ext;
+
+        public FileFilter(String ext) {
+            this.ext = ext;
+        }
+
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith(ext);
+        }
     }
 
 }

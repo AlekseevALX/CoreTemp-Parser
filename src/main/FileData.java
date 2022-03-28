@@ -96,6 +96,10 @@ public class FileData {
         return columnCount;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
     public HashMap<Integer, String> getColumns() {
         return columns;
     }

@@ -3,19 +3,18 @@ package main;
 
 import java.io.*;
 import java.sql.*;
-import java.time.Month;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.regex.Pattern;
 
-public class start implements Runnable {
+public class Start implements Runnable {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
     public String fileName = "";
+
+    public Start(String fileName) {
+        this.fileName = fileName;
+        run();
+    }
 
     //testing functions+
     public static void testBase() {
@@ -76,6 +75,11 @@ public class start implements Runnable {
             e.printStackTrace();
         }
 
+        if (fd.getStringcount() == 0){
+            System.out.println("File " + fileName + " don't have any strings");
+            return;
+        }
+
         if (!MainClass.dbChecked) {
             DBChecker dbChecker = new DBChecker(fd.getColumns());
 
@@ -88,5 +92,7 @@ public class start implements Runnable {
         DBWriter dbWriter = new DBWriter(fd);
 
         dbWriter.writeToBase();
+
+        System.out.println("Finish thread to read file " + fileName);
     }
 }

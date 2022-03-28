@@ -20,19 +20,21 @@ public class DBWriter {
 
     public void writeToBase() {
 
-        deleteAlreadyExistsRecords();
+        try {
+            deleteAlreadyExistsRecords();
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+            System.out.println("Index out of bound in file " + fileData.getFileName());
+            return;
+        }
 
         HashMap<Integer, String> columns = fileData.getColumns();
-
-        int strCount = fileData.getStrings().size();
 
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
-
 
         try {
             con = DriverManager.getConnection(url, login, password);
@@ -53,9 +55,22 @@ public class DBWriter {
         HashMap<Integer, String[]> strings = fileData.getStrings();
         String[] oneString;
 
-        for (int i = 0; i < strCount; i++) {
-            oneString = strings.get(i);
+//        for (int i = 0; i < strCount; i++) {
+//            oneString = strings.get(i);
+//
+//            setupParameters(stm, oneString);
+//            try {
+//                stm.executeUpdate();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+        for (HashMap.Entry pair : strings.entrySet()) {
+            oneString = (String[]) pair.getValue();
+
             setupParameters(stm, oneString);
+
             try {
                 stm.executeUpdate();
             } catch (SQLException e) {
@@ -76,7 +91,7 @@ public class DBWriter {
         }
     }
 
-    public void deleteAlreadyExistsRecords() {
+    public void deleteAlreadyExistsRecords() throws ArrayIndexOutOfBoundsException {
         HashMap<Integer, String> columns = fileData.getColumns();
         HashMap<Integer, String[]> strings = fileData.getStrings();
 
@@ -184,7 +199,7 @@ public class DBWriter {
         for (int i = 0; i < oneString.length; i++) {
             try {
                 if (i == 0) {
-                    java.sql.Timestamp dd = parseDateToTimeStamp(oneString[i]);
+                    java.sql.Timestamp dd = parseDateToTimeStamp(oneString[i], this.fileData.getFileName());
                     stm.setTimestamp(i + 1, dd);
                 } else {
                     stm.setString(i + 1, oneString[i]);
@@ -197,12 +212,18 @@ public class DBWriter {
 
     }
 
-    private void setupParametersToSelect(PreparedStatement stm, FileData fileData) {
+    private void setupParametersToSelect(PreparedStatement stm, FileData fileData) throws ArrayIndexOutOfBoundsException {
 //        java.sql.Timestamp dd = parseDate(oneString[i]);
 //        stm.setTimestamp(i + 1, dd);
+        java.sql.Timestamp d1 = new java.sql.Timestamp(0);
 
-        java.sql.Timestamp d1 = parseDateToTimeStamp(fileData.getStrings().get(0)[0]);
-        java.sql.Timestamp d2 = parseDateToTimeStamp(fileData.getStrings().get(fileData.getStringcount() - 1)[0]);
+        try {
+            d1 = parseDateToTimeStamp(fileData.getStrings().get(0)[0], fileData.getFileName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        java.sql.Timestamp d2 = parseDateToTimeStamp(fileData.getStrings().get(fileData.getStringcount() - 1)[0], fileData.getFileName());
 
         try {
             stm.setTimestamp(1, d1);
@@ -222,19 +243,32 @@ public class DBWriter {
             Map.Entry<Integer, String[]> pair = iterator.next();
             String[] value = pair.getValue();
             dateStr = value[0];
-            Timestamp ts = parseDateToTimeStamp(dateStr);
+            Timestamp ts = parseDateToTimeStamp(dateStr, this.fileData.getFileName());
 
             if (ts.getTime() == timestamp.getTime()) {
                 iterator.remove();
             }
         }
+
+        this.fileData.setStringcount(strings.size());
     }
 
-    private static java.sql.Timestamp parseDateToTimeStamp(String dateString) {
+    private static java.sql.Timestamp parseDateToTimeStamp(String dateString, String filename) throws ArrayIndexOutOfBoundsException {
         //16:07:11 03/06/22
-        String[] spltDate = dateString.split(" ");
-        String[] spltTime = spltDate[0].split(":");
-        String[] spltDay = spltDate[1].split("/");
+        String[] spltDate = new String[2];
+        String[] spltTime = new String[3];
+        String[] spltDay = new String[3];
+
+        try {
+            spltDate = dateString.split(" ");
+            spltTime = spltDate[0].split(":");
+            spltDay = spltDate[1].split("/");
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+            System.out.println("Bad start session string in file " + filename); //ZAGLUSHKA
+            throw new ArrayIndexOutOfBoundsException();
+        }
+
 
         Integer hour = Integer.parseInt(spltTime[0]);
         Integer minute = Integer.parseInt(spltTime[1]);
