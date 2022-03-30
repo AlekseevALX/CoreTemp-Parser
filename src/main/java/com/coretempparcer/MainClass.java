@@ -1,4 +1,4 @@
-package main;
+package com.coretempparcer;
 
 import java.io.File;
 import java.io.FilenameFilter;

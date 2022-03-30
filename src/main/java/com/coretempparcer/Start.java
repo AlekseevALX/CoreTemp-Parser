@@ -1,4 +1,4 @@
-package main;
+package com.coretempparcer;
 //start repository
 
 import java.io.*;

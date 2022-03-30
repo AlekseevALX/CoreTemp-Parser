@@ -1,4 +1,4 @@
-package main;
+package com.coretempparcer;
 
 import java.sql.*;
 import java.util.*;
