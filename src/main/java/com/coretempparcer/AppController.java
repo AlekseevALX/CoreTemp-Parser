@@ -9,6 +9,10 @@ public class AppController {
 
     @FXML
     protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+        welcomeText.setText("Welcome to the jungle!!");
+        String[] args = new String[1];
+        args[0] = "C:\\Pet\\CoreTempTestData";
+        MainClass.main(args);
+        welcomeText.setText("Finish!");
     }
 }

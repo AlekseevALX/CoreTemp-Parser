@@ -11,7 +11,7 @@ public class MainClass {
 
     public static void main(String[] args) {
 
-
+        directory = args[0];
         Calendar cal = new GregorianCalendar();
         System.out.println("Start: " + cal.getTime());
         Date strt = cal.getTime();
