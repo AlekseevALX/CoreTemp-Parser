@@ -7,6 +7,7 @@ import java.util.*;
 public class MainClass {
 
     public static boolean dbChecked = false;
+    public static String directory = "";
 
     public static void main(String[] args) {
 
@@ -18,11 +19,14 @@ public class MainClass {
         ArrayList<Start> threads = new ArrayList<>();
 
         String fileName;
-        String directory;
+//        String directory;
         String ext;
 
 //        directory = "C:\\1\\CoreTemp";
-        directory = "E:\\Core Temp";
+        if (directory.equals("")) {
+            directory = "E:\\Core Temp";
+        }
+
         ext = "csv";
 
         File file = new File(directory);
