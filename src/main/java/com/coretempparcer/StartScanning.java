@@ -4,16 +4,16 @@ package com.coretempparcer;
 import java.io.*;
 import java.sql.*;
 
-public class Start implements Runnable {
+public class StartScanning extends Thread {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
-    public String fileName = "";
+    private String fileName = "";
 
-    public Start(String fileName) {
+    public StartScanning(String fileName, String threadName) {
+        super(threadName);
         this.fileName = fileName;
-        run();
     }
 
     //testing functions+
@@ -63,7 +63,7 @@ public class Start implements Runnable {
     @Override
     public void run() {
 
-        System.out.println("Starting thread to read file " + fileName);
+        System.out.println("Starting thread to read file " + fileName + ":" + " " + Thread.currentThread().getName());
 
         if (fileName.equals("")) return;
 
@@ -75,24 +75,26 @@ public class Start implements Runnable {
             e.printStackTrace();
         }
 
-        if (fd.getStringcount() == 0){
+        if (fd.getStringcount() == 0) {
             System.out.println("File " + fileName + " don't have any strings");
             return;
         }
+        synchronized (StartScanning.class) {
+            if (!MainClass.dbChecked) {
+                DBChecker dbChecker = new DBChecker(fd.getColumns());
 
-        if (!MainClass.dbChecked) {
-            DBChecker dbChecker = new DBChecker(fd.getColumns());
+                dbChecker.checkDB();
 
-            dbChecker.checkDB();
-
-            MainClass.dbChecked = true;
+                MainClass.dbChecked = true;
+            }
         }
-
 
         DBWriter dbWriter = new DBWriter(fd);
 
         dbWriter.writeToBase();
 
-        System.out.println("Finish thread to read file " + fileName);
+        System.out.println("Finish thread to read file " + fileName + ":" + " " + Thread.currentThread().getName());
+
+        MainClass.currentWorkingThread -= 1;
     }
 }

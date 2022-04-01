@@ -72,6 +72,17 @@ public class DBChecker {
             e.printStackTrace();
         }
 
+        try {
+            stm.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            con.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Db checked in thread " + Thread.currentThread().getName());
 
     }
