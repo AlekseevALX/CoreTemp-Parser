@@ -1,8 +1,13 @@
 package com.coretempparcer;
 
+
+
+import org.postgresql.jdbc.PgResultSet;
+
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
+
 
 public class DBWriter {
     private FileData fileData;
@@ -18,137 +23,67 @@ public class DBWriter {
         this.fileData = fileData;
     }
 
-    public void writeToBase() {
+    public void writeToBase() throws ClassNotFoundException, SQLException {
 
-        try {
-            deleteAlreadyExistsRecords();
-        }
-        catch (ArrayIndexOutOfBoundsException e){
-            System.out.println("Index out of bound in file " + fileData.getFileName());
-            return;
-        }
+        deleteAlreadyExistsRecords();
 
         HashMap<Integer, String> columns = fileData.getColumns();
 
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        Class.forName("org.postgresql.Driver");
 
-        try {
-            con = DriverManager.getConnection(url, login, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        con = DriverManager.getConnection(url, login, password);
 
         PreparedStatement stm = null;
 
         String queryText = getQueryTextInsert(columns);
 
-        try {
-            stm = con.prepareStatement(queryText);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        stm = con.prepareStatement(queryText);
 
         HashMap<Integer, String[]> strings = fileData.getStrings();
         String[] oneString;
 
-//        for (int i = 0; i < strCount; i++) {
-//            oneString = strings.get(i);
-//
-//            setupParameters(stm, oneString);
-//            try {
-//                stm.executeUpdate();
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
         for (HashMap.Entry pair : strings.entrySet()) {
             oneString = (String[]) pair.getValue();
-
             setupParameters(stm, oneString);
-
-            try {
-                stm.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            stm.executeUpdate();
         }
 
-        try {
-            con.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            stm.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        con.close();
+        stm.close();
     }
 
-    public void deleteAlreadyExistsRecords() throws ArrayIndexOutOfBoundsException {
+    public void deleteAlreadyExistsRecords() throws ArrayIndexOutOfBoundsException, SQLException, ClassNotFoundException {
         HashMap<Integer, String> columns = fileData.getColumns();
         HashMap<Integer, String[]> strings = fileData.getStrings();
 
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        Class.forName("org.postgresql.Driver");
 
-        try {
-            con = DriverManager.getConnection(url, login, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        con = DriverManager.getConnection(url, login, password);
 
         PreparedStatement stm = null;
 
         String queryText = getQueryTextExists(columns);
 
-        try {
-            stm = con.prepareStatement(queryText);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        stm = con.prepareStatement(queryText);
 
         setupParametersToSelect(stm, fileData);
 
-        try {
-            resSel = stm.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        resSel = stm.executeQuery();
 
-        try {
-            while (resSel.next()) {
-
-                try {
-                    seekAndDestroy(resSel.getTimestamp(1), strings);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        try {
+        if (((PgResultSet) resSel).getLastUsedFetchSize() == strings.size()) {
+            fileData.setStrings(new HashMap<>());
+            fileData.setStringcount(0);
             con.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            stm.close();
+            return;
         }
 
-        try {
-            stm.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (resSel.next()) {
+            seekAndDestroy(resSel.getTimestamp(1), strings);
         }
+
+        con.close();
+        stm.close();
     }
 
     private String getQueryTextInsert(HashMap<Integer, String> columns) {
@@ -259,13 +194,15 @@ public class DBWriter {
         String[] spltTime = new String[3];
         String[] spltDay = new String[3];
 
+        spltDate = dateString.split(" ");
+
         try {
-            spltDate = dateString.split(" ");
             spltTime = spltDate[0].split(":");
             spltDay = spltDate[1].split("/");
         }
         catch (ArrayIndexOutOfBoundsException e){
-            System.out.println("Bad start session string in file " + filename); //ZAGLUSHKA
+            System.out.println("Bad data in file " + filename); //ZAGLUSHKA
+            System.out.println("Original string is " + dateString); //ZAGLUSHKA
             throw new ArrayIndexOutOfBoundsException();
         }
 

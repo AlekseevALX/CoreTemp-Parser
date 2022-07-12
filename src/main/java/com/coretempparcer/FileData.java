@@ -16,6 +16,10 @@ public class FileData {
     private HashMap<Integer, String> columns = new HashMap<>();
     private HashMap<Integer, String[]> strings = new HashMap<>();
 
+    public void setStrings(HashMap<Integer, String[]> strings) {
+        this.strings = strings;
+    }
+
     public FileData(String nameFile){
         this.fileName = nameFile;
     }

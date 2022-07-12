@@ -91,7 +91,15 @@ public class StartScanning extends Thread {
 
         DBWriter dbWriter = new DBWriter(fd);
 
-        dbWriter.writeToBase();
+        synchronized (StartScanning.class) {
+            try {
+                dbWriter.writeToBase();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
 
         System.out.println("Finish thread to read file " + fileName + ":" + " " + Thread.currentThread().getName());
 

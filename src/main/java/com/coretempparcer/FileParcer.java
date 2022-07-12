@@ -43,6 +43,9 @@ public class FileParcer {
                     continue;
                 }
                 spltStr = oneString.split(",");
+                if (spltStr.length < 2){
+                    continue;
+                }
                 spltStr = prepareString(spltStr);
                 dataOfFile.addString(i, spltStr);
                 i += 1;
