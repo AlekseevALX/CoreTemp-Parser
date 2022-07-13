@@ -40,7 +40,7 @@ public class MainClass {
             return;
         }
 
-        new justDoIt(args).start();
+        new justDoIt(args).run();
 
     }
 
@@ -60,7 +60,7 @@ public class MainClass {
 
 }
 
-class justDoIt extends Thread {
+class justDoIt {
 
     public static Date lastDate = new Date(); //last date, which has been written in database
     public static HashMap<Date, String> mapFiles = new HashMap<>();
@@ -74,8 +74,6 @@ class justDoIt extends Thread {
     }
 
 
-
-    @Override
     public void run() {
 
         if (args.length != 0) {
