@@ -1,22 +1,49 @@
 package com.coretempparcer;
 
+import javafx.application.Platform;
+
 import java.io.File;
 import java.io.FilenameFilter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.*;
 
 public class MainClass {
 
     public static volatile boolean dbChecked = false;
     public static volatile int currentWorkingThread = 0;
+    public static volatile int countOfThreads = 0;
+    public static volatile boolean done = false;
+
+    public static String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
+    public static String login = "postgres";
+    public static String password = "postgres";
+    public static Connection con = null;
 
 
     public static void main(String[] args) {
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Don't find class org.postgresql.Driver!");
+            e.printStackTrace();
+            return;
+        }
+
+        try {
+            con = DriverManager.getConnection(url, login, password);
+        } catch (SQLException e) {
+            System.out.println("Don't have connection to database!");
+            e.printStackTrace();
+            return;
+        }
 
         new justDoIt(args).start();
 
     }
 
-    
     public static class FileFilter implements FilenameFilter {
 
         private String ext;
@@ -35,6 +62,9 @@ public class MainClass {
 
 class justDoIt extends Thread {
 
+    public static Date lastDate = new Date(); //last date, which has been written in database
+    public static HashMap<Date, String> mapFiles = new HashMap<>();
+
     String[] args;
     public static String directory = "";
 
@@ -42,6 +72,8 @@ class justDoIt extends Thread {
     public justDoIt(String[] args) {
         this.args = args;
     }
+
+
 
     @Override
     public void run() {
@@ -84,8 +116,12 @@ class justDoIt extends Thread {
 
         for (File f : listFiles) {
 
+//            Date dateFile = parseFileNameToDate(f.getPath());
+//            mapFiles.put(dateFile, f.getPath());
+
             threads.add(new StartScanning(f.getPath(), "thread " + a));
             a += 1;
+            MainClass.countOfThreads += 1;
 
         }
 
@@ -98,8 +134,23 @@ class justDoIt extends Thread {
 
         }
 
-        System.out.println("Start: " + strt);
-        cal = new GregorianCalendar();
-        System.out.println("Finish: " + cal.getTime());
+    }
+
+    public static Date parseFileNameToDate(String s){
+        String[] spltStr = s.split("CT-Log");
+        spltStr[1] = spltStr[1].substring(1, spltStr[1].length());
+        Integer hour = Integer.parseInt(spltStr[1].substring(11,13));
+        Integer minute = Integer.parseInt(spltStr[1].substring(14,16));
+        Integer second = Integer.parseInt(spltStr[1].substring(17,19));
+
+        Integer month = Integer.parseInt(spltStr[1].substring(5,7));
+        Integer date = Integer.parseInt(spltStr[1].substring(8,10));
+        Integer year = Integer.parseInt(spltStr[1].substring(0,4));
+
+        GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
+        calendar.set(year, month - 1, date, hour, minute, second);
+        Date res = calendar.getTime();
+
+        return res;
     }
 }

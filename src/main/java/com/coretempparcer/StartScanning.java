@@ -63,9 +63,10 @@ public class StartScanning extends Thread {
     @Override
     public void run() {
 
-        System.out.println("Starting thread to read file " + fileName + ":" + " " + Thread.currentThread().getName());
-
-        if (fileName.equals("")) return;
+        if (fileName.equals("")){
+            endOfthread();
+            return;
+        }
 
         FileData fd = null;
 
@@ -76,7 +77,8 @@ public class StartScanning extends Thread {
         }
 
         if (fd.getStringcount() == 0) {
-            System.out.println("File " + fileName + " don't have any strings");
+//            System.out.println("File " + fileName + " don't have any strings");
+            endOfthread();
             return;
         }
         synchronized (StartScanning.class) {
@@ -101,8 +103,17 @@ public class StartScanning extends Thread {
             }
         }
 
-        System.out.println("Finish thread to read file " + fileName + ":" + " " + Thread.currentThread().getName());
+        endOfthread();
 
-        MainClass.currentWorkingThread -= 1;
+    }
+
+    void endOfthread(){
+        synchronized (StartScanning.class){
+            MainClass.currentWorkingThread -= 1;
+            MainClass.countOfThreads -= 1;
+            if (MainClass.countOfThreads == 0){
+                MainClass.done = true;
+            }
+        }
     }
 }

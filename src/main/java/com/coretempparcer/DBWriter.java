@@ -13,10 +13,10 @@ public class DBWriter {
     private FileData fileData;
     private String tableName = "CoreTemp";
 
-    String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
-    String login = "postgres";
-    String password = "postgres";
-    Connection con = null;
+//    String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
+//    String login = "postgres";
+//    String password = "postgres";
+//    Connection con = null;
     ResultSet resSel;
 
     public DBWriter(FileData fileData) {
@@ -31,13 +31,13 @@ public class DBWriter {
 
         Class.forName("org.postgresql.Driver");
 
-        con = DriverManager.getConnection(url, login, password);
+//        con = DriverManager.getConnection(url, login, password);
 
         PreparedStatement stm = null;
 
         String queryText = getQueryTextInsert(columns);
 
-        stm = con.prepareStatement(queryText);
+        stm = MainClass.con.prepareStatement(queryText);
 
         HashMap<Integer, String[]> strings = fileData.getStrings();
         String[] oneString;
@@ -48,7 +48,7 @@ public class DBWriter {
             stm.executeUpdate();
         }
 
-        con.close();
+//        con.close();
         stm.close();
     }
 
@@ -56,15 +56,15 @@ public class DBWriter {
         HashMap<Integer, String> columns = fileData.getColumns();
         HashMap<Integer, String[]> strings = fileData.getStrings();
 
-        Class.forName("org.postgresql.Driver");
+//        Class.forName("org.postgresql.Driver");
 
-        con = DriverManager.getConnection(url, login, password);
+//        MainClass.con = DriverManager.getConnection(url, login, password);
 
         PreparedStatement stm = null;
 
         String queryText = getQueryTextExists(columns);
 
-        stm = con.prepareStatement(queryText);
+        stm = MainClass.con.prepareStatement(queryText);
 
         setupParametersToSelect(stm, fileData);
 
@@ -73,7 +73,7 @@ public class DBWriter {
         if (((PgResultSet) resSel).getLastUsedFetchSize() == strings.size()) {
             fileData.setStrings(new HashMap<>());
             fileData.setStringcount(0);
-            con.close();
+//            con.close();
             stm.close();
             return;
         }
@@ -82,7 +82,7 @@ public class DBWriter {
             seekAndDestroy(resSel.getTimestamp(1), strings);
         }
 
-        con.close();
+//        con.close();
         stm.close();
     }
 
