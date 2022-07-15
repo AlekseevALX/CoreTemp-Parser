@@ -13,10 +13,6 @@ public class DBWriter {
     private FileData fileData;
     private String tableName = "CoreTemp";
 
-//    String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
-//    String login = "postgres";
-//    String password = "postgres";
-//    Connection con = null;
     ResultSet resSel;
 
     public DBWriter(FileData fileData) {
@@ -30,8 +26,6 @@ public class DBWriter {
         HashMap<Integer, String> columns = fileData.getColumns();
 
         Class.forName("org.postgresql.Driver");
-
-//        con = DriverManager.getConnection(url, login, password);
 
         PreparedStatement stm = null;
 
@@ -52,15 +46,11 @@ public class DBWriter {
         stm.close();
     }
 
-    public void deleteAlreadyExistsRecords() throws ArrayIndexOutOfBoundsException, SQLException, ClassNotFoundException {
+    public void deleteAlreadyExistsRecords() throws ArrayIndexOutOfBoundsException, SQLException {
         HashMap<Integer, String> columns = fileData.getColumns();
         HashMap<Integer, String[]> strings = fileData.getStrings();
 
-//        Class.forName("org.postgresql.Driver");
-
-//        MainClass.con = DriverManager.getConnection(url, login, password);
-
-        PreparedStatement stm = null;
+        PreparedStatement stm;
 
         String queryText = getQueryTextExists(columns);
 

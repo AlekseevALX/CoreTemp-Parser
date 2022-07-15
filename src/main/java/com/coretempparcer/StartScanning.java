@@ -1,6 +1,10 @@
 package com.coretempparcer;
 //start repository
 
+import javafx.scene.control.Label;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.sql.*;
 
@@ -113,6 +117,7 @@ public class StartScanning extends Thread {
             MainClass.countOfThreads -= 1;
             if (MainClass.countOfThreads == 0){
                 MainClass.done = true;
+                System.out.println("Done");
             }
         }
     }

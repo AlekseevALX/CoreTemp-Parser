@@ -3,6 +3,7 @@ module com.coretempparcer {
     requires javafx.fxml;
     requires java.sql;
     requires org.postgresql.jdbc;
+    requires java.desktop;
 
 
     opens com.coretempparcer to javafx.fxml;

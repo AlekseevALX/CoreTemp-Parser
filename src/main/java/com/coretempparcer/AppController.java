@@ -1,9 +1,12 @@
 package com.coretempparcer;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.util.Duration;
 
 public class AppController {
     @FXML
@@ -13,26 +16,34 @@ public class AppController {
     @FXML
     LineChart graphicView;
 
+    Timeline tl;
+
     @FXML
-    protected void onHelloButtonClick() {
+    protected void onStartButtonClick() {
         welcomeText.setText("Welcome to the jungle!!");
         String[] args = new String[1];
         args[0] = filepath.getText();
-        MainClass.main(args);
-        waitTillTheEnd();
+
+        MainClass mainObject = new MainClass();
+
+        MainClass.done = false;
+
+        mainObject.main(args);
+
+        KeyFrame kf = new KeyFrame(Duration.millis(100), actionEvent -> waitTillTheEnd());
+        tl = new Timeline(kf);
+        tl.setCycleCount(5000);
+        tl.play();
+
     }
 
-    protected void waitTillTheEnd(){
-        synchronized (AppController.class){
-            while (true){
-                if (MainClass.done){
-
-                    welcomeText.setText("Done");
-                    break;
-                }
-            }
+   private void waitTillTheEnd(){
+        if (MainClass.done){
+            welcomeText.setText("Done");
+//            System.out.println("I don't wanted to die!!!");
+            tl.stop();
         }
+   }
 
-    }
 
 }

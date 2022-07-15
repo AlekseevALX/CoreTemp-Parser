@@ -1,7 +1,5 @@
 package com.coretempparcer;
 
-import javafx.application.Platform;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.sql.Connection;
@@ -22,13 +20,14 @@ public class MainClass {
     public static Connection con = null;
 
 
-    public static void main(String[] args) {
+    public void main(String[] args) {
 
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             System.out.println("Don't find class org.postgresql.Driver!");
             e.printStackTrace();
+            MainClass.done = true;
             return;
         }
 
@@ -37,10 +36,11 @@ public class MainClass {
         } catch (SQLException e) {
             System.out.println("Don't have connection to database!");
             e.printStackTrace();
+            MainClass.done = true;
             return;
         }
 
-        new justDoIt(args).run();
+        new justDoIt(args).start();
 
     }
 
@@ -60,7 +60,7 @@ public class MainClass {
 
 }
 
-class justDoIt {
+class justDoIt extends Thread {
 
     public static Date lastDate = new Date(); //last date, which has been written in database
     public static HashMap<Date, String> mapFiles = new HashMap<>();
@@ -72,7 +72,6 @@ class justDoIt {
     public justDoIt(String[] args) {
         this.args = args;
     }
-
 
     public void run() {
 
@@ -98,6 +97,7 @@ class justDoIt {
 
         if (!file.exists()) {
             System.out.println("Directory " + directory + " doesn't exist!");
+            MainClass.done = true;
             return;
         }
 
@@ -105,6 +105,7 @@ class justDoIt {
 
         if (listFiles.length == 0) {
             System.out.println("Finded 0 files in directory " + directory);
+            MainClass.done = true;
             return;
         } else {
             System.out.println("Finded " + listFiles.length + " files.");
@@ -117,7 +118,9 @@ class justDoIt {
 //            Date dateFile = parseFileNameToDate(f.getPath());
 //            mapFiles.put(dateFile, f.getPath());
 
-            threads.add(new StartScanning(f.getPath(), "thread " + a));
+            StartScanning strtSc = new StartScanning(f.getPath(), "Parcer " + a);
+
+            threads.add(strtSc);
             a += 1;
             MainClass.countOfThreads += 1;
 

@@ -11,8 +11,8 @@
     </padding>
 
     <Label fx:id="welcomeText" />
-    <TextField fx:id="filepath" text="Enter path here" />
-    <Button onAction="#onHelloButtonClick" text="Hello!" />
+    <TextField fx:id="filepath" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="361.0" text="Enter path here" />
+    <Button onAction="#onStartButtonClick" text="to parce" />
    <LineChart id="graphicView" title="Temp changes">
      <xAxis>
        <CategoryAxis side="BOTTOM" />
