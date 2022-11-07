@@ -72,6 +72,8 @@ public class StartScanning extends Thread {
             return;
         }
 
+        MainClass.writeToLog("Start parcing " + fileName);
+
         FileData fd = null;
 
         try {
@@ -117,7 +119,6 @@ public class StartScanning extends Thread {
             MainClass.countOfThreads -= 1;
             if (MainClass.countOfThreads == 0){
                 MainClass.done = true;
-                System.out.println("Done");
             }
         }
     }

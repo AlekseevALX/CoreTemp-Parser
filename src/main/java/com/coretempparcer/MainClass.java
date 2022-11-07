@@ -2,10 +2,9 @@ package com.coretempparcer;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 public class MainClass {
 
@@ -13,6 +12,7 @@ public class MainClass {
     public static volatile int currentWorkingThread = 0;
     public static volatile int countOfThreads = 0;
     public static volatile boolean done = false;
+    public static volatile String log = "";
 
     public static String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
     public static String login = "postgres";
@@ -22,26 +22,55 @@ public class MainClass {
 
     public void main(String[] args) {
 
+        if (connectionToBase()) new justDoIt(args).start();
+
+    }
+
+    public static void deleteBase(){
+        if (connectionToBase()) deleteDB();
+    }
+
+    public static void deleteDB(){
+        Statement stm = null;
+        try {
+            stm = con.createStatement();
+        } catch (SQLException e) {
+            MainClass.writeToLog(String.valueOf(e.getStackTrace()));
+            return;
+        }
+        try {
+            stm.execute("DROP TABLE IF EXISTS CoreTemp");
+        } catch (SQLException e) {
+            MainClass.writeToLog(String.valueOf(e.getStackTrace()));
+            return;
+        }
+        MainClass.writeToLog("Base CoreTemp is deleted!");
+    }
+
+    public static void writeToLog(String log){
+        MainClass.log = MainClass.log.concat(log).concat(System.lineSeparator());
+    }
+
+
+    public static boolean connectionToBase(){
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            System.out.println("Don't find class org.postgresql.Driver!");
-            e.printStackTrace();
+            writeToLog("Don't find class org.postgresql.Driver!");
+            writeToLog(String.valueOf(e.getStackTrace()));
             MainClass.done = true;
-            return;
+            return false;
         }
 
         try {
             con = DriverManager.getConnection(url, login, password);
         } catch (SQLException e) {
-            System.out.println("Don't have connection to database!");
-            e.printStackTrace();
+            writeToLog("Don't have connection to database!");
+            writeToLog(String.valueOf(e.getStackTrace()));
             MainClass.done = true;
-            return;
+            return false;
         }
-
-        new justDoIt(args).start();
-
+        return true;
     }
 
     public static class FileFilter implements FilenameFilter {
@@ -80,8 +109,13 @@ class justDoIt extends Thread {
         }
 
         Calendar cal = new GregorianCalendar();
-        System.out.println("Start: " + cal.getTime());
-        Date strt = cal.getTime();
+        MainClass.writeToLog("Start: " + cal.getTime());
+        long lastTimeInBase = 0;
+        long timeOfStartingFile = Long.MAX_VALUE;
+        Date currentDateOfStartingFile = new Date();
+        int a = 0;
+        mapFiles.clear();
+        boolean dbDefined = false;
 
         ArrayList<Thread> threads = new ArrayList<>();
 
@@ -96,7 +130,7 @@ class justDoIt extends Thread {
         File file = new File(directory);
 
         if (!file.exists()) {
-            System.out.println("Directory " + directory + " doesn't exist!");
+            MainClass.writeToLog("Directory " + directory + " doesn't exist!");
             MainClass.done = true;
             return;
         }
@@ -104,26 +138,48 @@ class justDoIt extends Thread {
         File[] listFiles = file.listFiles(new MainClass.FileFilter(ext));
 
         if (listFiles.length == 0) {
-            System.out.println("Finded 0 files in directory " + directory);
+            MainClass.writeToLog("Finded 0 files in directory " + directory);
             MainClass.done = true;
             return;
         } else {
-            System.out.println("Finded " + listFiles.length + " files.");
+            MainClass.writeToLog("Finded " + listFiles.length + " files.");
         }
 
-        int a = 0;
+        dbDefined = DBChecker.dbIsDefined();
+
+        if (dbDefined){
+            findLastDateInBase();
+            MainClass.writeToLog("Last record in the database is " + lastDate);
+            lastTimeInBase = lastDate.getTime();
+        }
 
         for (File f : listFiles) {
+            Date dateFile = parseFileNameToDate(f.getPath());
+            mapFiles.put(dateFile, f.getPath());
+            if (dbDefined && (lastTimeInBase - dateFile.getTime() >= 0) && (lastTimeInBase - dateFile.getTime() < timeOfStartingFile)) {
+                timeOfStartingFile = lastTimeInBase - dateFile.getTime();
+                currentDateOfStartingFile = dateFile;
+            }
+        }
 
-//            Date dateFile = parseFileNameToDate(f.getPath());
-//            mapFiles.put(dateFile, f.getPath());
+        if (dbDefined) {
+            Iterator iterator = mapFiles.entrySet().iterator();
 
-            StartScanning strtSc = new StartScanning(f.getPath(), "Parcer " + a);
+            while (iterator.hasNext()) {
+                Map.Entry<Date, String> entry = (Map.Entry<Date, String>) iterator.next();
+                if (entry.getKey().getTime() < currentDateOfStartingFile.getTime()) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
+
+            StartScanning strtSc = new StartScanning(entry.getValue(), "Parcer " + a);
 
             threads.add(strtSc);
             a += 1;
             MainClass.countOfThreads += 1;
-
         }
 
         for (Thread t : threads) {
@@ -133,6 +189,10 @@ class justDoIt extends Thread {
             t.start();
             MainClass.currentWorkingThread += 1;
 
+        }
+
+        if (MainClass.countOfThreads == 0){
+            MainClass.done = true;
         }
 
     }
@@ -153,5 +213,47 @@ class justDoIt extends Thread {
         Date res = calendar.getTime();
 
         return res;
+    }
+
+    public static void findLastDateInBase() {
+        Date res = new Date();
+        Statement stm;
+        ResultSet resultSet = null;
+
+        try {
+            stm = MainClass.con.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        String queryText = getQueryText_FindLastDate();
+
+        try {
+            resultSet = stm.executeQuery(queryText);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            while (resultSet.next()){
+                lastDate = resultSet.getTimestamp(1);
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        try {
+            stm.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getQueryText_FindLastDate(){
+        String text = "SELECT time FROM CORETEMP " +
+                "ORDER BY time DESC LIMIT 1";
+        return text;
     }
 }

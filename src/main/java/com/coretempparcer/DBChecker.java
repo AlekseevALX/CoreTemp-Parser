@@ -1,9 +1,6 @@
 package com.coretempparcer;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
 
 public class DBChecker {
@@ -35,30 +32,11 @@ public class DBChecker {
     }
 
     public void checkDB() {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
-        String login = "postgres";
-        String password = "postgres";
-
-        Connection con = null;
-
-        try {
-            con = DriverManager.getConnection(url, login, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        }
 
         Statement stm;
 
         try {
-            stm = con.createStatement();
+            stm = MainClass.con.createStatement();
         } catch (SQLException e) {
             e.printStackTrace();
             return;
@@ -77,14 +55,37 @@ public class DBChecker {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        try {
-            con.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
-        System.out.println("Db checked in thread " + Thread.currentThread().getName());
+        MainClass.writeToLog("Db checked in thread " + Thread.currentThread().getName());
 
     }
 
+    public static boolean dbIsDefined(){
+        Statement stm;
+        ResultSet resultSet;
+
+        String queryText = getIsDefinedText();
+
+        try {
+            stm = MainClass.con.createStatement();
+            resultSet = stm.executeQuery(queryText);
+            resultSet.next();
+            Timestamp d = resultSet.getTimestamp(1);
+            MainClass.writeToLog("checking db is defined: positive");
+            MainClass.writeToLog("searching actual files to parsing");
+            return true;
+        } catch (SQLException e) {
+            MainClass.writeToLog("checking db is defined: negative"); //Must rewrite this method of checking later
+            MainClass.writeToLog("All files will be parsed");
+            return false;
+        }
+
+    }
+
+    public static String getIsDefinedText() {
+        String text = "SELECT time FROM CORETEMP " +
+                "ORDER BY time DESC LIMIT 1";
+
+        return text;
+    }
 }

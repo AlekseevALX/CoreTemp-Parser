@@ -25,9 +25,9 @@ public class DBWriter {
 
         HashMap<Integer, String> columns = fileData.getColumns();
 
-        Class.forName("org.postgresql.Driver");
+//        Class.forName("org.postgresql.Driver");
 
-        PreparedStatement stm = null;
+        PreparedStatement stm;
 
         String queryText = getQueryTextInsert(columns);
 
@@ -42,7 +42,6 @@ public class DBWriter {
             stm.executeUpdate();
         }
 
-//        con.close();
         stm.close();
     }
 
@@ -191,8 +190,8 @@ public class DBWriter {
             spltDay = spltDate[1].split("/");
         }
         catch (ArrayIndexOutOfBoundsException e){
-            System.out.println("Bad data in file " + filename); //ZAGLUSHKA
-            System.out.println("Original string is " + dateString); //ZAGLUSHKA
+            MainClass.writeToLog("Bad data in file " + filename);
+            MainClass.writeToLog("Original string is " + dateString);
             throw new ArrayIndexOutOfBoundsException();
         }
 

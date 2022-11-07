@@ -11,7 +11,7 @@ public class ParcerApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ParcerApplication.class.getResource("view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 500, 400);
+        Scene scene = new Scene(fxmlLoader.load(), 900, 600);
         stage.setTitle("CoreTemp Parcer!");
         stage.setScene(scene);
         stage.show();
