@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Timestamp;
 import java.time.Month;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -30,6 +31,7 @@ public class FileParcer {
         String[] spltStrCol;
         int step = 1; //step 1 - read title, 2 - read names of column, 3 - read strings
         String[] spltStr;
+        String[] addingStr;
         int i = 0;
 
         while (bufferedReader.ready()) {
@@ -47,7 +49,8 @@ public class FileParcer {
                     continue;
                 }
                 spltStr = prepareString(spltStr);
-                dataOfFile.addString(i, spltStr);
+                addingStr = deleteExcessColumnsFromString(dataOfFile, spltStr);
+                dataOfFile.addString(i, addingStr);
                 i += 1;
             }
 
@@ -56,8 +59,7 @@ public class FileParcer {
                 int a = 0;
                 for (String s : spltStrCol) {
                     s = prepareColName(s);
-                    dataOfFile.addColumn(a, s);
-                    a += 1;
+                    if (dataOfFile.addColumn(a, s)) a += 1;
                 }
                 prepareColumns(dataOfFile);
                 step = 3;
@@ -100,7 +102,45 @@ public class FileParcer {
 
         dataOfFile.setStringcount(i);
 
+        deleteExcessColumnsFromFileData(dataOfFile);
+
         return dataOfFile;
+    }
+
+    private static void deleteExcessColumnsFromFileData(FileData dataOfFile) {
+        HashMap<Integer, String> columns = dataOfFile.getColumns();
+
+        Iterator<Map.Entry<Integer, String>> iterator = columns.entrySet().iterator();
+
+        HashMap<Integer, String> newCol = new HashMap<>();
+
+        int ch = 0;
+
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, String> pair = iterator.next();
+            String value = pair.getValue();
+            if (MainClass.validateColumn(value)) {
+                newCol.put(ch, value);
+                ch += 1;
+            }
+        }
+
+        dataOfFile.setColumns(newCol);
+        dataOfFile.setColumnCount(newCol.size());
+    }
+
+    private static String[] deleteExcessColumnsFromString(FileData fd, String[] spltStr) {
+        ArrayList<String> result = new ArrayList<>();
+        HashMap<Integer, String> columns = fd.getColumns();
+
+        for (int i = 0; i < fd.getColumnCount(); i++) {
+            if (MainClass.validateColumn(columns.get(i))) {
+                result.add(spltStr[i]);
+            }
+        }
+
+        spltStr = result.toArray(new String[0]);
+        return spltStr;
     }
 
     private static void prepareColumns(FileData fileData) {

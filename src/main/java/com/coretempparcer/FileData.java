@@ -60,8 +60,10 @@ public class FileData {
         this.stringcount = stringcount;
     }
 
-    public void addColumn(Integer num, String str) {
+    public boolean addColumn(Integer num, String str) {
+
         this.columns.put(num, str);
+        return true;
     }
 
     public void setColumns(HashMap<Integer, String> columns) {

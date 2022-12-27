@@ -67,6 +67,7 @@ public class DBChecker {
         String queryText = getIsDefinedText();
 
         try {
+
             stm = MainClass.con.createStatement();
             resultSet = stm.executeQuery(queryText);
             resultSet.next();

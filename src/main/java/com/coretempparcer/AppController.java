@@ -7,15 +7,13 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class AppController {
 
@@ -35,7 +33,11 @@ public class AppController {
     @FXML
     private TextField dateToS;
     @FXML
-    LineChart graphicView;
+    LineChart graphicTemp;
+    @FXML
+    LineChart graphicLoad;
+    @FXML
+    LineChart graphicSpeed;
 
     @FXML
     private TextArea textLog;
@@ -46,11 +48,23 @@ public class AppController {
     @FXML
     DatePicker dateFrom;
 
+    @FXML
+    ToggleButton autoButton;
+
     Timeline tl;
+
+    Timeline refresh;
+
+    Timeline parsing;
 
     @FXML
     protected void onStartButtonClick() {
 
+        toParce();
+
+    }
+
+    protected void toParce() {
         MainClass.log = "";
 
         MainClass.writeToLog("Welcome to the jungle!!");
@@ -68,58 +82,25 @@ public class AppController {
         tl = new Timeline(kf);
         tl.setCycleCount(1);
         tl.play();
-
     }
 
     @FXML
-    protected void onMouseClickedLineChart() {
-        //LineChart creation+
-//        final NumberAxis xAxis = new NumberAxis();
-//        final NumberAxis yAxis = new NumberAxis();
-//        xAxis.setLabel("Number of Month");
+    protected void autoButtonClicked() {
+        MainClass.auto = autoButton.isSelected();
 
-//        final LineChart<Number,Number> lineChart =
-//                new LineChart<Number,Number>(xAxis,yAxis);
+        if (MainClass.auto) {
+            KeyFrame kfAuto = new KeyFrame(Duration.millis(5000), actionEvent -> autoRefresh());
+            refresh = new Timeline(kfAuto);
+            refresh.setCycleCount(1);
+            refresh.play();
+        }
 
-
-//        graphicView.setTitle("Core temp");
-        XYChart.Series series = new XYChart.Series();
-        series.setName("CPU1");
-        //populating the series with data
-        series.getData().add(new XYChart.Data(1, 32));
-        series.getData().add(new XYChart.Data(2, 25));
-        series.getData().add(new XYChart.Data(3, 15));
-        series.getData().add(new XYChart.Data(4, 24));
-        series.getData().add(new XYChart.Data(5, 34));
-        series.getData().add(new XYChart.Data(6, 36));
-        series.getData().add(new XYChart.Data(7, 22));
-        series.getData().add(new XYChart.Data(8, 45));
-        series.getData().add(new XYChart.Data(9, 43));
-        series.getData().add(new XYChart.Data(10, 17));
-        series.getData().add(new XYChart.Data(11, 29));
-        series.getData().add(new XYChart.Data(12, 25));
-        series.getData().add(new XYChart.Data(13, 46));
-
-        XYChart.Series series1 = new XYChart.Series();
-        series1.setName("CPU2");
-        //populating the series with data
-        series1.getData().add(new XYChart.Data(1, 26));
-        series1.getData().add(new XYChart.Data(2, 35));
-        series1.getData().add(new XYChart.Data(3, 48));
-        series1.getData().add(new XYChart.Data(4, 59));
-        series1.getData().add(new XYChart.Data(5, 64));
-        series1.getData().add(new XYChart.Data(6, 79));
-        series1.getData().add(new XYChart.Data(7, 57));
-        series1.getData().add(new XYChart.Data(8, 44));
-        series1.getData().add(new XYChart.Data(9, 40));
-        series1.getData().add(new XYChart.Data(10, 34));
-        series1.getData().add(new XYChart.Data(11, 22));
-        series1.getData().add(new XYChart.Data(12, 15));
-        series1.getData().add(new XYChart.Data(13, 9));
-
-        graphicView.getData().add(series);
-        graphicView.getData().add(series1);
-        //LineChart creation-
+        if (MainClass.auto) {
+            KeyFrame kfParse = new KeyFrame(Duration.millis(5000), actionEvent -> autoParse());
+            parsing = new Timeline(kfParse);
+            parsing.setCycleCount(1);
+            parsing.play();
+        }
     }
 
     @FXML
@@ -189,10 +170,25 @@ public class AppController {
     }
 
     @FXML
-    protected void mainOKButtonClicked(){
-        String a = "dg"; //DEBUG
+    protected void mainOKButtonClicked() {
 
         refreshLinearChartToPeriod();
+
+    }
+
+    @FXML
+    protected void mainClearButtonClicked() {
+
+        clearGraphics();
+
+    }
+
+    protected void clearGraphics() {
+        graphicLoad.getData().clear();
+
+        graphicSpeed.getData().clear();
+
+        graphicTemp.getData().clear();
     }
 
     @FXML
@@ -204,14 +200,26 @@ public class AppController {
     }
 
     public void refreshLinearChartToPeriod() {
-        HashMap<String, Float> chartData = new HashMap<>();
 
         refreshLinearChart(true);
 
     }
 
+    public void refreshLinearChartAuto() {
+
+        refreshLinearChart(false);
+
+    }
+
     public void refreshLinearChart(boolean fixedPeriod) {
-        HashMap<String, Float> chartData = new HashMap<>();
+        //map of charts data<map of cores in each chart<map of data of each core in chart>>
+        HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData = new HashMap<>();
+
+        GregorianCalendar calendar;
+
+        Date date1;
+
+        Date date2;
 
         if (fixedPeriod){
             //var == 1 - date from, var == 2 - date to
@@ -222,9 +230,9 @@ public class AppController {
             int minute = Integer.parseInt(dateFromM.getText());
             int second = Integer.parseInt(dateFromS.getText());
 
-            GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
+            calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
             calendar.set(year, month - 1, date, hour, minute, second);
-            Date dateFrom = calendar.getTime();
+            date1 = calendar.getTime();
 
             year = dateTo.getValue().getYear();
             month = dateTo.getValue().getMonthValue();
@@ -234,24 +242,125 @@ public class AppController {
             second = Integer.parseInt(dateToS.getText());
 
             calendar.set(year, month - 1, date, hour, minute, second);
-            Date dateTo = calendar.getTime();
+            date2 = calendar.getTime();
 
-            dbReader.setupTimeStamps(dateFrom, dateTo);
-
-            chartData = dbReader.prepareChartData();
         }
 
+        else {
+            calendar = new GregorianCalendar();
+            date2 = calendar.getTime();
 
+            Long timeInMillis = calendar.getTimeInMillis();
+
+            timeInMillis = timeInMillis - MainClass.countMinutesPerAutoGraphic * 60 * 1000;
+
+            calendar.setTimeInMillis(timeInMillis);
+
+            date1 = calendar.getTime();
+        }
+
+        dbReader.setupTimeStamps(date1, date2);
+
+        dbReader.prepareChartData(chartData);
+
+        fillingChartsData(chartData);
+
+    }
+
+    private void fillingChartsData(HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData) {
+        String colTime = MainClass.colTime;
+        String colTemp = MainClass.colTemp;
+        String colLoad = MainClass.colLoad;
+        String colSpeed = MainClass.colSpeed;
+        String colCpu = MainClass.colCpu;
+        String core = MainClass.core;
+
+        HashMap<String, HashMap<Date, Float>> charttemp = chartData.get(colTemp);
+
+        HashMap<String, HashMap<Date, Float>> chartload = chartData.get(colLoad);
+
+        HashMap<String, HashMap<Date, Float>> chartspeed = chartData.get(colSpeed);
+
+        clearGraphics();
+
+        if (charttemp != null) {
+            for (int i = 0; i < 1; i++) {
+                HashMap<Date, Float> coreMap = charttemp.get(core + i + colTemp);
+                if (coreMap.size() > 0) {
+                    XYChart.Series series = new XYChart.Series();
+
+                    series.setName("core" + i + colTemp);
+
+                    fillForOneCore(core + i + colTemp, coreMap, series, graphicTemp);
+                }
+            }
+        }
+
+        if (chartload != null) {
+            for (int i = 0; i < MainClass.countOfCores; i++) {
+                HashMap<Date, Float> coreMap = chartload.get(core + i + colLoad);
+                if (coreMap.size() > 0) {
+                    XYChart.Series series = new XYChart.Series();
+
+                    series.setName("core" + i + colLoad);
+
+                    fillForOneCore(core + i + colLoad, coreMap, series, graphicLoad);
+                }
+            }
+        }
+
+        if (chartspeed != null) {
+            for (int i = 0; i < MainClass.countOfCores; i++) {
+                HashMap<Date, Float> coreMap = chartspeed.get(core + i + colSpeed);
+                if (coreMap.size() > 0) {
+                    XYChart.Series series = new XYChart.Series();
+
+                    series.setName("core" + i + colSpeed);
+
+                    fillForOneCore(core + i + colSpeed, coreMap, series, graphicSpeed);
+                }
+            }
+        }
+
+    }
+
+    private void fillForOneCore(String s, HashMap<Date, Float> coreMap, XYChart.Series series, LineChart chart) {
+
+        String dateSer = "";
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+
+        Iterator<Map.Entry<Date, Float>> iterator = coreMap.entrySet().iterator();
+
+        Set<Date> set = coreMap.keySet();
+
+        Date[] arrDate = set.toArray(new Date[0]);
+
+        Arrays.sort(arrDate);
+
+        Float var;
+
+        for (Date d : arrDate) {
+            var = coreMap.get(d);
+            dateSer = sdf.format(d);
+            series.getData().add(new XYChart.Data(dateSer, var));
+        }
+
+        chart.getData().add(series);
 
     }
 
     private String validateTimeFieldValue(String s, String variant) {
 
-        if (s.length() == 0) return "";
+        if (s.length() == 0) return "00";
+
+        if (s.length() >2){
+            s = s.substring(0, 2);
+        }
 
         if (variant.equals("M") || variant.equals("S")) {
 
-            if (s.length() > 2) return "59";
+//            if (s.length() > 2) return "59";
 
             Integer a = Integer.parseInt(s);
 
@@ -262,9 +371,11 @@ public class AppController {
             if (a > 59) {
                 return "59";
             }
+
         } else {
             if (variant.equals("H")) {
-                if (s.length() > 2) return "23";
+
+//                if (s.length() > 2) return "23";
 
                 Integer a = Integer.parseInt(s);
 
@@ -281,6 +392,9 @@ public class AppController {
         return s;
     }
     private void waitTillTheEnd() {
+
+        //MainClass.writeToLog("waitTillTheEnd #1 done:" + MainClass.done); //D-D
+
         if (MainClass.done) {
             MainClass.writeToLog("Done");
             textLog.setText(MainClass.log);
@@ -292,12 +406,50 @@ public class AppController {
         textLog.setText(MainClass.log);
         textLog.forward();
 
+        //MainClass.writeToLog("waitTillTheEnd #2 done:" + MainClass.done); //D-D
         if (!MainClass.done) {
             tl.playFromStart();
         }
 
+    }
+
+    private void autoRefresh() {
+
+        if (!MainClass.auto) {
+            refresh.stop();
+        }
+
+        refreshLinearChartAuto();
+
+        if (MainClass.auto) {
+            refresh.playFromStart();
+        }
 
     }
 
+    private void autoParse() {
+
+        MainClass.writeToLog("autoParse #1 MainClassAuto: " + MainClass.auto); //D-D
+
+        if (!MainClass.auto) {
+            parsing.stop();
+        }
+
+        MainClass.writeToLog("autoParse #2 MainClassDone: " + MainClass.done); //D-D
+
+        if (MainClass.done) {
+            toParce();
+        }
+        else {
+            MainClass.writeToLog("I can't parse because mainClass.done = false");
+        }
+
+        MainClass.writeToLog("autoParse #3 MainClassAuto: " + MainClass.auto); //D-D
+
+        if (MainClass.auto) {
+            parsing.playFromStart();
+        }
+
+    }
 
 }

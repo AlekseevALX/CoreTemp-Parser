@@ -82,8 +82,11 @@ public class StartScanning extends Thread {
             e.printStackTrace();
         }
 
+        MainClass.writeToLog("" + fileName + " is parced");
+
         if (fd.getStringcount() == 0) {
 //            System.out.println("File " + fileName + " don't have any strings");
+            MainClass.writeToLog("File " + fileName + " don't have any strings. Thread " + currentThread().getName() + " is stopped");
             endOfthread();
             return;
         }
@@ -115,10 +118,17 @@ public class StartScanning extends Thread {
 
     void endOfthread(){
         synchronized (StartScanning.class){
+            MainClass.writeToLog("endOfthread current thread " + currentThread().getName()); //D-D
             MainClass.currentWorkingThread -= 1;
             MainClass.countOfThreads -= 1;
+            MainClass.writeToLog("endOfthread currentWorkingThread " + MainClass.currentWorkingThread); //D-D
+            MainClass.writeToLog("endOfthread countOfThreads " + MainClass.countOfThreads); //D-D
             if (MainClass.countOfThreads == 0){
+                MainClass.writeToLog("STOPPING WORK endOfthread countOfThreads is 0, setting MainClass.done = true. Current thread is " + currentThread().getName()); //D-D
                 MainClass.done = true;
+            }
+            else {
+                MainClass.writeToLog("CONTINUOUS WORKING endOfthread. Current thread is " + currentThread().getName()); //D-D
             }
         }
     }

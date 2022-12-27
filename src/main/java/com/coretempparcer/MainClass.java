@@ -11,13 +11,29 @@ public class MainClass {
     public static volatile boolean dbChecked = false;
     public static volatile int currentWorkingThread = 0;
     public static volatile int countOfThreads = 0;
-    public static volatile boolean done = false;
+    public static volatile boolean done = true;
     public static volatile String log = "";
+
+    public static volatile boolean auto = false;
 
     public static String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
     public static String login = "postgres";
     public static String password = "postgres";
     public static Connection con = null;
+
+    public static Integer countOfCores = 0;
+
+    public static String colTime = "time";
+    public static String colTemp = "temp";
+    public static String colLoad = "load";
+    public static String colSpeed = "speedmhz";
+    public static String colCpu = "cpu";
+
+    public static String core = "core";
+
+    public static Integer countOfCharPoint = 30;
+
+    public static Integer countMinutesPerAutoGraphic = 5;
 
 
     public void main(String[] args) {
@@ -48,16 +64,31 @@ public class MainClass {
     }
 
     public static void writeToLog(String log){
+        System.out.println(log); //D-D
         MainClass.log = MainClass.log.concat(log).concat(System.lineSeparator());
     }
 
+    public static synchronized boolean connectionToBase() {
 
-    public static boolean connectionToBase(){
+        MainClass.writeToLog("ConnectionToBase start currentWorkingThread:" + currentWorkingThread);
+
+        try {
+            MainClass.writeToLog("connectionToBase con validation start"); //D-D
+            if (con != null && con.isValid(3)) {
+                MainClass.writeToLog("connectionToBase con validation finish: return true");
+                return true;
+            }
+        } catch (SQLException e) {
+            MainClass.writeToLog("Exception in DB connection validation");
+            e.printStackTrace();
+            return false;
+        }
+
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            writeToLog("Don't find class org.postgresql.Driver!");
-            writeToLog(String.valueOf(e.getStackTrace()));
+            MainClass.writeToLog("Don't find class org.postgresql.Driver!");
+            MainClass.writeToLog(String.valueOf(e.getStackTrace()));
             MainClass.done = true;
             return false;
         }
@@ -65,11 +96,26 @@ public class MainClass {
         try {
             con = DriverManager.getConnection(url, login, password);
         } catch (SQLException e) {
-            writeToLog("Don't have connection to database!");
-            writeToLog(String.valueOf(e.getStackTrace()));
+            MainClass.writeToLog("Don't have connection to database!");
+            MainClass.writeToLog(String.valueOf(e.getStackTrace()));
             MainClass.done = true;
             return false;
         }
+
+        MainClass.writeToLog("ConnectionToBase end currentWorkingThread:" + currentWorkingThread);
+
+        return true;
+    }
+
+    public static boolean validateColumn(String columnName) {
+
+        if (columnName.length() < 10) return true;
+
+//        if (columnName.substring(columnName.length()-7, columnName.length()).equals("Lowtemp") ||
+//                columnName.substring(columnName.length()-8, columnName.length()).equals("Hightemp")) return false;
+
+        if (columnName.endsWith("Lowtemp") || columnName.endsWith("Hightemp")) return false;
+
         return true;
     }
 
@@ -122,7 +168,8 @@ class justDoIt extends Thread {
         String ext;
 
         if (directory.equals("")) {
-            directory = "C:\\Pet\\CoreTempTestData";
+//            directory = "C:\\Pet\\CoreTempTestData";
+            return;
         }
 
         ext = "csv";
@@ -143,6 +190,11 @@ class justDoIt extends Thread {
             return;
         } else {
             MainClass.writeToLog("Finded " + listFiles.length + " files.");
+        }
+
+        if (!MainClass.connectionToBase()){
+            MainClass.writeToLog("failed to run thread justDoIt");
+            return;
         }
 
         dbDefined = DBChecker.dbIsDefined();
