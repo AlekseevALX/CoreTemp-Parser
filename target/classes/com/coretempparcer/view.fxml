@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--<?scenebuilder-stylesheet 1.css?>-->
+
+<?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -15,29 +18,50 @@
      <tabs>
        <Tab text="Chart">
          <content>
-           <AnchorPane>
+           <AnchorPane prefHeight="643.0" prefWidth="1400.0">
                   <children>
-                     <LineChart id="CPULineChart" fx:id="graphicView" onMouseClicked="#onMouseClickedLineChart" prefHeight="268.0" prefWidth="544.0" title="Temp changes">
+                     <LineChart id="graphicTemp" fx:id="graphicTemp" animated="false" centerShape="false" opacity="0.62" prefHeight="180.0" prefWidth="1080.0" title="">
                        <xAxis>
-                         <NumberAxis label="time" side="BOTTOM" fx:id="xAxisFX" />
+                         <CategoryAxis side="BOTTOM" />
                        </xAxis>
                        <yAxis>
-                         <NumberAxis fx:id="yAxisFX" label="temp" side="LEFT" />
+                         <NumberAxis label="temp" side="LEFT" />
                        </yAxis>
+                     <opaqueInsets>
+                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                     </opaqueInsets>
                      </LineChart>
-                  <DatePicker id="DateFrom" fx:id="dateFrom" layoutX="544.0" layoutY="14.0" />
-                  <DatePicker id="DateTo" fx:id="dateTo" layoutX="544.0" layoutY="45.0" />
-                  <Button id="MainOKButton" fx:id="mainOkButton" layoutX="544.0" layoutY="75.0" mnemonicParsing="false" onMouseClicked="#mainOKButtonClicked" text="OK" />
-                  <TextField id="DateFromH" fx:id="dateFromH" onKeyReleased="#DateFromHOnKeyReleased" layoutX="727.0" layoutY="14.0" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
-                  <TextField id="DateFromM" fx:id="dateFromM" onKeyReleased="#DateFromMOnKeyReleased" layoutX="762.0" layoutY="14.0" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
-                  <TextField id="DateFromS" fx:id="dateFromS" onKeyReleased="#DateFromSOnKeyReleased" layoutX="797.0" layoutY="14.0" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
-                  <Text layoutX="758.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
-                  <Text layoutX="793.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
-                  <Text layoutX="793.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
-                  <Text layoutX="758.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
-                  <TextField id="DateToH" fx:id="dateToH" onKeyReleased="#DateToHOnKeyReleased" layoutX="727.0" layoutY="45.0" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
-                  <TextField id="DateToM" fx:id="dateToM" onKeyReleased="#DateToMOnKeyReleased" layoutX="762.0" layoutY="45.0" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
-                  <TextField id="DateToS" fx:id="dateToS" onKeyReleased="#DateToSOnKeyReleased" layoutX="797.0" layoutY="45.0" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
+                      <LineChart id="graphicLoad" fx:id="graphicLoad" animated="false" layoutY="180.0" prefHeight="180.0" prefWidth="1080.0" title="">
+                          <xAxis>
+                              <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                              <NumberAxis label="load" side="LEFT" />
+                          </yAxis>
+                      </LineChart>
+                      <LineChart id="graphicSpeed" fx:id="graphicSpeed" animated="false" layoutY="360.0" prefHeight="180.0" prefWidth="1080.0" title="">
+                          <xAxis>
+                              <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                              <NumberAxis label="speed" side="LEFT" />
+                          </yAxis>
+                      </LineChart>
+                  <DatePicker id="DateFrom" fx:id="dateFrom" layoutX="1094.0" layoutY="13.0" />
+                  <DatePicker id="DateTo" fx:id="dateTo" layoutX="1094.0" layoutY="44.0" />
+                  <Button id="MainOKButton" fx:id="mainOkButton" layoutX="1094.0" layoutY="74.0" mnemonicParsing="false" onMouseClicked="#mainOKButtonClicked" text="OK" />
+                  <Button id="MainClearButton" fx:id="MainClearButton" layoutX="1129.0" layoutY="74.0" mnemonicParsing="false" onMouseClicked="#mainClearButtonClicked" text="Clear" />
+                  <TextField id="DateFromH" fx:id="dateFromH" layoutX="1277.0" layoutY="13.0" onKeyReleased="#DateFromHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
+                  <TextField id="DateFromM" fx:id="dateFromM" layoutX="1312.0" layoutY="13.0" onKeyReleased="#DateFromMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
+                  <TextField id="DateFromS" fx:id="dateFromS" layoutX="1347.0" layoutY="13.0" onKeyReleased="#DateFromSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
+                  <Text layoutX="1308.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1343.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1343.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1308.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <TextField id="DateToH" fx:id="dateToH" layoutX="1277.0" layoutY="44.0" onKeyReleased="#DateToHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
+                  <TextField id="DateToM" fx:id="dateToM" layoutX="1312.0" layoutY="44.0" onKeyReleased="#DateToMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
+                  <TextField id="DateToS" fx:id="dateToS" layoutX="1347.0" layoutY="44.0" onKeyReleased="#DateToSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
+                  <ToggleButton fx:id="autoButton" layoutX="1094.0" layoutY="107.0" mnemonicParsing="false" onMouseClicked="#autoButtonClicked" text="Auto" />
                   </children>
                </AnchorPane>
          </content>
@@ -59,7 +83,7 @@
                                  <Label nodeOrientation="LEFT_TO_RIGHT" text="Log:" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="30.0" />
                               
                                        <TextArea id="textLog" fx:id="textLog" blendMode="DARKEN" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="50.0" />
-                                  <TextField fx:id="filepath" nodeOrientation="LEFT_TO_RIGHT" pickOnBounds="false" text="Enter path here" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                                  <TextField fx:id="filepath" nodeOrientation="LEFT_TO_RIGHT" pickOnBounds="false" promptText="Enter path here" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
                               </children>
                            </AnchorPane>
                        </items>

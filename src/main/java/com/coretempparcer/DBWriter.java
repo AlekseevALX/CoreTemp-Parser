@@ -27,11 +27,17 @@ public class DBWriter {
 
 //        Class.forName("org.postgresql.Driver");
 
-        PreparedStatement stm;
+        PreparedStatement stm = null;
 
         String queryText = getQueryTextInsert(columns);
 
-        stm = MainClass.con.prepareStatement(queryText);
+        if (MainClass.connectionToBase()){
+            stm = MainClass.con.prepareStatement(queryText);
+        }
+        else {
+            MainClass.writeToLog("fail write to base");
+            return;
+        }
 
         HashMap<Integer, String[]> strings = fileData.getStrings();
         String[] oneString;
@@ -53,7 +59,13 @@ public class DBWriter {
 
         String queryText = getQueryTextExists(columns);
 
-        stm = MainClass.con.prepareStatement(queryText);
+        if (MainClass.connectionToBase()){
+            stm = MainClass.con.prepareStatement(queryText);
+        }
+        else {
+            MainClass.writeToLog("fail deleteAlreadyExistsRecords");
+            return;
+        }
 
         setupParametersToSelect(stm, fileData);
 

@@ -1,24 +1,33 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
 package com.coretempparcer;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.util.Duration;
-
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Map.Entry;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.fxml.FXML;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.util.Duration;
 
 public class AppController {
-
     DBReader dbReader = new DBReader();
     @FXML
     private TextField filepath;
@@ -35,269 +44,349 @@ public class AppController {
     @FXML
     private TextField dateToS;
     @FXML
-    LineChart graphicView;
-
+    LineChart graphicTemp;
+    @FXML
+    LineChart graphicLoad;
+    @FXML
+    LineChart graphicSpeed;
     @FXML
     private TextArea textLog;
-
     @FXML
     DatePicker dateTo;
-
     @FXML
     DatePicker dateFrom;
-
-    Timeline tl;
-
     @FXML
-    protected void onStartButtonClick() {
+    ToggleButton autoButton;
+    Timeline tl;
+    Timeline refresh;
+    Timeline parsing;
 
-        MainClass.log = "";
-
-        MainClass.writeToLog("Welcome to the jungle!!");
-        String[] args = new String[1];
-        args[0] = filepath.getText();
-
-        MainClass mainObject = new MainClass();
-
-        MainClass.done = false;
-        MainClass.countOfThreads = 0;
-
-        mainObject.main(args);
-
-        KeyFrame kf = new KeyFrame(Duration.millis(100), actionEvent -> waitTillTheEnd());
-        tl = new Timeline(kf);
-        tl.setCycleCount(1);
-        tl.play();
-
+    public AppController() {
     }
 
     @FXML
-    protected void onMouseClickedLineChart() {
-        //LineChart creation+
-//        final NumberAxis xAxis = new NumberAxis();
-//        final NumberAxis yAxis = new NumberAxis();
-//        xAxis.setLabel("Number of Month");
+    protected void onStartButtonClick() {
+        this.toParce();
+    }
 
-//        final LineChart<Number,Number> lineChart =
-//                new LineChart<Number,Number>(xAxis,yAxis);
+    protected void toParce() {
+        MainClass.log = "";
+        MainClass.writeToLog("Welcome to the jungle!!");
+        String[] args = new String[]{this.filepath.getText()};
+        MainClass mainObject = new MainClass();
+        MainClass.done = false;
+        MainClass.countOfThreads = 0;
+        mainObject.main(args);
+        KeyFrame kf = new KeyFrame(Duration.millis(100.0D), (actionEvent) -> {
+            this.waitTillTheEnd();
+        }, new KeyValue[0]);
+        this.tl = new Timeline(new KeyFrame[]{kf});
+        this.tl.setCycleCount(1);
+        this.tl.play();
+    }
 
+    @FXML
+    protected void autoButtonClicked() {
+        MainClass.auto = this.autoButton.isSelected();
+        KeyFrame kfParse;
+        if (MainClass.auto) {
+            kfParse = new KeyFrame(Duration.millis(5000.0D), (actionEvent) -> {
+                this.autoRefresh();
+            }, new KeyValue[0]);
+            this.refresh = new Timeline(new KeyFrame[]{kfParse});
+            this.refresh.setCycleCount(1);
+            this.refresh.play();
+        }
 
-//        graphicView.setTitle("Core temp");
-        XYChart.Series series = new XYChart.Series();
-        series.setName("CPU1");
-        //populating the series with data
-        series.getData().add(new XYChart.Data(1, 32));
-        series.getData().add(new XYChart.Data(2, 25));
-        series.getData().add(new XYChart.Data(3, 15));
-        series.getData().add(new XYChart.Data(4, 24));
-        series.getData().add(new XYChart.Data(5, 34));
-        series.getData().add(new XYChart.Data(6, 36));
-        series.getData().add(new XYChart.Data(7, 22));
-        series.getData().add(new XYChart.Data(8, 45));
-        series.getData().add(new XYChart.Data(9, 43));
-        series.getData().add(new XYChart.Data(10, 17));
-        series.getData().add(new XYChart.Data(11, 29));
-        series.getData().add(new XYChart.Data(12, 25));
-        series.getData().add(new XYChart.Data(13, 46));
+        if (MainClass.auto) {
+            kfParse = new KeyFrame(Duration.millis(5000.0D), (actionEvent) -> {
+                this.autoParse();
+            }, new KeyValue[0]);
+            this.parsing = new Timeline(new KeyFrame[]{kfParse});
+            this.parsing.setCycleCount(1);
+            this.parsing.play();
+        }
 
-        XYChart.Series series1 = new XYChart.Series();
-        series1.setName("CPU2");
-        //populating the series with data
-        series1.getData().add(new XYChart.Data(1, 26));
-        series1.getData().add(new XYChart.Data(2, 35));
-        series1.getData().add(new XYChart.Data(3, 48));
-        series1.getData().add(new XYChart.Data(4, 59));
-        series1.getData().add(new XYChart.Data(5, 64));
-        series1.getData().add(new XYChart.Data(6, 79));
-        series1.getData().add(new XYChart.Data(7, 57));
-        series1.getData().add(new XYChart.Data(8, 44));
-        series1.getData().add(new XYChart.Data(9, 40));
-        series1.getData().add(new XYChart.Data(10, 34));
-        series1.getData().add(new XYChart.Data(11, 22));
-        series1.getData().add(new XYChart.Data(12, 15));
-        series1.getData().add(new XYChart.Data(13, 9));
-
-        graphicView.getData().add(series);
-        graphicView.getData().add(series1);
-        //LineChart creation-
     }
 
     @FXML
     protected void DateFromHOnKeyReleased() {
-        String val = dateFromH.getText();
-
-        String res = validateTimeFieldValue(val, "H");
-
+        String val = this.dateFromH.getText();
+        String res = this.validateTimeFieldValue(val, "H");
         if (!val.equals(res)) {
-            dateFromH.setText(res);
+            this.dateFromH.setText(res);
         }
+
     }
 
     @FXML
     protected void DateFromMOnKeyReleased() {
-        String val = dateFromM.getText();
-
-        String res = validateTimeFieldValue(val, "M");
-
+        String val = this.dateFromM.getText();
+        String res = this.validateTimeFieldValue(val, "M");
         if (!val.equals(res)) {
-            dateFromM.setText(res);
+            this.dateFromM.setText(res);
         }
+
     }
 
     @FXML
     protected void DateFromSOnKeyReleased() {
-        String val = dateFromS.getText();
-
-        String res = validateTimeFieldValue(val, "S");
-
+        String val = this.dateFromS.getText();
+        String res = this.validateTimeFieldValue(val, "S");
         if (!val.equals(res)) {
-            dateFromS.setText(res);
+            this.dateFromS.setText(res);
         }
+
     }
 
     @FXML
     protected void DateToHOnKeyReleased() {
-        String val = dateToH.getText();
-
-        String res = validateTimeFieldValue(val, "H");
-
+        String val = this.dateToH.getText();
+        String res = this.validateTimeFieldValue(val, "H");
         if (!val.equals(res)) {
-            dateToH.setText(res);
+            this.dateToH.setText(res);
         }
+
     }
 
     @FXML
     protected void DateToMOnKeyReleased() {
-        String val = dateToM.getText();
-
-        String res = validateTimeFieldValue(val, "M");
-
+        String val = this.dateToM.getText();
+        String res = this.validateTimeFieldValue(val, "M");
         if (!val.equals(res)) {
-            dateToM.setText(res);
+            this.dateToM.setText(res);
         }
+
     }
 
     @FXML
     protected void DateToSOnKeyReleased() {
-        String val = dateToS.getText();
-
-        String res = validateTimeFieldValue(val, "S");
-
+        String val = this.dateToS.getText();
+        String res = this.validateTimeFieldValue(val, "S");
         if (!val.equals(res)) {
-            dateToS.setText(res);
+            this.dateToS.setText(res);
         }
+
     }
 
     @FXML
-    protected void mainOKButtonClicked(){
-        String a = "dg"; //DEBUG
-
-        refreshLinearChartToPeriod();
+    protected void mainOKButtonClicked() {
+        this.refreshLinearChartToPeriod();
     }
 
     @FXML
-    protected void onDeleteBaseButtonClick(){
+    protected void mainClearButtonClicked() {
+        this.clearGraphics();
+    }
+
+    protected void clearGraphics() {
+        this.graphicLoad.getData().clear();
+        this.graphicSpeed.getData().clear();
+        this.graphicTemp.getData().clear();
+    }
+
+    @FXML
+    protected void onDeleteBaseButtonClick() {
         MainClass.log = "";
         MainClass.deleteBase();
-        textLog.setText(MainClass.log);
-        textLog.forward();
+        this.textLog.setText(MainClass.log);
+        this.textLog.forward();
     }
 
     public void refreshLinearChartToPeriod() {
-        HashMap<String, Float> chartData = new HashMap<>();
+        this.refreshLinearChart(true);
+    }
 
-        refreshLinearChart(true);
-
+    public void refreshLinearChartAuto() {
+        this.refreshLinearChart(false);
     }
 
     public void refreshLinearChart(boolean fixedPeriod) {
-        HashMap<String, Float> chartData = new HashMap<>();
-
-        if (fixedPeriod){
-            //var == 1 - date from, var == 2 - date to
-            int year = dateFrom.getValue().getYear();
-            int month = dateFrom.getValue().getMonthValue();
-            int date = dateFrom.getValue().getDayOfMonth();
-            int hour = Integer.parseInt(dateFromH.getText());
-            int minute = Integer.parseInt(dateFromM.getText());
-            int second = Integer.parseInt(dateFromS.getText());
-
-            GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
+        HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData = new HashMap();
+        GregorianCalendar calendar;
+        Date date1;
+        Date date2;
+        if (fixedPeriod) {
+            int year = ((LocalDate)this.dateFrom.getValue()).getYear();
+            int month = ((LocalDate)this.dateFrom.getValue()).getMonthValue();
+            int date = ((LocalDate)this.dateFrom.getValue()).getDayOfMonth();
+            int hour = Integer.parseInt(this.dateFromH.getText());
+            int minute = Integer.parseInt(this.dateFromM.getText());
+            int second = Integer.parseInt(this.dateFromS.getText());
+            calendar = new GregorianCalendar();
             calendar.set(year, month - 1, date, hour, minute, second);
-            Date dateFrom = calendar.getTime();
-
-            year = dateTo.getValue().getYear();
-            month = dateTo.getValue().getMonthValue();
-            date = dateTo.getValue().getDayOfMonth();
-            hour = Integer.parseInt(dateToH.getText());
-            minute = Integer.parseInt(dateToM.getText());
-            second = Integer.parseInt(dateToS.getText());
-
+            date1 = calendar.getTime();
+            year = ((LocalDate)this.dateTo.getValue()).getYear();
+            month = ((LocalDate)this.dateTo.getValue()).getMonthValue();
+            date = ((LocalDate)this.dateTo.getValue()).getDayOfMonth();
+            hour = Integer.parseInt(this.dateToH.getText());
+            minute = Integer.parseInt(this.dateToM.getText());
+            second = Integer.parseInt(this.dateToS.getText());
             calendar.set(year, month - 1, date, hour, minute, second);
-            Date dateTo = calendar.getTime();
-
-            dbReader.setupTimeStamps(dateFrom, dateTo);
-
-            chartData = dbReader.prepareChartData();
+            date2 = calendar.getTime();
+        } else {
+            calendar = new GregorianCalendar();
+            date2 = calendar.getTime();
+            Long timeInMillis = calendar.getTimeInMillis();
+            timeInMillis = timeInMillis - (long)(MainClass.countMinutesPerAutoGraphic * 60 * 1000);
+            calendar.setTimeInMillis(timeInMillis);
+            date1 = calendar.getTime();
         }
 
+        this.dbReader.setupTimeStamps(date1, date2);
+        this.dbReader.prepareChartData(chartData);
+        this.fillingChartsData(chartData);
+    }
 
+    private void fillingChartsData(HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData) {
+        String colTime = MainClass.colTime;
+        String colTemp = MainClass.colTemp;
+        String colLoad = MainClass.colLoad;
+        String colSpeed = MainClass.colSpeed;
+        String colCpu = MainClass.colCpu;
+        String core = MainClass.core;
+        HashMap<String, HashMap<Date, Float>> charttemp = (HashMap)chartData.get(colTemp);
+        HashMap<String, HashMap<Date, Float>> chartload = (HashMap)chartData.get(colLoad);
+        HashMap<String, HashMap<Date, Float>> chartspeed = (HashMap)chartData.get(colSpeed);
+        this.clearGraphics();
+        int i;
+        HashMap coreMap;
+        Series series;
+        if (charttemp != null) {
+            for(i = 0; i < 1; ++i) {
+                coreMap = (HashMap)charttemp.get(core + i + colTemp);
+                if (coreMap.size() > 0) {
+                    series = new Series();
+                    series.setName("core" + i + colTemp);
+                    this.fillForOneCore(core + i + colTemp, coreMap, series, this.graphicTemp);
+                }
+            }
+        }
+
+        if (chartload != null) {
+            for(i = 0; i < MainClass.countOfCores; ++i) {
+                coreMap = (HashMap)chartload.get(core + i + colLoad);
+                if (coreMap.size() > 0) {
+                    series = new Series();
+                    series.setName("core" + i + colLoad);
+                    this.fillForOneCore(core + i + colLoad, coreMap, series, this.graphicLoad);
+                }
+            }
+        }
+
+        if (chartspeed != null) {
+            for(i = 0; i < MainClass.countOfCores; ++i) {
+                coreMap = (HashMap)chartspeed.get(core + i + colSpeed);
+                if (coreMap.size() > 0) {
+                    series = new Series();
+                    series.setName("core" + i + colSpeed);
+                    this.fillForOneCore(core + i + colSpeed, coreMap, series, this.graphicSpeed);
+                }
+            }
+        }
 
     }
 
+    private void fillForOneCore(String s, HashMap<Date, Float> coreMap, Series series, LineChart chart) {
+        String dateSer = "";
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        Iterator<Entry<Date, Float>> iterator = coreMap.entrySet().iterator();
+        Set<Date> set = coreMap.keySet();
+        Date[] arrDate = (Date[])set.toArray(new Date[0]);
+        Arrays.sort(arrDate);
+        Date[] var11 = arrDate;
+        int var12 = arrDate.length;
+
+        for(int var13 = 0; var13 < var12; ++var13) {
+            Date d = var11[var13];
+            Float var = (Float)coreMap.get(d);
+            dateSer = sdf.format(d);
+            series.getData().add(new Data(dateSer, var));
+        }
+
+        chart.getData().add(series);
+    }
+
     private String validateTimeFieldValue(String s, String variant) {
-
-        if (s.length() == 0) return "";
-
-        if (variant.equals("M") || variant.equals("S")) {
-
-            if (s.length() > 2) return "59";
-
-            Integer a = Integer.parseInt(s);
-
-            if (a < 0) {
-                return "0";
-            }
-
-            if (a > 59) {
-                return "59";
-            }
+        if (s.length() == 0) {
+            return "00";
         } else {
-            if (variant.equals("H")) {
-                if (s.length() > 2) return "23";
+            if (s.length() > 2) {
+                s = s.substring(0, 2);
+            }
 
-                Integer a = Integer.parseInt(s);
+            Integer a;
+            if (!variant.equals("M") && !variant.equals("S")) {
+                if (variant.equals("H")) {
+                    a = Integer.parseInt(s);
+                    if (a < 0) {
+                        return "0";
+                    }
 
+                    if (a > 23) {
+                        return "23";
+                    }
+                }
+            } else {
+                a = Integer.parseInt(s);
                 if (a < 0) {
                     return "0";
                 }
 
-                if (a > 23) {
-                    return "23";
+                if (a > 59) {
+                    return "59";
                 }
             }
-        }
 
-        return s;
+            return s;
+        }
     }
+
     private void waitTillTheEnd() {
         if (MainClass.done) {
             MainClass.writeToLog("Done");
-            textLog.setText(MainClass.log);
-            textLog.forward();
-//            System.out.println("I don't wanted to die!!!");
-            tl.stop();
+            this.textLog.setText(MainClass.log);
+            this.textLog.forward();
+            this.tl.stop();
         }
 
-        textLog.setText(MainClass.log);
-        textLog.forward();
-
+        this.textLog.setText(MainClass.log);
+        this.textLog.forward();
         if (!MainClass.done) {
-            tl.playFromStart();
+            this.tl.playFromStart();
         }
-
 
     }
 
+    private void autoRefresh() {
+        if (!MainClass.auto) {
+            this.refresh.stop();
+        }
 
+        this.refreshLinearChartAuto();
+        if (MainClass.auto) {
+            this.refresh.playFromStart();
+        }
+
+    }
+
+    private void autoParse() {
+        MainClass.writeToLog("autoParse #1 MainClassAuto: " + MainClass.auto);
+        if (!MainClass.auto) {
+            this.parsing.stop();
+        }
+
+        MainClass.writeToLog("autoParse #2 MainClassDone: " + MainClass.done);
+        if (MainClass.done) {
+            this.toParce();
+        } else {
+            MainClass.writeToLog("I can't parse because mainClass.done = false");
+        }
+
+        MainClass.writeToLog("autoParse #3 MainClassAuto: " + MainClass.auto);
+        if (MainClass.auto) {
+            this.parsing.playFromStart();
+        }
+
+    }
 }
