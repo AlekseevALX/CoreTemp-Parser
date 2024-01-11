@@ -20,4 +20,5 @@ public class ParcerApplication extends Application {
     public static void main(String[] args) {
         launch();
     }
+    
 }

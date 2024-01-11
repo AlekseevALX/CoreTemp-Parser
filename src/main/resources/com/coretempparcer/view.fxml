@@ -20,7 +20,7 @@
          <content>
            <AnchorPane prefHeight="643.0" prefWidth="1400.0">
                   <children>
-                     <LineChart id="graphicTemp" fx:id="graphicTemp" animated="false" centerShape="false" opacity="0.62" prefHeight="180.0" prefWidth="1080.0" title="">
+                     <LineChart id="graphicTemp" fx:id="graphicTemp" animated="false" centerShape="false" opacity="0.62" prefHeight="180.0" prefWidth="1080.0" stylesheets="@../../css/1.css" title="">
                        <xAxis>
                          <CategoryAxis side="BOTTOM" />
                        </xAxis>
@@ -31,7 +31,7 @@
                         <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
                      </opaqueInsets>
                      </LineChart>
-                      <LineChart id="graphicLoad" fx:id="graphicLoad" animated="false" layoutY="180.0" prefHeight="180.0" prefWidth="1080.0" title="">
+                      <LineChart id="graphicLoad" fx:id="graphicLoad" animated="false" layoutY="180.0" prefHeight="180.0" prefWidth="1080.0" stylesheets="@../../css/1.css" title="">
                           <xAxis>
                               <CategoryAxis side="BOTTOM" />
                           </xAxis>
@@ -39,7 +39,7 @@
                               <NumberAxis label="load" side="LEFT" />
                           </yAxis>
                       </LineChart>
-                      <LineChart id="graphicSpeed" fx:id="graphicSpeed" animated="false" layoutY="360.0" prefHeight="180.0" prefWidth="1080.0" title="">
+                      <LineChart id="graphicSpeed" fx:id="graphicSpeed" animated="false" layoutY="360.0" prefHeight="180.0" prefWidth="1080.0" stylesheets="@../../css/1.css" title="">
                           <xAxis>
                               <CategoryAxis side="BOTTOM" />
                           </xAxis>
