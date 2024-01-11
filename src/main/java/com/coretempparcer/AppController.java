@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -72,7 +73,11 @@ public class AppController {
     protected void toParce() {
         MainClass.log = "";
         MainClass.writeToLog("Welcome to the jungle!!");
-        String[] args = new String[]{this.filepath.getText()};
+        String dir = this.filepath.getText();
+        if (dir == null || dir.equals("")) {
+            dir = MainClass.getDirectoryWithCTLogs();
+        }
+        String[] args = new String[]{dir};
         MainClass mainObject = new MainClass();
         MainClass.done = false;
         MainClass.countOfThreads = 0;
@@ -207,18 +212,18 @@ public class AppController {
         Date date1;
         Date date2;
         if (fixedPeriod) {
-            int year = ((LocalDate)this.dateFrom.getValue()).getYear();
-            int month = ((LocalDate)this.dateFrom.getValue()).getMonthValue();
-            int date = ((LocalDate)this.dateFrom.getValue()).getDayOfMonth();
+            int year = ((LocalDate) this.dateFrom.getValue()).getYear();
+            int month = ((LocalDate) this.dateFrom.getValue()).getMonthValue();
+            int date = ((LocalDate) this.dateFrom.getValue()).getDayOfMonth();
             int hour = Integer.parseInt(this.dateFromH.getText());
             int minute = Integer.parseInt(this.dateFromM.getText());
             int second = Integer.parseInt(this.dateFromS.getText());
             calendar = new GregorianCalendar();
             calendar.set(year, month - 1, date, hour, minute, second);
             date1 = calendar.getTime();
-            year = ((LocalDate)this.dateTo.getValue()).getYear();
-            month = ((LocalDate)this.dateTo.getValue()).getMonthValue();
-            date = ((LocalDate)this.dateTo.getValue()).getDayOfMonth();
+            year = ((LocalDate) this.dateTo.getValue()).getYear();
+            month = ((LocalDate) this.dateTo.getValue()).getMonthValue();
+            date = ((LocalDate) this.dateTo.getValue()).getDayOfMonth();
             hour = Integer.parseInt(this.dateToH.getText());
             minute = Integer.parseInt(this.dateToM.getText());
             second = Integer.parseInt(this.dateToS.getText());
@@ -228,7 +233,7 @@ public class AppController {
             calendar = new GregorianCalendar();
             date2 = calendar.getTime();
             Long timeInMillis = calendar.getTimeInMillis();
-            timeInMillis = timeInMillis - (long)(MainClass.countMinutesPerAutoGraphic * 60 * 1000);
+            timeInMillis = timeInMillis - (long) (MainClass.countMinutesPerAutoGraphic * 60 * 1000);
             calendar.setTimeInMillis(timeInMillis);
             date1 = calendar.getTime();
         }
@@ -245,16 +250,16 @@ public class AppController {
         String colSpeed = MainClass.colSpeed;
         String colCpu = MainClass.colCpu;
         String core = MainClass.core;
-        HashMap<String, HashMap<Date, Float>> charttemp = (HashMap)chartData.get(colTemp);
-        HashMap<String, HashMap<Date, Float>> chartload = (HashMap)chartData.get(colLoad);
-        HashMap<String, HashMap<Date, Float>> chartspeed = (HashMap)chartData.get(colSpeed);
+        HashMap<String, HashMap<Date, Float>> charttemp = (HashMap) chartData.get(colTemp);
+        HashMap<String, HashMap<Date, Float>> chartload = (HashMap) chartData.get(colLoad);
+        HashMap<String, HashMap<Date, Float>> chartspeed = (HashMap) chartData.get(colSpeed);
         this.clearGraphics();
         int i;
         HashMap coreMap;
         Series series;
         if (charttemp != null) {
-            for(i = 0; i < 1; ++i) {
-                coreMap = (HashMap)charttemp.get(core + i + colTemp);
+            for (i = 0; i < 1; ++i) {
+                coreMap = (HashMap) charttemp.get(core + i + colTemp);
                 if (coreMap.size() > 0) {
                     series = new Series();
                     series.setName("core" + i + colTemp);
@@ -264,8 +269,8 @@ public class AppController {
         }
 
         if (chartload != null) {
-            for(i = 0; i < MainClass.countOfCores; ++i) {
-                coreMap = (HashMap)chartload.get(core + i + colLoad);
+            for (i = 0; i < MainClass.countOfCores; ++i) {
+                coreMap = (HashMap) chartload.get(core + i + colLoad);
                 if (coreMap.size() > 0) {
                     series = new Series();
                     series.setName("core" + i + colLoad);
@@ -275,8 +280,8 @@ public class AppController {
         }
 
         if (chartspeed != null) {
-            for(i = 0; i < MainClass.countOfCores; ++i) {
-                coreMap = (HashMap)chartspeed.get(core + i + colSpeed);
+            for (i = 0; i < MainClass.countOfCores; ++i) {
+                coreMap = (HashMap) chartspeed.get(core + i + colSpeed);
                 if (coreMap.size() > 0) {
                     series = new Series();
                     series.setName("core" + i + colSpeed);
@@ -292,14 +297,14 @@ public class AppController {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         Iterator<Entry<Date, Float>> iterator = coreMap.entrySet().iterator();
         Set<Date> set = coreMap.keySet();
-        Date[] arrDate = (Date[])set.toArray(new Date[0]);
+        Date[] arrDate = (Date[]) set.toArray(new Date[0]);
         Arrays.sort(arrDate);
         Date[] var11 = arrDate;
         int var12 = arrDate.length;
 
-        for(int var13 = 0; var13 < var12; ++var13) {
+        for (int var13 = 0; var13 < var12; ++var13) {
             Date d = var11[var13];
-            Float var = (Float)coreMap.get(d);
+            Float var = (Float) coreMap.get(d);
             dateSer = sdf.format(d);
             series.getData().add(new Data(dateSer, var));
         }

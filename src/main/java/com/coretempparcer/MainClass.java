@@ -16,9 +16,12 @@ public class MainClass {
 
     public static volatile boolean auto = false;
 
-    public static String url = "jdbc:postgresql://localhost:5432/TestDBforJava";
-    public static String login = "postgres";
-    public static String password = "postgres";
+
+    static String ver;
+    public static String urlDB;
+    public static String loginDB;
+    public static String passwordDB;
+    public static String directoryWithCTLogs;
     public static Connection con = null;
 
     public static Integer countOfCores = 0;
@@ -35,6 +38,45 @@ public class MainClass {
 
     public static Integer countMinutesPerAutoGraphic = 5;
 
+    public static String getVer() {
+        return ver;
+    }
+
+    public static void setVer(String ver) {
+        MainClass.ver = ver;
+    }
+
+    public static String getUrlDB() {
+        return urlDB;
+    }
+
+    public static void setUrlDB(String urlDB) {
+        MainClass.urlDB = urlDB;
+    }
+
+    public static String getLoginDB() {
+        return loginDB;
+    }
+
+    public static void setLoginDB(String loginDB) {
+        MainClass.loginDB = loginDB;
+    }
+
+    public static String getPasswordDB() {
+        return passwordDB;
+    }
+
+    public static void setPasswordDB(String passwordDB) {
+        MainClass.passwordDB = passwordDB;
+    }
+
+    public static String getDirectoryWithCTLogs() {
+        return directoryWithCTLogs;
+    }
+
+    public static void setDirectoryWithCTLogs(String directoryWithCTLogs) {
+        MainClass.directoryWithCTLogs = directoryWithCTLogs;
+    }
 
     public void main(String[] args) {
 
@@ -42,11 +84,11 @@ public class MainClass {
 
     }
 
-    public static void deleteBase(){
+    public static void deleteBase() {
         if (connectionToBase()) deleteDB();
     }
 
-    public static void deleteDB(){
+    public static void deleteDB() {
         Statement stm = null;
         try {
             stm = con.createStatement();
@@ -63,7 +105,7 @@ public class MainClass {
         MainClass.writeToLog("Base CoreTemp is deleted!");
     }
 
-    public static void writeToLog(String log){
+    public static void writeToLog(String log) {
         System.out.println(log); //D-D
         MainClass.log = MainClass.log.concat(log).concat(System.lineSeparator());
     }
@@ -94,7 +136,7 @@ public class MainClass {
         }
 
         try {
-            con = DriverManager.getConnection(url, login, password);
+            con = DriverManager.getConnection(urlDB, loginDB, passwordDB);
         } catch (SQLException e) {
             MainClass.writeToLog("Don't have connection to database!");
             MainClass.writeToLog(String.valueOf(e.getStackTrace()));
@@ -192,14 +234,14 @@ class justDoIt extends Thread {
             MainClass.writeToLog("Finded " + listFiles.length + " files.");
         }
 
-        if (!MainClass.connectionToBase()){
+        if (!MainClass.connectionToBase()) {
             MainClass.writeToLog("failed to run thread justDoIt");
             return;
         }
 
         dbDefined = DBChecker.dbIsDefined();
 
-        if (dbDefined){
+        if (dbDefined) {
             findLastDateInBase();
             MainClass.writeToLog("Last record in the database is " + lastDate);
             lastTimeInBase = lastDate.getTime();
@@ -235,7 +277,7 @@ class justDoIt extends Thread {
         }
 
         for (Thread t : threads) {
-            while (MainClass.currentWorkingThread > 50){
+            while (MainClass.currentWorkingThread > 50) {
                 //wait
             }
             t.start();
@@ -243,22 +285,22 @@ class justDoIt extends Thread {
 
         }
 
-        if (MainClass.countOfThreads == 0){
+        if (MainClass.countOfThreads == 0) {
             MainClass.done = true;
         }
 
     }
 
-    public static Date parseFileNameToDate(String s){
+    public static Date parseFileNameToDate(String s) {
         String[] spltStr = s.split("CT-Log");
         spltStr[1] = spltStr[1].substring(1, spltStr[1].length());
-        Integer hour = Integer.parseInt(spltStr[1].substring(11,13));
-        Integer minute = Integer.parseInt(spltStr[1].substring(14,16));
-        Integer second = Integer.parseInt(spltStr[1].substring(17,19));
+        Integer hour = Integer.parseInt(spltStr[1].substring(11, 13));
+        Integer minute = Integer.parseInt(spltStr[1].substring(14, 16));
+        Integer second = Integer.parseInt(spltStr[1].substring(17, 19));
 
-        Integer month = Integer.parseInt(spltStr[1].substring(5,7));
-        Integer date = Integer.parseInt(spltStr[1].substring(8,10));
-        Integer year = Integer.parseInt(spltStr[1].substring(0,4));
+        Integer month = Integer.parseInt(spltStr[1].substring(5, 7));
+        Integer date = Integer.parseInt(spltStr[1].substring(8, 10));
+        Integer year = Integer.parseInt(spltStr[1].substring(0, 4));
 
         GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
         calendar.set(year, month - 1, date, hour, minute, second);
@@ -288,11 +330,10 @@ class justDoIt extends Thread {
         }
 
         try {
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 lastDate = resultSet.getTimestamp(1);
             }
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -303,7 +344,7 @@ class justDoIt extends Thread {
         }
     }
 
-    public static String getQueryText_FindLastDate(){
+    public static String getQueryText_FindLastDate() {
         String text = "SELECT time FROM CORETEMP " +
                 "ORDER BY time DESC LIMIT 1";
         return text;
