@@ -7,17 +7,14 @@ import java.util.Date;
 public class DBReader {
     java.sql.Timestamp tsStart;
     java.sql.Timestamp tsFinish;
-
     Date dateFrom;
-
     Date dateTo;
-
     ResultSet resSel;
 
     public DBReader() {
     }
 
-    private String tableName = "CoreTemp";
+    private String tableName = MainClass.getTableName();
 
     public Date getDateFrom() {
         return dateFrom;
@@ -68,11 +65,11 @@ public class DBReader {
 
             defineChartDataStructure(chartData, columns);
 
-            String colTime = MainClass.colTime;
-            String colTemp = MainClass.colTemp;
-            String colLoad = MainClass.colLoad;
-            String colSpeed = MainClass.colSpeed;
-            String colCpu = MainClass.colCpu;
+            String colTime = MainClass.getColTime();
+            String colTemp = MainClass.getColTemp();
+            String colLoad = MainClass.getColLoad();
+            String colSpeed = MainClass.getColSpeed();
+            String colCpu = MainClass.getColCpu();
 
             while (resSel.next()) {
 
@@ -104,11 +101,11 @@ public class DBReader {
     }
 
     private void defineChartDataStructure(HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData, ArrayList<String> columns) {
-        String colTime = "time";
-        String colTemp = "temp";
-        String colLoad = "load";
-        String colSpeed = "speedmhz";
-        String colCpu = "cpu";
+        String colTime = MainClass.getColTime();
+        String colTemp = MainClass.getColTemp();
+        String colLoad = MainClass.getColLoad();
+        String colSpeed = MainClass.getColSpeed();
+        String colCpu = MainClass.getColCpu();
 
         for (String s : columns) {
             if (s.equals(colTime) || s.substring(0, 3).equals(colCpu)) continue;

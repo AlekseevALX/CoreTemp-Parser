@@ -5,6 +5,7 @@
 
 package com.coretempparcer;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -18,7 +19,9 @@ import java.util.Map.Entry;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
@@ -26,12 +29,11 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class AppController {
     DBReader dbReader = new DBReader();
-    @FXML
-    private TextField filepath;
     @FXML
     private TextField dateFromH;
     @FXML
@@ -66,17 +68,14 @@ public class AppController {
     }
 
     @FXML
-    protected void onStartButtonClick() {
+    protected void onStartButtonClick() throws IOException {
         this.toParce();
     }
 
-    protected void toParce() {
+    protected void toParce() throws IOException {
         MainClass.log = "";
         MainClass.writeToLog("Welcome to the jungle!!");
-        String dir = this.filepath.getText();
-        if (dir == null || dir.equals("")) {
-            dir = MainClass.getDirectoryWithCTLogs();
-        }
+        String dir = MainClass.getDirectoryWithCTLogs();
         String[] args = new String[]{dir};
         MainClass mainObject = new MainClass();
         MainClass.done = false;
@@ -105,7 +104,11 @@ public class AppController {
 
         if (MainClass.auto) {
             kfParse = new KeyFrame(Duration.millis(5000.0D), (actionEvent) -> {
-                this.autoParse();
+                try {
+                    this.autoParse();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }, new KeyValue[0]);
             this.parsing = new Timeline(new KeyFrame[]{kfParse});
             this.parsing.setCycleCount(1);
@@ -211,6 +214,7 @@ public class AppController {
         GregorianCalendar calendar;
         Date date1;
         Date date2;
+        Integer countMinutesPerAutoGraphic = MainClass.getCountMinutesPerAutoGraphic();
         if (fixedPeriod) {
             int year = ((LocalDate) this.dateFrom.getValue()).getYear();
             int month = ((LocalDate) this.dateFrom.getValue()).getMonthValue();
@@ -233,7 +237,7 @@ public class AppController {
             calendar = new GregorianCalendar();
             date2 = calendar.getTime();
             Long timeInMillis = calendar.getTimeInMillis();
-            timeInMillis = timeInMillis - (long) (MainClass.countMinutesPerAutoGraphic * 60 * 1000);
+            timeInMillis = timeInMillis - (long) (countMinutesPerAutoGraphic * 60 * 1000);
             calendar.setTimeInMillis(timeInMillis);
             date1 = calendar.getTime();
         }
@@ -244,33 +248,34 @@ public class AppController {
     }
 
     private void fillingChartsData(HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData) {
-        String colTime = MainClass.colTime;
-        String colTemp = MainClass.colTemp;
-        String colLoad = MainClass.colLoad;
-        String colSpeed = MainClass.colSpeed;
-        String colCpu = MainClass.colCpu;
-        String core = MainClass.core;
-        HashMap<String, HashMap<Date, Float>> charttemp = (HashMap) chartData.get(colTemp);
-        HashMap<String, HashMap<Date, Float>> chartload = (HashMap) chartData.get(colLoad);
-        HashMap<String, HashMap<Date, Float>> chartspeed = (HashMap) chartData.get(colSpeed);
+        String colTime = MainClass.getColTime();
+        String colTemp = MainClass.getColTemp();
+        String colLoad = MainClass.getColLoad();
+        String colSpeed = MainClass.getColSpeed();
+        String colCpu = MainClass.getColCpu();
+        String core = MainClass.getCore();
+        int countOfCores = MainClass.getCountOfCores();
+        HashMap<String, HashMap<Date, Float>> chartTemp = chartData.get(colTemp);
+        HashMap<String, HashMap<Date, Float>> chartLoad = chartData.get(colLoad);
+        HashMap<String, HashMap<Date, Float>> chartSpeed = chartData.get(colSpeed);
         this.clearGraphics();
         int i;
         HashMap coreMap;
         Series series;
-        if (charttemp != null) {
+        if (chartTemp != null) {
             for (i = 0; i < 1; ++i) {
-                coreMap = (HashMap) charttemp.get(core + i + colTemp);
+                coreMap = chartTemp.get(core + i + colTemp);
                 if (coreMap.size() > 0) {
                     series = new Series();
-                    series.setName("core" + i + colTemp);
+                    series.setName(core + i + colTemp);
                     this.fillForOneCore(core + i + colTemp, coreMap, series, this.graphicTemp);
                 }
             }
         }
 
-        if (chartload != null) {
-            for (i = 0; i < MainClass.countOfCores; ++i) {
-                coreMap = (HashMap) chartload.get(core + i + colLoad);
+        if (chartLoad != null) {
+            for (i = 0; i < countOfCores; ++i) {
+                coreMap = (HashMap) chartLoad.get(core + i + colLoad);
                 if (coreMap.size() > 0) {
                     series = new Series();
                     series.setName("core" + i + colLoad);
@@ -279,12 +284,12 @@ public class AppController {
             }
         }
 
-        if (chartspeed != null) {
+        if (chartSpeed != null) {
             for (i = 0; i < MainClass.countOfCores; ++i) {
-                coreMap = (HashMap) chartspeed.get(core + i + colSpeed);
+                coreMap = chartSpeed.get(core + i + colSpeed);
                 if (coreMap.size() > 0) {
                     series = new Series();
-                    series.setName("core" + i + colSpeed);
+                    series.setName(core + i + colSpeed);
                     this.fillForOneCore(core + i + colSpeed, coreMap, series, this.graphicSpeed);
                 }
             }
@@ -375,7 +380,7 @@ public class AppController {
 
     }
 
-    private void autoParse() {
+    private void autoParse() throws IOException {
         MainClass.writeToLog("autoParse #1 MainClassAuto: " + MainClass.auto);
         if (!MainClass.auto) {
             this.parsing.stop();
@@ -393,5 +398,11 @@ public class AppController {
             this.parsing.playFromStart();
         }
 
+    }
+
+    public void onDefinePropertiesButtonClick(ActionEvent actionEvent) throws IOException {
+        PropertiesApplication propertiesApplication = new PropertiesApplication();
+        Stage stage = new Stage();
+        propertiesApplication.start(stage);
     }
 }

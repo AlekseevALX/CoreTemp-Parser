@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class DBWriter {
     private FileData fileData;
-    private String tableName = "CoreTemp";
+    private String tableName = MainClass.getTableName();
 
     ResultSet resSel;
 

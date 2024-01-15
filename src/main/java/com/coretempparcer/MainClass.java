@@ -1,7 +1,6 @@
 package com.coretempparcer;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -13,73 +12,175 @@ public class MainClass {
     public static volatile int countOfThreads = 0;
     public static volatile boolean done = true;
     public static volatile String log = "";
-
     public static volatile boolean auto = false;
 
+    public static HashMap<String, String> appProperties = new HashMap<>();
 
-    static String ver;
-    public static String urlDB;
-    public static String loginDB;
-    public static String passwordDB;
-    public static String directoryWithCTLogs;
+    static String ver = "1.0";
+
+    public static String propertiesFile = "C:\\Pet\\CoreTempParcer\\src\\main\\java\\com\\coretempparcer\\properties\\properties.properties";
+
+    public static boolean propertiesLoaded = false;
     public static Connection con = null;
 
-    public static Integer countOfCores = 0;
-
-    public static String colTime = "time";
-    public static String colTemp = "temp";
-    public static String colLoad = "load";
-    public static String colSpeed = "speedmhz";
-    public static String colCpu = "cpu";
-
-    public static String core = "core";
-
-    public static Integer countOfCharPoint = 30;
-
-    public static Integer countMinutesPerAutoGraphic = 5;
+    public static int countOfCores;
 
     public static String getVer() {
         return ver;
     }
 
-    public static void setVer(String ver) {
-        MainClass.ver = ver;
+    public static HashMap<String, String> getAppProperties() {
+        return appProperties;
+    }
+
+    public static void setAppProperties(HashMap<String, String> appProperties) {
+        MainClass.appProperties = appProperties;
     }
 
     public static String getUrlDB() {
-        return urlDB;
+        return appProperties.get("urlDB");
     }
 
     public static void setUrlDB(String urlDB) {
-        MainClass.urlDB = urlDB;
+        appProperties.put("urlDB", urlDB);
     }
 
     public static String getLoginDB() {
-        return loginDB;
+        return appProperties.get("loginDB");
     }
 
     public static void setLoginDB(String loginDB) {
-        MainClass.loginDB = loginDB;
+        appProperties.put("loginDB", loginDB);
     }
 
     public static String getPasswordDB() {
-        return passwordDB;
+        return appProperties.get("passwordDB");
     }
 
     public static void setPasswordDB(String passwordDB) {
-        MainClass.passwordDB = passwordDB;
+        appProperties.put("passwordDB", passwordDB);
     }
 
     public static String getDirectoryWithCTLogs() {
-        return directoryWithCTLogs;
+        return appProperties.get("directoryWithCTLogs");
     }
 
     public static void setDirectoryWithCTLogs(String directoryWithCTLogs) {
-        MainClass.directoryWithCTLogs = directoryWithCTLogs;
+        appProperties.put("directoryWithCTLogs", directoryWithCTLogs);
     }
 
-    public void main(String[] args) {
+    public static String getColTime() {
+        return appProperties.get("colTime");
+    }
 
+    public static void setColTime(String colTime) {
+        appProperties.put("colTime", colTime);
+    }
+
+    public static String getColTemp() {
+        return appProperties.get("colTemp");
+    }
+
+    public static void setColTemp(String colTemp) {
+        appProperties.put("colTemp", colTemp);
+    }
+
+    public static String getColLoad() {
+        return appProperties.get("colLoad");
+    }
+
+    public static void setColLoad(String colLoad) {
+        appProperties.put("colLoad", colLoad);
+    }
+
+    public static String getColSpeed() {
+        return appProperties.get("colSpeed");
+    }
+
+    public static void setColSpeed(String colSpeed) {
+        appProperties.put("colSpeed", colSpeed);
+    }
+
+    public static String getColCpu() {
+        return appProperties.get("colCpu");
+    }
+
+    public static void setColCpu(String colCpu) {
+        appProperties.put("colCpu", colCpu);
+    }
+
+    public static String getCore() {
+        return appProperties.get("core");
+    }
+
+    public static void setCore(String core) {
+        appProperties.put("core", core);
+    }
+
+    public static String getTableName() {
+        return appProperties.get("tableName");
+    }
+
+    public static void setTableName(String tableName) {
+        appProperties.put("tableName", tableName);
+    }
+
+    public static Integer getCountOfCharPoint() {
+        return Integer.parseInt(appProperties.get("countOfCharPoint"));
+    }
+
+    public static void setCountOfCharPoint(Integer countOfCharPoint) {
+        appProperties.put("countOfCharPoint", Integer.toString(countOfCharPoint));
+    }
+
+    public static Integer getCountMinutesPerAutoGraphic() {
+        return Integer.parseInt(appProperties.get("countMinutesPerAutoGraphic"));
+    }
+
+    public static void setCountMinutesPerAutoGraphic(Integer countMinutesPerAutoGraphic) {
+        appProperties.put("countMinutesPerAutoGraphic", Integer.toString(countMinutesPerAutoGraphic));
+    }
+
+    public static Integer getMaxParcingThreads() {
+        return Integer.parseInt(appProperties.get("maxParcingThreads"));
+    }
+
+    public static void setMaxParcingThreads(Integer maxParcingThreads) {
+        appProperties.put("maxParcingThreads", Integer.toString(maxParcingThreads));
+    }
+
+    public static int getCountOfCores() {
+        return countOfCores;
+    }
+
+    public static void setCountOfCores(int countOfCores) {
+        MainClass.countOfCores = countOfCores;
+    }
+
+    public static boolean isPropertiesLoaded() {
+        return propertiesLoaded;
+    }
+
+    static void loadProperties() throws IOException {
+
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(propertiesFile));
+
+        for (String name : properties.stringPropertyNames()) {
+            appProperties.put(name, properties.getProperty(name));
+        }
+
+        propertiesLoaded = true;
+    }
+
+    static void saveProperties() throws IOException {
+        Properties properties = new Properties();
+        properties.putAll(appProperties);
+        properties.store(new FileOutputStream(propertiesFile), null);
+    }
+
+    public void main(String[] args) throws IOException {
+        if (!propertiesLoaded) loadProperties();
         if (connectionToBase()) new justDoIt(args).start();
 
     }
@@ -90,6 +191,7 @@ public class MainClass {
 
     public static void deleteDB() {
         Statement stm = null;
+        String tableName = getTableName();
         try {
             stm = con.createStatement();
         } catch (SQLException e) {
@@ -97,12 +199,12 @@ public class MainClass {
             return;
         }
         try {
-            stm.execute("DROP TABLE IF EXISTS CoreTemp");
+            stm.execute("DROP TABLE IF EXISTS " + tableName);
         } catch (SQLException e) {
             MainClass.writeToLog(String.valueOf(e.getStackTrace()));
             return;
         }
-        MainClass.writeToLog("Base CoreTemp is deleted!");
+        MainClass.writeToLog("Base " + tableName + " is deleted!");
     }
 
     public static void writeToLog(String log) {
@@ -111,6 +213,9 @@ public class MainClass {
     }
 
     public static synchronized boolean connectionToBase() {
+        String urlDB = getUrlDB();
+        String loginDB = getLoginDB();
+        String passwordDB = getPasswordDB();
 
         MainClass.writeToLog("ConnectionToBase start currentWorkingThread:" + currentWorkingThread);
 
@@ -192,6 +297,8 @@ class justDoIt extends Thread {
 
     public void run() {
 
+        Integer maxParcingThreads = MainClass.getMaxParcingThreads();
+
         if (args.length != 0) {
             directory = args[0];
         }
@@ -210,7 +317,8 @@ class justDoIt extends Thread {
         String ext;
 
         if (directory.equals("")) {
-//            directory = "C:\\Pet\\CoreTempTestData";
+            MainClass.writeToLog("Directory to parce is not defined!");
+            MainClass.done = true;
             return;
         }
 
@@ -277,7 +385,7 @@ class justDoIt extends Thread {
         }
 
         for (Thread t : threads) {
-            while (MainClass.currentWorkingThread > 50) {
+            while (MainClass.currentWorkingThread >= maxParcingThreads) {
                 //wait
             }
             t.start();
@@ -345,8 +453,7 @@ class justDoIt extends Thread {
     }
 
     public static String getQueryText_FindLastDate() {
-        String text = "SELECT time FROM CORETEMP " +
-                "ORDER BY time DESC LIMIT 1";
+        String text = "SELECT time FROM CORETEMP " + "ORDER BY time DESC LIMIT 1";
         return text;
     }
 }

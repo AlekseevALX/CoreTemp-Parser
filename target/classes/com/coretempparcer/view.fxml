@@ -75,15 +75,15 @@
                          <AnchorPane minHeight="100.0" minWidth="100.0" prefHeight="282.0" prefWidth="222.0">
                               <children>
                                   <Button onAction="#onStartButtonClick" text="to parce" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
-                                 <Button mnemonicParsing="false" onAction="#onDeleteBaseButtonClick" text="Delete all base" textFill="#fc0000" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="40.0" />
+                                 <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#onDeleteBaseButtonClick" text="Delete all base" textFill="#fc0000" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="72.0" />
+                              <Button id="properties" onAction="#onDefinePropertiesButtonClick" fx:id="properties" layoutX="10.0" layoutY="41.0" mnemonicParsing="false" text="Properties" />
                               </children>
                            </AnchorPane>
                          <AnchorPane>
                               <children>
-                                 <Label nodeOrientation="LEFT_TO_RIGHT" text="Log:" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="30.0" />
+                                 <Label layoutX="5.0" layoutY="6.0" nodeOrientation="LEFT_TO_RIGHT" text="Log:" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="6.0" />
                               
-                                       <TextArea id="textLog" fx:id="textLog" blendMode="DARKEN" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="50.0" />
-                                  <TextField fx:id="filepath" nodeOrientation="LEFT_TO_RIGHT" pickOnBounds="false" promptText="Enter path here" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                                       <TextArea id="textLog" fx:id="textLog" blendMode="DARKEN" layoutY="26.0" prefHeight="610.0" prefWidth="1105.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="26.0" />
                               </children>
                            </AnchorPane>
                        </items>

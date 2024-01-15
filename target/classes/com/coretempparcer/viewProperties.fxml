@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--<?scenebuilder-stylesheet 1.css?>-->
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--<VBox alignment="CENTER" prefHeight="648.0" prefWidth="797.0" spacing="20.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparcer.AppController">-->
+<!--    <padding>-->
+<!--        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />-->
+<!--    </padding>-->
+<!--</VBox>-->
+
+<TitledPane animated="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" text="Properties" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparcer.AppControllerProperties">
+  <content>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="450.0" prefWidth="598.0">
+         <children>
+            <TextField id="urlDB" fx:id="urlDB" layoutX="225.0" layoutY="14.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="loginDB" fx:id="loginDB" layoutX="225.0" layoutY="39.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="passwordDB" fx:id="passwordDB" layoutX="225.0" layoutY="64.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="directoryWithCTLogs" fx:id="directoryWithCTLogs" layoutX="225.0" layoutY="89.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="colTime" fx:id="colTime" layoutX="225.0" layoutY="114.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="colTemp" fx:id="colTemp" layoutX="225.0" layoutY="139.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="colLoad" fx:id="colLoad" layoutX="225.0" layoutY="164.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="colSpeed" fx:id="colSpeed" layoutX="225.0" layoutY="189.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="colCpu" fx:id="colCpu" layoutX="225.0" layoutY="214.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="core" fx:id="core" layoutX="225.0" layoutY="239.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="countOfCharPoint" fx:id="countOfCharPoint" layoutX="225.0" layoutY="264.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="countMinutesPerAutoGraphic" fx:id="countMinutesPerAutoGraphic" layoutX="225.0" layoutY="289.0" prefHeight="25.0" prefWidth="290.0" />
+            <TextField id="maxParcingThreads" fx:id="maxParcingThreads" layoutX="225.0" layoutY="314.0" prefHeight="25.0" prefWidth="290.0" />
+            <Label layoutX="14.0" layoutY="18.0" text="DataBase URL:" />
+            <Label layoutX="14.0" layoutY="43.0" text="DataBase login:" />
+            <Label layoutX="14.0" layoutY="68.0" text="DataBase password:" />
+            <Label layoutX="14.0" layoutY="93.0" text="Directory that contains CoreTemp logs:" />
+            <Label layoutX="14.0" layoutY="118.0" text="Name of &quot;Time&quot; column:" />
+            <Label layoutX="14.0" layoutY="143.0" text="Name of &quot;Temp&quot; column:" />
+            <Label layoutX="14.0" layoutY="168.0" text="Name of &quot;Load&quot; column:" />
+            <Label layoutX="14.0" layoutY="193.0" text="Name of &quot;Speed&quot; column:" />
+            <Label layoutX="14.0" layoutY="218.0" text="Name of &quot;Cpu&quot; column:" />
+            <Label layoutX="14.0" layoutY="243.0" text="Name of &quot;Core&quot; column:" />
+            <Label layoutX="14.0" layoutY="268.0" text="Count of points on charts:" />
+            <Label layoutX="14.0" layoutY="293.0" text="Count of minutes, viewing in the charts:" />
+            <Label layoutX="14.0" layoutY="318.0" text="Max count of thread for parcing:" />
+            <Button fx:id="acceptButton" layoutX="14.0" layoutY="390.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedAcceptButton" text="Accept" />
+            <Label layoutX="14.0" layoutY="339.0" text="Table name:" />
+            <TextField id="tableName" fx:id="tableName" layoutX="225.0" layoutY="339.0" prefHeight="25.0" prefWidth="290.0" />
+         </children></AnchorPane>
+  </content>
+</TitledPane>
