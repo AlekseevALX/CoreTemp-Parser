@@ -14,16 +14,16 @@ public class MainClass {
     public static volatile String log = "";
     public static volatile boolean auto = false;
 
-    public static HashMap<String, String> appProperties = new HashMap<>();
+    private static HashMap<String, String> appProperties = new HashMap<>();
 
-    static String ver = "1.0";
+    private static String ver = "1.0";
 
-    public static String propertiesFile = "C:\\Pet\\CoreTempParcer\\src\\main\\java\\com\\coretempparcer\\properties\\properties.properties";
+    private static String propertiesFile = "C:\\Pet\\CoreTempParcer\\src\\main\\java\\com\\coretempparcer\\properties\\properties.properties";
 
-    public static boolean propertiesLoaded = false;
+    private static boolean propertiesLoaded = false;
     public static Connection con = null;
 
-    public static int countOfCores;
+    private static int countOfCores;
 
     public static String getVer() {
         return ver;
@@ -297,7 +297,7 @@ class justDoIt extends Thread {
 
     public void run() {
 
-        Integer maxParcingThreads = MainClass.getMaxParcingThreads();
+        int maxParcingThreads = MainClass.getMaxParcingThreads();
 
         if (args.length != 0) {
             directory = args[0];

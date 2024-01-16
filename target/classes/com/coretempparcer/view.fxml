@@ -76,7 +76,8 @@
                               <children>
                                   <Button onAction="#onStartButtonClick" text="to parce" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
                                  <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#onDeleteBaseButtonClick" text="Delete all base" textFill="#fc0000" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="72.0" />
-                              <Button id="properties" onAction="#onDefinePropertiesButtonClick" fx:id="properties" layoutX="10.0" layoutY="41.0" mnemonicParsing="false" text="Properties" />
+                              <Button id="properties" fx:id="properties" layoutX="10.0" layoutY="41.0" mnemonicParsing="false" onAction="#onDefinePropertiesButtonClick" text="Properties" />
+                              <Button fx:id="testButton" layoutX="14.0" layoutY="116.0" mnemonicParsing="false" onAction="#testButtonClicked" text="test" />
                               </children>
                            </AnchorPane>
                          <AnchorPane>

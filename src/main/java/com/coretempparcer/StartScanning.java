@@ -9,10 +9,6 @@ import java.io.*;
 import java.sql.*;
 
 public class StartScanning extends Thread {
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
     private String fileName = "";
 
     public StartScanning(String fileName, String threadName) {
@@ -67,7 +63,7 @@ public class StartScanning extends Thread {
     @Override
     public void run() {
 
-        if (fileName.equals("")){
+        if (fileName.equals("")) {
             endOfthread();
             return;
         }
@@ -83,7 +79,6 @@ public class StartScanning extends Thread {
         }
 
         if (fd.getStringcount() == 0) {
-//            System.out.println("File " + fileName + " don't have any strings");
             endOfthread();
             return;
         }
@@ -113,11 +108,11 @@ public class StartScanning extends Thread {
 
     }
 
-    void endOfthread(){
-        synchronized (StartScanning.class){
+    void endOfthread() {
+        synchronized (StartScanning.class) {
             MainClass.currentWorkingThread -= 1;
             MainClass.countOfThreads -= 1;
-            if (MainClass.countOfThreads == 0){
+            if (MainClass.countOfThreads == 0) {
                 MainClass.done = true;
             }
         }

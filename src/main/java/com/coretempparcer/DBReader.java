@@ -91,7 +91,7 @@ public class DBReader {
         Float val;
 
         if (mapTemp != null) {
-            for (int i = 0; i < MainClass.countOfCores; i++) {
+            for (int i = 0; i < MainClass.getCountOfCores(); i++) {
                 field = "core" + i + col;
                 HashMap<Date, Float> point = mapTemp.get(field);
                 val = resSel.getFloat(field);
@@ -106,6 +106,7 @@ public class DBReader {
         String colLoad = MainClass.getColLoad();
         String colSpeed = MainClass.getColSpeed();
         String colCpu = MainClass.getColCpu();
+        int countOfCores = MainClass.getCountOfCores();
 
         for (String s : columns) {
             if (s.equals(colTime) || s.substring(0, 3).equals(colCpu)) continue;
@@ -125,21 +126,21 @@ public class DBReader {
 
         if (chartData.get(colTemp) != null) {
             HashMap<String, HashMap<Date, Float>> mapTemp = chartData.get(colTemp);
-            for (int i = 0; i < MainClass.countOfCores; i++) {
+            for (int i = 0; i < countOfCores; i++) {
                 mapTemp.put("core" + i + colTemp, new HashMap<>());
             }
         }
 
         if (chartData.get(colLoad) != null) {
             HashMap<String, HashMap<Date, Float>> mapTemp = chartData.get(colLoad);
-            for (int i = 0; i < MainClass.countOfCores; i++) {
+            for (int i = 0; i < countOfCores; i++) {
                 mapTemp.put("core" + i + colLoad, new HashMap<>());
             }
         }
 
         if (chartData.get(colSpeed) != null) {
             HashMap<String, HashMap<Date, Float>> mapTemp = chartData.get(colSpeed);
-            for (int i = 0; i < MainClass.countOfCores; i++) {
+            for (int i = 0; i < countOfCores; i++) {
                 mapTemp.put("core" + i + colSpeed, new HashMap<>());
             }
         }
@@ -148,7 +149,8 @@ public class DBReader {
 
     private void defineCountOfCores(ArrayList<String> columns) {
         int currCore = 0;
-        if (MainClass.countOfCores == 0) {
+        int countOfCores = MainClass.getCountOfCores();
+        if (countOfCores == 0) {
             for (String s : columns) {
                 if (s.length() < 5) continue;
                 if ((s.contains("core") || s.contains("Core")) && Integer.parseInt(s.substring(4, 5)) > currCore) {
@@ -156,7 +158,8 @@ public class DBReader {
                 }
             }
 
-            MainClass.countOfCores = currCore + 1;
+            countOfCores = currCore + 1;
+            MainClass.setCountOfCores(countOfCores);
         }
     }
 

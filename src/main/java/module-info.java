@@ -4,7 +4,7 @@ module com.coretempparcer {
     requires java.sql;
     requires org.postgresql.jdbc;
     requires java.desktop;
-
+    requires org.apache.commons.csv;
 
     opens com.coretempparcer to javafx.fxml;
     exports com.coretempparcer;

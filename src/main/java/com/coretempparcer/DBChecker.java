@@ -13,8 +13,9 @@ public class DBChecker {
     private static String getExecuteText() {
         String text = "";
         String colName = "";
+        String tableName = MainClass.getTableName();
 
-        text = text.concat("CREATE TABLE IF NOT EXISTS " + "CoreTemp(");
+        text = text.concat("CREATE TABLE IF NOT EXISTS " + tableName + "(");
         text = text.concat(columns.get(0) + " " + "timestamp UNIQUE, ");
 
         int ch = columns.size();
@@ -32,7 +33,6 @@ public class DBChecker {
     }
 
     public void checkDB() {
-
         Statement stm;
 
         try {
@@ -83,7 +83,8 @@ public class DBChecker {
     }
 
     public static String getIsDefinedText() {
-        String text = "SELECT time FROM CORETEMP " +
+        String tableName = MainClass.getTableName();
+        String text = "SELECT time FROM " + tableName.toUpperCase() + " " +
                 "ORDER BY time DESC LIMIT 1";
 
         return text;

@@ -7,11 +7,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="CoreTemp Parcer" />
+        <module name="CoreTempParcer" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="CoreTemp Parcer" target="17" />
-      <module name="CoreTempParcer" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -3,7 +3,6 @@ package com.coretempparcer;
 
 
 import org.postgresql.jdbc.PgResultSet;
-
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -27,7 +26,7 @@ public class DBWriter {
 
 //        Class.forName("org.postgresql.Driver");
 
-        PreparedStatement stm = null;
+        PreparedStatement stm;
 
         String queryText = getQueryTextInsert(columns);
 

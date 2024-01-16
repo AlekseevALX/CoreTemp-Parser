@@ -5,7 +5,10 @@
 
 package com.coretempparcer;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,6 +34,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import org.apache.commons.csv.*;
+
 
 public class AppController {
     DBReader dbReader = new DBReader();
@@ -201,6 +207,16 @@ public class AppController {
         this.textLog.forward();
     }
 
+    public void testButtonClicked() throws IOException {
+        String filePath = "C:\\Pet\\test\\test file\\CT-Log 2024-01-15 18-34-12.csv";
+        Reader in = new FileReader(filePath);
+        Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
+        for (CSVRecord record : records) {
+            String columnOne = record.get(0);
+            if (columnOne.equals("")) continue;
+            String columnTwo = record.get(1);
+        }
+    }
     public void refreshLinearChartToPeriod() {
         this.refreshLinearChart(true);
     }
@@ -278,14 +294,14 @@ public class AppController {
                 coreMap = (HashMap) chartLoad.get(core + i + colLoad);
                 if (coreMap.size() > 0) {
                     series = new Series();
-                    series.setName("core" + i + colLoad);
+                    series.setName(core + i + colLoad);
                     this.fillForOneCore(core + i + colLoad, coreMap, series, this.graphicLoad);
                 }
             }
         }
 
         if (chartSpeed != null) {
-            for (i = 0; i < MainClass.countOfCores; ++i) {
+            for (i = 0; i < MainClass.getCountOfCores(); ++i) {
                 coreMap = chartSpeed.get(core + i + colSpeed);
                 if (coreMap.size() > 0) {
                     series = new Series();
