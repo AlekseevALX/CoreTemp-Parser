@@ -258,9 +258,6 @@ public class MainClass {
 
         if (columnName.length() < 10) return true;
 
-//        if (columnName.substring(columnName.length()-7, columnName.length()).equals("Lowtemp") ||
-//                columnName.substring(columnName.length()-8, columnName.length()).equals("Hightemp")) return false;
-
         if (columnName.endsWith("Lowtemp") || columnName.endsWith("Hightemp")) return false;
 
         return true;

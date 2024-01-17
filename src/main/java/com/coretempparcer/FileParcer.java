@@ -1,9 +1,9 @@
 package com.coretempparcer;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+
+import java.io.*;
 import java.sql.Timestamp;
 import java.time.Month;
 import java.util.*;
@@ -13,92 +13,79 @@ public class FileParcer {
 
     public static FileData parceFile(String fileName) throws IOException {
 
-        String file;
-
-        file = fileName;
-
-        FileData fd = fileParsing(file);
+        FileData fd = fileParsing(fileName);
 
         return fd;
     }
 
     public static FileData fileParsing(String file) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 
         FileData dataOfFile = new FileData(file);
 
-        String oneString = "";
-        String[] spltStrCol;
-        int step = 1; //step 1 - read title, 2 - read names of column, 3 - read strings
         String[] spltStr;
         String[] addingStr;
         int i = 0;
 
-        while (bufferedReader.ready()) {
+        String firstCol;
+        Reader in = new FileReader(file);
+        Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
 
-            oneString = bufferedReader.readLine();
+        for (CSVRecord record : records) {
+            if (record.values().length < 1) continue;
 
-            if (oneString.equals("")) continue;
+            firstCol = record.get(0);
+            if (firstCol.isEmpty()) continue;
 
-            if (step == 3) {
-                if (oneString.substring(0, 11).equals("Session end")) {
-                    continue;
+            switch (firstCol) {
+                case ("Time"): {
+                    int a = 0;
+                    for (String s : record.values()) {
+                        s = prepareColName(s);
+                        if (dataOfFile.addColumn(a, s)) a += 1;
+                    }
+                    prepareColumns(dataOfFile);
+                    break;
                 }
-                spltStr = oneString.split(",");
-                if (spltStr.length < 2){
-                    continue;
+                case ("CPUID:"):
+                    dataOfFile.setCPUID(firstCol);
+                    break;
+                case ("Processor:"): {
+                    dataOfFile.setProcessor(firstCol);
+                    break;
                 }
-                spltStr = prepareString(spltStr);
-                addingStr = deleteExcessColumnsFromString(dataOfFile, spltStr);
-                dataOfFile.addString(i, addingStr);
-                i += 1;
-            }
-
-            if (step == 2) {
-                spltStrCol = oneString.split(",");
-                int a = 0;
-                for (String s : spltStrCol) {
-                    s = prepareColName(s);
-                    if (dataOfFile.addColumn(a, s)) a += 1;
+                case ("Platform:"): {
+                    dataOfFile.setPlatform(firstCol);
+                    break;
                 }
-                prepareColumns(dataOfFile);
-                step = 3;
-            }
-
-            if (step == 1) {
-                spltStr = oneString.split(",");
-
-                if (spltStr[0].equals("CPUID:")) {
-                    dataOfFile.setCPUID(spltStr[1]);
+                case ("Revision:"): {
+                    dataOfFile.setRevision(firstCol);
+                    break;
                 }
-
-                if (spltStr[0].equals("Processor:")) {
-                    dataOfFile.setProcessor(spltStr[1]);
+                case ("Lithography:"): {
+                    dataOfFile.setLithography(firstCol);
+                    break;
                 }
-
-                if (spltStr[0].equals("Platform:")) {
-                    dataOfFile.setPlatform(spltStr[1]);
+                case ("Session start:"): {
+                    Date seStart = parseSessionStart(record.get(1));
+                    dataOfFile.setSessionStart(seStart);
+                    break;
                 }
-
-                if (spltStr[0].equals("Revision:")) {
-                    dataOfFile.setRevision(spltStr[1]);
+                case ("Session end"): {
+                    break;
                 }
-
-                if (spltStr[0].equals("Lithography:")) {
-                    dataOfFile.setLithography(spltStr[1]);
-                }
-
-                if (spltStr[0].equals("Session start:")) {
-
-                    Date sesTart = parseSessionStart(spltStr[1]);
-                    dataOfFile.setSessionStart(sesTart);
-
-                    step = 2;
+                default: {
+                    if (record.values().length < 2) {
+                        break;
+                    }
+                    spltStr = prepareString(record.values());
+                    addingStr = deleteExcessColumnsFromString(dataOfFile, spltStr);
+                    dataOfFile.addString(i, addingStr);
+                    i += 1;
                 }
             }
+
+
         }
-
-        bufferedReader.close();
 
         dataOfFile.setStringcount(i);
 

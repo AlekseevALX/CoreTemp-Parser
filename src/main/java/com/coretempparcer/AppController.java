@@ -211,8 +211,10 @@ public class AppController {
         String filePath = "C:\\Pet\\test\\test file\\CT-Log 2024-01-15 18-34-12.csv";
         Reader in = new FileReader(filePath);
         Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
+
         for (CSVRecord record : records) {
             String columnOne = record.get(0);
+
             if (columnOne.equals("")) continue;
             String columnTwo = record.get(1);
         }
