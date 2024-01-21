@@ -65,11 +65,11 @@ public class DBReader {
 
             defineChartDataStructure(chartData, columns);
 
-            String colTime = MainClass.getColTime();
-            String colTemp = MainClass.getColTemp();
-            String colLoad = MainClass.getColLoad();
-            String colSpeed = MainClass.getColSpeed();
-            String colCpu = MainClass.getColCpu();
+            String colTime = MainClass.getColdb_time();
+            String colTemp = MainClass.getColdb_temp();
+            String colLoad = MainClass.getColdb_load();
+            String colSpeed = MainClass.getColdb_speed();
+            String colCpu = MainClass.getColdb_cpu();
 
             while (resSel.next()) {
 
@@ -101,11 +101,11 @@ public class DBReader {
     }
 
     private void defineChartDataStructure(HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData, ArrayList<String> columns) {
-        String colTime = MainClass.getColTime();
-        String colTemp = MainClass.getColTemp();
-        String colLoad = MainClass.getColLoad();
-        String colSpeed = MainClass.getColSpeed();
-        String colCpu = MainClass.getColCpu();
+        String colTime = MainClass.getColdb_time();
+        String colTemp = MainClass.getColdb_temp();
+        String colLoad = MainClass.getColdb_load();
+        String colSpeed = MainClass.getColdb_speed();
+        String colCpu = MainClass.getColdb_cpu();
         int countOfCores = MainClass.getCountOfCores();
 
         for (String s : columns) {

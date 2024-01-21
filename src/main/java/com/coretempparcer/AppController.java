@@ -5,7 +5,6 @@
 
 package com.coretempparcer;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -24,7 +23,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
@@ -266,12 +264,12 @@ public class AppController {
     }
 
     private void fillingChartsData(HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData) {
-        String colTime = MainClass.getColTime();
-        String colTemp = MainClass.getColTemp();
-        String colLoad = MainClass.getColLoad();
-        String colSpeed = MainClass.getColSpeed();
-        String colCpu = MainClass.getColCpu();
-        String core = MainClass.getCore();
+        String colTime = MainClass.getColdb_time();
+        String colTemp = MainClass.getColdb_temp();
+        String colLoad = MainClass.getColdb_load();
+        String colSpeed = MainClass.getColdb_speed();
+        String colCpu = MainClass.getColdb_cpu();
+        String core = MainClass.getColdb_core();
         int countOfCores = MainClass.getCountOfCores();
         HashMap<String, HashMap<Date, Float>> chartTemp = chartData.get(colTemp);
         HashMap<String, HashMap<Date, Float>> chartLoad = chartData.get(colLoad);

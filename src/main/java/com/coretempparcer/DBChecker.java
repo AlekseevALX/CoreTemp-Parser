@@ -84,8 +84,9 @@ public class DBChecker {
 
     public static String getIsDefinedText() {
         String tableName = MainClass.getTableName();
-        String text = "SELECT time FROM " + tableName.toUpperCase() + " " +
-                "ORDER BY time DESC LIMIT 1";
+        String colTime = MainClass.getColdb_time();
+        String text = "SELECT " + colTime + " FROM " + tableName.toUpperCase() + " " +
+                "ORDER BY " + colTime + " DESC LIMIT 1";
 
         return text;
     }

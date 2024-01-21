@@ -47,22 +47,22 @@ public class FileParcer {
                     break;
                 }
                 case ("CPUID:"):
-                    dataOfFile.setCPUID(firstCol);
+                    dataOfFile.setCPUID(record.get(1));
                     break;
                 case ("Processor:"): {
-                    dataOfFile.setProcessor(firstCol);
+                    dataOfFile.setProcessor(record.get(1));
                     break;
                 }
                 case ("Platform:"): {
-                    dataOfFile.setPlatform(firstCol);
+                    dataOfFile.setPlatform(record.get(1));
                     break;
                 }
                 case ("Revision:"): {
-                    dataOfFile.setRevision(firstCol);
+                    dataOfFile.setRevision(record.get(1));
                     break;
                 }
                 case ("Lithography:"): {
-                    dataOfFile.setLithography(firstCol);
+                    dataOfFile.setLithography(record.get(1));
                     break;
                 }
                 case ("Session start:"): {
@@ -87,11 +87,46 @@ public class FileParcer {
 
         }
 
+        in.close();
+
         dataOfFile.setStringcount(i);
 
         deleteExcessColumnsFromFileData(dataOfFile);
 
         return dataOfFile;
+    }
+
+    public static void readColumnSettings(String file) throws IOException {
+        Reader in = new FileReader(file);
+        Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
+        String firstCol;
+        int a = 1;
+        HashMap<String, String> systemProperties = MainClass.getSystemPropertiesMap();
+        String f_colTime = systemProperties.get("f_time");
+
+        for (CSVRecord record : records) {
+            firstCol = record.get(0);
+            if (firstCol.isEmpty()) continue;
+
+            if (firstCol.toUpperCase().equals(f_colTime.toUpperCase())) {
+                MainClass.setFirstStringOfData(a);
+                toFindNeededColumns(record);
+                break;
+            }
+
+            a += 1;
+        }
+        in.close();
+    }
+
+    private static void toFindNeededColumns(CSVRecord record) {
+        String currCol;
+        for (int i = 0; i < record.values().length; i++) {
+            currCol = record.get(i);
+            if (currCol.isEmpty()) continue;
+
+            //HERE continue
+        }
     }
 
     private static void deleteExcessColumnsFromFileData(FileData dataOfFile) {

@@ -13,12 +13,15 @@ public class MainClass {
     public static volatile boolean done = true;
     public static volatile String log = "";
     public static volatile boolean auto = false;
-
-    private static HashMap<String, String> appProperties = new HashMap<>();
-
+    private static HashMap<String, String> userSettingsMap = new HashMap<>();
+    private static HashMap<String, String> systemPropertiesMap = new HashMap<>();
     private static String ver = "1.0";
+    private static int firstStringOfData;
+    private static HashMap<Integer, String> columnsLocations = new HashMap<>();
+    private static boolean columnsSettingsIsReaded = false;
 
-    private static String propertiesFile = "C:\\Pet\\CoreTempParcer\\src\\main\\java\\com\\coretempparcer\\properties\\properties.properties";
+    private static String userSettings = "C:\\Pet\\CoreTempParcer\\src\\main\\java\\com\\coretempparcer\\properties\\UserSettings.properties";
+    private static String systemProperties = "C:\\Pet\\CoreTempParcer\\src\\main\\java\\com\\coretempparcer\\properties\\SystemProperties.properties";
 
     private static boolean propertiesLoaded = false;
     public static Connection con = null;
@@ -29,124 +32,84 @@ public class MainClass {
         return ver;
     }
 
-    public static HashMap<String, String> getAppProperties() {
-        return appProperties;
+    public static HashMap<String, String> getUserSettingsMap() {
+        return userSettingsMap;
     }
 
-    public static void setAppProperties(HashMap<String, String> appProperties) {
-        MainClass.appProperties = appProperties;
+    public static void setUserSettingsMap(HashMap<String, String> userSettingsMap) {
+        MainClass.userSettingsMap = userSettingsMap;
+    }
+
+    public static HashMap<String, String> getSystemPropertiesMap() {
+        return systemPropertiesMap;
     }
 
     public static String getUrlDB() {
-        return appProperties.get("urlDB");
+        return userSettingsMap.get("urlDB");
     }
 
     public static void setUrlDB(String urlDB) {
-        appProperties.put("urlDB", urlDB);
+        userSettingsMap.put("urlDB", urlDB);
     }
 
     public static String getLoginDB() {
-        return appProperties.get("loginDB");
+        return userSettingsMap.get("loginDB");
     }
 
     public static void setLoginDB(String loginDB) {
-        appProperties.put("loginDB", loginDB);
+        userSettingsMap.put("loginDB", loginDB);
     }
 
     public static String getPasswordDB() {
-        return appProperties.get("passwordDB");
+        return userSettingsMap.get("passwordDB");
     }
 
     public static void setPasswordDB(String passwordDB) {
-        appProperties.put("passwordDB", passwordDB);
+        userSettingsMap.put("passwordDB", passwordDB);
     }
 
     public static String getDirectoryWithCTLogs() {
-        return appProperties.get("directoryWithCTLogs");
+        return userSettingsMap.get("directoryWithCTLogs");
     }
 
-    public static void setDirectoryWithCTLogs(String directoryWithCTLogs) {
-        appProperties.put("directoryWithCTLogs", directoryWithCTLogs);
+    public static String getColdb_time() {
+        return systemPropertiesMap.get("db_time");
     }
 
-    public static String getColTime() {
-        return appProperties.get("colTime");
+    public static String getColdb_temp() {
+        return systemPropertiesMap.get("db_temp");
     }
 
-    public static void setColTime(String colTime) {
-        appProperties.put("colTime", colTime);
+    public static String getColdb_load() {
+        return systemPropertiesMap.get("db_load");
     }
 
-    public static String getColTemp() {
-        return appProperties.get("colTemp");
+    public static String getColdb_speed() {
+        return systemPropertiesMap.get("db_speed");
     }
 
-    public static void setColTemp(String colTemp) {
-        appProperties.put("colTemp", colTemp);
+    public static String getColdb_cpu() {
+        return systemPropertiesMap.get("db_cpu");
     }
 
-    public static String getColLoad() {
-        return appProperties.get("colLoad");
-    }
-
-    public static void setColLoad(String colLoad) {
-        appProperties.put("colLoad", colLoad);
-    }
-
-    public static String getColSpeed() {
-        return appProperties.get("colSpeed");
-    }
-
-    public static void setColSpeed(String colSpeed) {
-        appProperties.put("colSpeed", colSpeed);
-    }
-
-    public static String getColCpu() {
-        return appProperties.get("colCpu");
-    }
-
-    public static void setColCpu(String colCpu) {
-        appProperties.put("colCpu", colCpu);
-    }
-
-    public static String getCore() {
-        return appProperties.get("core");
-    }
-
-    public static void setCore(String core) {
-        appProperties.put("core", core);
+    public static String getColdb_core() {
+        return systemPropertiesMap.get("db_core");
     }
 
     public static String getTableName() {
-        return appProperties.get("tableName");
-    }
-
-    public static void setTableName(String tableName) {
-        appProperties.put("tableName", tableName);
+        return userSettingsMap.get("tableName");
     }
 
     public static Integer getCountOfCharPoint() {
-        return Integer.parseInt(appProperties.get("countOfCharPoint"));
-    }
-
-    public static void setCountOfCharPoint(Integer countOfCharPoint) {
-        appProperties.put("countOfCharPoint", Integer.toString(countOfCharPoint));
+        return Integer.parseInt(userSettingsMap.get("countOfCharPoint"));
     }
 
     public static Integer getCountMinutesPerAutoGraphic() {
-        return Integer.parseInt(appProperties.get("countMinutesPerAutoGraphic"));
-    }
-
-    public static void setCountMinutesPerAutoGraphic(Integer countMinutesPerAutoGraphic) {
-        appProperties.put("countMinutesPerAutoGraphic", Integer.toString(countMinutesPerAutoGraphic));
+        return Integer.parseInt(userSettingsMap.get("countMinutesPerAutoGraphic"));
     }
 
     public static Integer getMaxParcingThreads() {
-        return Integer.parseInt(appProperties.get("maxParcingThreads"));
-    }
-
-    public static void setMaxParcingThreads(Integer maxParcingThreads) {
-        appProperties.put("maxParcingThreads", Integer.toString(maxParcingThreads));
+        return Integer.parseInt(userSettingsMap.get("maxParcingThreads"));
     }
 
     public static int getCountOfCores() {
@@ -161,13 +124,44 @@ public class MainClass {
         return propertiesLoaded;
     }
 
+    public static int getFirstStringOfData() {
+        return firstStringOfData;
+    }
+
+    public static void setFirstStringOfData(int firstStringOfData) {
+        MainClass.firstStringOfData = firstStringOfData;
+    }
+
+    public static HashMap<Integer, String> getColumnsLocations() {
+        return columnsLocations;
+    }
+
+    public static void setColumnsLocations(HashMap<Integer, String> columnsLocations) {
+        MainClass.columnsLocations = columnsLocations;
+    }
+
+    public static boolean isColumnsSettingsIsReaded() {
+        return columnsSettingsIsReaded;
+    }
+
+    public static void setColumnsSettingsIsReaded(boolean columnsSettingsIsReaded) {
+        MainClass.columnsSettingsIsReaded = columnsSettingsIsReaded;
+    }
+
     static void loadProperties() throws IOException {
 
         Properties properties = new Properties();
-        properties.load(new FileInputStream(propertiesFile));
+        properties.load(new FileInputStream(userSettings));
 
         for (String name : properties.stringPropertyNames()) {
-            appProperties.put(name, properties.getProperty(name));
+            userSettingsMap.put(name, properties.getProperty(name));
+        }
+
+        properties = new Properties();
+        properties.load(new FileInputStream(systemProperties));
+
+        for (String name : properties.stringPropertyNames()) {
+            systemPropertiesMap.put(name, properties.getProperty(name));
         }
 
         propertiesLoaded = true;
@@ -175,13 +169,17 @@ public class MainClass {
 
     static void saveProperties() throws IOException {
         Properties properties = new Properties();
-        properties.putAll(appProperties);
-        properties.store(new FileOutputStream(propertiesFile), null);
+        properties.putAll(userSettingsMap);
+        properties.store(new FileOutputStream(userSettings), null);
+
+        properties = new Properties();
+        properties.putAll(systemPropertiesMap);
+        properties.store(new FileOutputStream(systemProperties), null);
     }
 
     public void main(String[] args) throws IOException {
         if (!propertiesLoaded) loadProperties();
-        if (connectionToBase()) new justDoIt(args).start();
+        if (connectionToBase()) new ParcingSession_thread(args).start();
 
     }
 
@@ -279,7 +277,7 @@ public class MainClass {
 
 }
 
-class justDoIt extends Thread {
+class ParcingSession_thread extends Thread {
 
     public static Date lastDate = new Date(); //last date, which has been written in database
     public static HashMap<Date, String> mapFiles = new HashMap<>();
@@ -288,7 +286,7 @@ class justDoIt extends Thread {
     public static String directory = "";
 
 
-    public justDoIt(String[] args) {
+    public ParcingSession_thread(String[] args) {
         this.args = args;
     }
 
@@ -340,7 +338,7 @@ class justDoIt extends Thread {
         }
 
         if (!MainClass.connectionToBase()) {
-            MainClass.writeToLog("failed to run thread justDoIt");
+            MainClass.writeToLog("failed to run thread ParcingSession_thread - don't connection to base");
             return;
         }
 
@@ -372,9 +370,11 @@ class justDoIt extends Thread {
             }
         }
 
+        //HERE realize to define column properties
+
         for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
 
-            StartScanning strtSc = new StartScanning(entry.getValue(), "Parcer " + a);
+            ParcingFile_thread strtSc = new ParcingFile_thread(entry.getValue(), "Parcer " + a);
 
             threads.add(strtSc);
             a += 1;

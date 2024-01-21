@@ -5,27 +5,15 @@
 
 package com.coretempparcer;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart.Data;
-import javafx.scene.chart.XYChart.Series;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.input.MouseEvent;
-import javafx.util.Duration;
+import javafx.scene.control.TitledPane;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.Map.Entry;
 
 public class AppControllerProperties implements Initializable {
 
@@ -38,17 +26,29 @@ public class AppControllerProperties implements Initializable {
     @FXML
     private TextField directoryWithCTLogs;
     @FXML
-    private TextField colTime;
+    private TextField db_colTime;
     @FXML
-    private TextField colTemp;
+    private TextField db_colTemp;
     @FXML
-    private TextField colLoad;
+    private TextField db_colLoad;
     @FXML
-    private TextField colSpeed;
+    private TextField db_colSpeed;
     @FXML
-    private TextField colCpu;
+    private TextField db_colCpu;
     @FXML
-    private TextField core;
+    private TextField db_core;
+    @FXML
+    private TextField f_colTime;
+    @FXML
+    private TextField f_colTemp;
+    @FXML
+    private TextField f_colLoad;
+    @FXML
+    private TextField f_colSpeed;
+    @FXML
+    private TextField f_colCpu;
+    @FXML
+    private TextField f_core;
     @FXML
     private TextField countOfCharPoint;
     @FXML
@@ -57,48 +57,98 @@ public class AppControllerProperties implements Initializable {
     private TextField maxParcingThreads;
     @FXML
     private TextField tableName;
+    @FXML
+    private TitledPane userSettings_tab;
+    @FXML
+    private TitledPane sysProp_tab;
+
+//    double initialYOfUserTab = userSettings_tab.getLayoutY();
+
+    double initialYOfSystemTab;
 
     public AppControllerProperties() {
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        HashMap<String, String> prop = MainClass.getAppProperties();
+        HashMap<String, String> userProp = MainClass.getUserSettingsMap();
+        HashMap<String, String> sysSett = MainClass.getSystemPropertiesMap();
+        initialYOfSystemTab = sysProp_tab.getLayoutY();
 
-        urlDB.setText(prop.get("urlDB"));
-        loginDB.setText(prop.get("loginDB"));
-        passwordDB.setText(prop.get("passwordDB"));
-        directoryWithCTLogs.setText(prop.get("directoryWithCTLogs"));
-        colTime.setText(prop.get("colTime"));
-        colTemp.setText(prop.get("colTemp"));
-        colLoad.setText(prop.get("colLoad"));
-        colSpeed.setText(prop.get("colSpeed"));
-        colCpu.setText(prop.get("colCpu"));
-        core.setText(prop.get("core"));
-        countOfCharPoint.setText(prop.get("countOfCharPoint"));
-        countMinutesPerAutoGraphic.setText(prop.get("countMinutesPerAutoGraphic"));
-        maxParcingThreads.setText(prop.get("maxParcingThreads"));
-        tableName.setText(prop.get("tableName"));
+        //users
+        urlDB.setText(userProp.get("urlDB"));
+        loginDB.setText(userProp.get("loginDB"));
+        passwordDB.setText(userProp.get("passwordDB"));
+        directoryWithCTLogs.setText(userProp.get("directoryWithCTLogs"));
+        countOfCharPoint.setText(userProp.get("countOfCharPoint"));
+        countMinutesPerAutoGraphic.setText(userProp.get("countMinutesPerAutoGraphic"));
+        maxParcingThreads.setText(userProp.get("maxParcingThreads"));
+        tableName.setText(userProp.get("tableName"));
+
+        //system
+        db_colTime.setText(sysSett.get("db_time"));
+        db_colTemp.setText(sysSett.get("db_temp"));
+        db_colLoad.setText(sysSett.get("db_load"));
+        db_colSpeed.setText(sysSett.get("db_speed"));
+        db_colCpu.setText(sysSett.get("db_cpu"));
+        db_core.setText(sysSett.get("db_core"));
+        f_colTime.setText(sysSett.get("f_time"));
+        f_colTemp.setText(sysSett.get("f_temp"));
+        f_colLoad.setText(sysSett.get("f_load"));
+        f_colSpeed.setText(sysSett.get("f_speed"));
+        f_colCpu.setText(sysSett.get("f_cpu"));
+        f_core.setText(sysSett.get("f_core"));
+
     }
 
     public void onMouseClickedAcceptButton() throws IOException {
-        HashMap<String, String> prop = MainClass.getAppProperties();
+        HashMap<String, String> userProp = MainClass.getUserSettingsMap();
+        HashMap<String, String> sysSett = MainClass.getSystemPropertiesMap();
 
-        prop.put("urlDB", urlDB.getText());
-        prop.put("loginDB", loginDB.getText());
-        prop.put("passwordDB", passwordDB.getText());
-        prop.put("directoryWithCTLogs", directoryWithCTLogs.getText());
-        prop.put("colTime", colTime.getText());
-        prop.put("colTemp", colTemp.getText());
-        prop.put("colLoad", colLoad.getText());
-        prop.put("colSpeed", colSpeed.getText());
-        prop.put("colCpu", colCpu.getText());
-        prop.put("core", core.getText());
-        prop.put("countOfCharPoint", countOfCharPoint.getText());
-        prop.put("countMinutesPerAutoGraphic", countMinutesPerAutoGraphic.getText());
-        prop.put("maxParcingThreads", maxParcingThreads.getText());
-        prop.put("tableName", tableName.getText());
+        userProp.put("urlDB", urlDB.getText());
+        userProp.put("loginDB", loginDB.getText());
+        userProp.put("passwordDB", passwordDB.getText());
+        userProp.put("directoryWithCTLogs", directoryWithCTLogs.getText());
+
+        sysSett.put("f_time", f_colTime.getText());
+        sysSett.put("f_temp", f_colTemp.getText());
+        sysSett.put("f_load", f_colLoad.getText());
+        sysSett.put("f_speed", f_colSpeed.getText());
+        sysSett.put("f_cpu", f_colCpu.getText());
+        sysSett.put("f_core", f_core.getText());
+
+        sysSett.put("db_time", db_colTime.getText());
+        sysSett.put("db_temp", db_colTemp.getText());
+        sysSett.put("db_load", db_colLoad.getText());
+        sysSett.put("db_speed", db_colSpeed.getText());
+        sysSett.put("db_cpu", db_colCpu.getText());
+        sysSett.put("db_core", db_core.getText());
+
+        userProp.put("countOfCharPoint", countOfCharPoint.getText());
+        userProp.put("countMinutesPerAutoGraphic", countMinutesPerAutoGraphic.getText());
+        userProp.put("maxParcingThreads", maxParcingThreads.getText());
+        userProp.put("tableName", tableName.getText());
 
         MainClass.saveProperties();
+    }
+
+    public void onMouseClicked_userSettings_tab() {
+        sysProp_tab.setExpanded(false);
+
+        double thisHeight = userSettings_tab.getHeight();
+        double thisY = userSettings_tab.getLayoutY();
+
+        if (userSettings_tab.isExpanded()) {
+            sysProp_tab.setLayoutY(thisY + thisHeight);
+        } else {
+            sysProp_tab.setLayoutY(initialYOfSystemTab);
+        }
+
+    }
+
+    public void onMouseClicked_sysProp_tab() {
+        userSettings_tab.setExpanded(false);
+
+        sysProp_tab.setLayoutY(initialYOfSystemTab);
     }
 }

@@ -1,17 +1,13 @@
 package com.coretempparcer;
 //start repository
 
-import javafx.scene.control.Label;
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.sql.*;
 
-public class StartScanning extends Thread {
+public class ParcingFile_thread extends Thread {
     private String fileName = "";
 
-    public StartScanning(String fileName, String threadName) {
+    public ParcingFile_thread(String fileName, String threadName) {
         super(threadName);
         this.fileName = fileName;
     }
@@ -82,7 +78,7 @@ public class StartScanning extends Thread {
             endOfthread();
             return;
         }
-        synchronized (StartScanning.class) {
+        synchronized (ParcingFile_thread.class) {
             if (!MainClass.dbChecked) {
                 DBChecker dbChecker = new DBChecker(fd.getColumns());
 
@@ -94,7 +90,7 @@ public class StartScanning extends Thread {
 
         DBWriter dbWriter = new DBWriter(fd);
 
-        synchronized (StartScanning.class) {
+        synchronized (ParcingFile_thread.class) {
             try {
                 dbWriter.writeToBase();
             } catch (ClassNotFoundException e) {
@@ -109,7 +105,7 @@ public class StartScanning extends Thread {
     }
 
     void endOfthread() {
-        synchronized (StartScanning.class) {
+        synchronized (ParcingFile_thread.class) {
             MainClass.currentWorkingThread -= 1;
             MainClass.countOfThreads -= 1;
             if (MainClass.countOfThreads == 0) {
