@@ -28,7 +28,7 @@
                <Label layoutX="14.0" layoutY="43.0" text="DataBase login:" />
                <Label layoutX="14.0" layoutY="68.0" text="DataBase password:" />
                <Label layoutX="14.0" layoutY="93.0" text="Directory that contains CoreTemp logs:" />
-               <Label layoutX="14.0" layoutY="118.0" text="Count of points on charts:" />
+               <Label layoutX="14.0" layoutY="118.0" text="Max count of points on charts:" />
                <Label layoutX="14.0" layoutY="143.0" text="Count of minutes, viewing in the charts:" />
                <Label layoutX="14.0" layoutY="168.0" text="Max count of thread for parcing:" />
                <Label layoutX="14.0" layoutY="192.0" text="Table name:" />
@@ -36,9 +36,9 @@
             </children></AnchorPane>
       </content>
    </TitledPane>
-   <TitledPane fx:id="sysProp_tab" animated="false" expanded="false" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#onMouseClicked_sysProp_tab" prefHeight="357.0" prefWidth="600.0" text="System properties">
+   <TitledPane fx:id="sysProp_tab" animated="false" expanded="false" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#onMouseClicked_sysProp_tab" prefHeight="389.0" prefWidth="600.0" text="System properties">
       <content>
-         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="215.0" prefWidth="598.0">
+         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="369.0" prefWidth="598.0">
             <children>
                <TextField id="db_colTime" fx:id="db_colTime" layoutX="225.0" layoutY="6.0" prefHeight="25.0" prefWidth="290.0" />
                <TextField id="db_colTemp" fx:id="db_colTemp" layoutX="225.0" layoutY="31.0" prefHeight="25.0" prefWidth="290.0" />
@@ -46,26 +46,30 @@
                <TextField id="db_colSpeed" fx:id="db_colSpeed" layoutX="225.0" layoutY="81.0" prefHeight="25.0" prefWidth="290.0" />
                <TextField id="db_colCpu" fx:id="db_colCpu" layoutX="225.0" layoutY="106.0" prefHeight="25.0" prefWidth="290.0" />
                <TextField id="db_core" fx:id="db_core" layoutX="225.0" layoutY="131.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="db_cpuPower" fx:id="db_cpuPower" layoutX="225.0" layoutY="156.0" prefHeight="25.0" prefWidth="290.0" />
                <Label layoutX="14.0" layoutY="10.0" text="Name of &quot;Time&quot; column in DB:" />
                <Label layoutX="14.0" layoutY="35.0" text="Name of &quot;Temp&quot; column in DB:" />
                <Label layoutX="14.0" layoutY="60.0" text="Name of &quot;Load&quot; column in DB:" />
                <Label layoutX="14.0" layoutY="85.0" text="Name of &quot;Speed&quot; column in DB:" />
                <Label layoutX="14.0" layoutY="110.0" text="Name of &quot;Cpu&quot; column in DB:" />
                <Label layoutX="14.0" layoutY="135.0" text="Name of &quot;Core&quot; column in DB:" />
+               <Label layoutX="14.0" layoutY="160.0" text="Name of &quot;CPU Power&quot; column in DB:" />
 
 
-               <TextField id="f_colTime" fx:id="f_colTime" layoutX="225.0" layoutY="162.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_colTemp" fx:id="f_colTemp" layoutX="225.0" layoutY="187.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_colLoad" fx:id="f_colLoad" layoutX="225.0" layoutY="212.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_colSpeed" fx:id="f_colSpeed" layoutX="225.0" layoutY="237.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_colCpu" fx:id="f_colCpu" layoutX="225.0" layoutY="262.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_core" fx:id="f_core" layoutX="225.0" layoutY="287.0" prefHeight="25.0" prefWidth="290.0" />
-               <Label layoutX="14.0" layoutY="168.0" text="Name of &quot;Time&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="193.0" text="Name of &quot;Temp&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="218.0" text="Name of &quot;Load&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="243.0" text="Name of &quot;Speed&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="268.0" text="Name of &quot;Cpu&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="293.0" text="Name of &quot;Core&quot; column in file:" />
+               <TextField id="f_colTime" fx:id="f_colTime" layoutX="225.0" layoutY="185.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="f_colTemp" fx:id="f_colTemp" layoutX="225.0" layoutY="210.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="f_colLoad" fx:id="f_colLoad" layoutX="225.0" layoutY="235.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="f_colSpeed" fx:id="f_colSpeed" layoutX="225.0" layoutY="260.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="f_colCpu" fx:id="f_colCpu" layoutX="225.0" layoutY="285.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="f_core" fx:id="f_core" layoutX="225.0" layoutY="310.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="f_cpuPower" fx:id="f_cpuPower" layoutX="225.0" layoutY="335.0" prefHeight="25.0" prefWidth="290.0" />
+               <Label layoutX="14.0" layoutY="191.0" text="Name of &quot;Time&quot; column in file:" />
+               <Label layoutX="14.0" layoutY="216.0" text="Name of &quot;Temp&quot; column in file:" />
+               <Label layoutX="14.0" layoutY="241.0" text="Name of &quot;Load&quot; column in file:" />
+               <Label layoutX="14.0" layoutY="266.0" text="Name of &quot;Speed&quot; column in file:" />
+               <Label layoutX="14.0" layoutY="291.0" text="Name of &quot;Cpu&quot; column in file:" />
+               <Label layoutX="14.0" layoutY="316.0" text="Name of &quot;Core&quot; column in file:" />
+               <Label layoutX="14.0" layoutY="341.0" text="Name of &quot;CPU Power&quot; column in file:" />
             </children></AnchorPane>
       </content>
    </TitledPane>

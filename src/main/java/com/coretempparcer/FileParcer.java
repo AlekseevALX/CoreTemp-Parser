@@ -4,8 +4,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.*;
-import java.sql.Timestamp;
-import java.time.Month;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -18,227 +16,200 @@ public class FileParcer {
         return fd;
     }
 
-    public static FileData fileParsing(String file) throws IOException {
+    public static FileData fileParsing(String file) {
 
         FileData dataOfFile = new FileData(file);
 
-        String[] spltStr;
-        String[] addingStr;
-        int i = 0;
+        int columns[] = MainClass.getColumns();
+        String[] dataString;
 
-        String firstCol;
-        Reader in = new FileReader(file);
-        Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
+        int startStringNumber = MainClass.getFirstStringOfData();
+        int initCh = 1;
+        int ch = 0;
 
-        for (CSVRecord record : records) {
-            if (record.values().length < 1) continue;
+        HashMap<Integer, String[]> readedRecords = new HashMap<>();
+        try (Reader in = new FileReader(file)) {
+            Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
 
-            firstCol = record.get(0);
-            if (firstCol.isEmpty()) continue;
+            for (CSVRecord record : records) {
+                dataString = new String[columns.length];
 
-            switch (firstCol) {
-                case ("Time"): {
-                    int a = 0;
-                    for (String s : record.values()) {
-                        s = prepareColName(s);
-                        if (dataOfFile.addColumn(a, s)) a += 1;
-                    }
-                    prepareColumns(dataOfFile);
-                    break;
+                if (initCh < startStringNumber) {
+                    initCh++;
+                    continue;
                 }
-                case ("CPUID:"):
-                    dataOfFile.setCPUID(record.get(1));
-                    break;
-                case ("Processor:"): {
-                    dataOfFile.setProcessor(record.get(1));
-                    break;
+
+                if (record.values().length < dataString.length) continue;
+
+                for (int i = 0; i < dataString.length; i++) {
+                    dataString[i] = record.get(columns[i]);
                 }
-                case ("Platform:"): {
-                    dataOfFile.setPlatform(record.get(1));
-                    break;
-                }
-                case ("Revision:"): {
-                    dataOfFile.setRevision(record.get(1));
-                    break;
-                }
-                case ("Lithography:"): {
-                    dataOfFile.setLithography(record.get(1));
-                    break;
-                }
-                case ("Session start:"): {
-                    Date seStart = parseSessionStart(record.get(1));
-                    dataOfFile.setSessionStart(seStart);
-                    break;
-                }
-                case ("Session end"): {
-                    break;
-                }
-                default: {
-                    if (record.values().length < 2) {
-                        break;
-                    }
-                    spltStr = prepareString(record.values());
-                    addingStr = deleteExcessColumnsFromString(dataOfFile, spltStr);
-                    dataOfFile.addString(i, addingStr);
-                    i += 1;
-                }
+
+                readedRecords.put(ch, dataString);
+
+                ch++;
+
             }
-
-
+        } catch (IOException e) {
+            e.printStackTrace();
+            return dataOfFile;
         }
 
-        in.close();
-
-        dataOfFile.setStringcount(i);
-
-        deleteExcessColumnsFromFileData(dataOfFile);
+        dataOfFile.setStrings(readedRecords);
 
         return dataOfFile;
     }
 
-    public static void readColumnSettings(String file) throws IOException {
+    public static void readColumnSettingsFromFile(String file) throws IOException {
         Reader in = new FileReader(file);
         Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
         String firstCol;
-        int a = 1;
-        HashMap<String, String> systemProperties = MainClass.getSystemPropertiesMap();
-        String f_colTime = systemProperties.get("f_time");
+
+        String f_colTime = MainClass.getColf_time();
 
         for (CSVRecord record : records) {
             firstCol = record.get(0);
             if (firstCol.isEmpty()) continue;
 
             if (firstCol.toUpperCase().equals(f_colTime.toUpperCase())) {
-                MainClass.setFirstStringOfData(a);
+                MainClass.setFirstStringOfData((int) record.getRecordNumber() + 1);
                 toFindNeededColumns(record);
                 break;
             }
 
-            a += 1;
         }
         in.close();
     }
 
     private static void toFindNeededColumns(CSVRecord record) {
         String currCol;
+        String[] tempString = new String[record.size()];
+
+
+        String db_colTime = MainClass.getColdb_time();
+        String db_colCore = MainClass.getColdb_core();
+        String db_colTemp = MainClass.getColdb_temp();
+        String db_colLoad = MainClass.getColdb_load();
+        String db_colSpeed = MainClass.getColdb_speed();
+        String db_colCPUPower = MainClass.getColdb_cpupower();
+
+        String f_core = MainClass.getColf_core();
+        String f_colTime = MainClass.getColf_time();
+        String f_colTemp = MainClass.getColf_temp();
+        String f_colLoad = MainClass.getColf_load();
+        String f_colSpeed = MainClass.getColf_speed();
+        String f_colCPUPower = MainClass.getColf_cpupower();
+
+        int[] columns;
+        String[] colNames;
+        int colCount = 0; //count of columns which really must be readed in the database
+        int currCorenumber = -1;
+        int currCore = -1;
+
+        //prepare col names
         for (int i = 0; i < record.values().length; i++) {
             currCol = record.get(i);
             if (currCol.isEmpty()) continue;
 
-            //HERE continue
+            currCol = prepareColName(currCol);
+            tempString[i] = currCol;
         }
-    }
 
-    private static void deleteExcessColumnsFromFileData(FileData dataOfFile) {
-        HashMap<Integer, String> columns = dataOfFile.getColumns();
+        //delete columns which not needed
 
-        Iterator<Map.Entry<Integer, String>> iterator = columns.entrySet().iterator();
+        for (int i = 0; i < tempString.length; i++) {
+            currCol = tempString[i];
 
-        HashMap<Integer, String> newCol = new HashMap<>();
+            if (currCol == null || currCol.isEmpty()) {
+                continue;
+            }
+
+            //col Time
+            if (currCol.toUpperCase().equals(f_colTime.toUpperCase())) {
+                tempString[i] = db_colTime;
+                colCount++;
+                continue;
+            }
+
+            //col Core ? Temp.
+            if (currCol.toUpperCase().startsWith(f_core.toUpperCase()) && currCol.toUpperCase().endsWith(f_colTemp.toUpperCase())) {
+                String symbol = currCol.substring(f_core.length(), f_core.length() + 1);
+                if (Pattern.matches("[0-9]", symbol)) {
+                    currCorenumber = Integer.parseInt(symbol);
+                }
+                if (currCorenumber == 0) {
+                    tempString[i] = db_colCore + currCorenumber + db_colTemp;
+                    colCount++;
+                    continue;
+                } else {
+                    tempString[i] = "";
+                }
+                continue;
+            }
+
+            //col Core ?
+            if (currCol.toUpperCase().startsWith(f_core.toUpperCase()) &&
+                    !(currCol.toUpperCase().endsWith(f_colTemp.toUpperCase())) &&
+                    !(currCol.toUpperCase().endsWith(f_colSpeed.toUpperCase())) &&
+                    !(currCol.toUpperCase().endsWith(f_colLoad.toUpperCase()))) {
+                String coreN = currCol.substring(f_core.length(), currCol.length());
+                if (Pattern.matches("[0-9]", coreN)) {
+                    currCore = Integer.parseInt(coreN);
+                }
+                tempString[i] = "";
+                continue;
+            }
+
+            //col Low temp
+            if (currCol.toUpperCase().startsWith("LOW") && currCol.toUpperCase().endsWith(f_colTemp.toUpperCase())) {
+                tempString[i] = "";
+                continue;
+            }
+
+            //col High temp
+            if (currCol.toUpperCase().startsWith("HIGH") && currCol.toUpperCase().endsWith(f_colTemp.toUpperCase())) {
+                tempString[i] = "";
+                continue;
+            }
+
+            //col Core load
+            if (currCol.toUpperCase().startsWith(f_core.toUpperCase()) && currCol.toUpperCase().endsWith(f_colLoad.toUpperCase())) {
+                tempString[i] = db_colCore + currCore + db_colLoad;
+                colCount++;
+                continue;
+            }
+
+            //col Core speed
+            if (currCol.toUpperCase().startsWith(f_core.toUpperCase()) && currCol.toUpperCase().endsWith(f_colSpeed.toUpperCase())) {
+                tempString[i] = db_colCore + currCore + db_colSpeed;
+                colCount++;
+                continue;
+            }
+
+            //col CPU 0 Power
+            if (currCol.toUpperCase().endsWith(f_colCPUPower.toUpperCase())) {
+                tempString[i] = db_colCPUPower;
+                colCount++;
+                continue;
+            }
+        }
 
         int ch = 0;
+        colNames = new String[colCount];
+        columns = new int[colCount];
 
-        while (iterator.hasNext()) {
-            Map.Entry<Integer, String> pair = iterator.next();
-            String value = pair.getValue();
-            if (MainClass.validateColumn(value)) {
-                newCol.put(ch, value);
-                ch += 1;
-            }
+        for (int i = 0; i < tempString.length; i++) {
+            if (tempString[i] == null || tempString[i].isEmpty()) continue;
+
+            colNames[ch] = tempString[i];
+            columns[ch] = i;
+            ch++;
         }
 
-        dataOfFile.setColumns(newCol);
-        dataOfFile.setColumnCount(newCol.size());
-    }
+        MainClass.setColNames(colNames);
+        MainClass.setColumns(columns);
+        MainClass.setColumnsSettingsIsReaded(true);
 
-    private static String[] deleteExcessColumnsFromString(FileData fd, String[] spltStr) {
-        ArrayList<String> result = new ArrayList<>();
-        HashMap<Integer, String> columns = fd.getColumns();
-
-        for (int i = 0; i < fd.getColumnCount(); i++) {
-            if (MainClass.validateColumn(columns.get(i))) {
-                result.add(spltStr[i]);
-            }
-        }
-
-        spltStr = result.toArray(new String[0]);
-        return spltStr;
-    }
-
-    private static void prepareColumns(FileData fileData) {
-        int coreCount = 0;
-        String currentCol = "";
-        String currentCore = "";
-        HashMap<Integer, String> newCols = new HashMap<>();
-        HashMap<Integer, String> columns = fileData.getColumns();
-
-        for (int i = 0; i < columns.size(); i++) {
-            if (!columns.get(i).equals("")) {
-                coreCount += 1;
-            } else break;
-        }
-
-        int a = 0;
-
-        for (int i = 0; i < columns.size(); i++) {
-            currentCol = columns.get(i);
-
-/*Time,Core0Temp,Core1Temp,Core2Temp,Core3Temp,Core4Temp,Core5Temp,,
-Core0,Lowtemp,Hightemp,Coreload,CorespeedMHz,
-Core1,Lowtemp,Hightemp,Coreload,CorespeedMHz,
-Core2,Lowtemp,Hightemp,Coreload,CorespeedMHz,
-Core3,Lowtemp,Hightemp,Coreload,CorespeedMHz,
-Core4,Lowtemp,Hightemp,Coreload,CorespeedMHz,
-Core5,Lowtemp,Hightemp,Coreload,CorespeedMHz,
-CPU0Power
- */
-            if (currentCol.equals("")) continue;
-
-            if (currentCol.equals("Time")) {
-
-                newCols.put(a, currentCol);
-                a += 1;
-            }
-
-            if ((currentCol.length() > 5) && Pattern.matches("[0-9]", currentCol.substring(4, 5)) && (currentCol.length() >= 8) && (currentCol.substring(5, 9).equals("Temp"))) {
-                newCols.put(a, currentCol);
-                a += 1;
-            }
-
-            if ((currentCol.length() == 5) && (currentCol.substring(0, 4).equals("Core")) && Pattern.matches("[0-9]", currentCol.substring(4, 5))) {
-                currentCore = currentCol;
-            }
-
-            if (currentCol.equals("Lowtemp")) {
-                newCols.put(a, currentCore + currentCol);
-                a += 1;
-            }
-
-            if (currentCol.equals("Hightemp")) {
-                newCols.put(a, currentCore + currentCol);
-                a += 1;
-            }
-
-            if (currentCol.equals("Coreload")) {
-                newCols.put(a, currentCore + currentCol.substring(4, 8));
-                a += 1;
-            }
-
-            if (currentCol.equals("CorespeedMHz")) {
-                newCols.put(a, currentCore + currentCol.substring(4, 12));
-                a += 1;
-            }
-
-            //CPU0Power
-            if (currentCol.substring(0, 3).equals("CPU") && (currentCol.length() >= 8) && currentCol.substring(4, 9).equals("Power")) {
-                newCols.put(a, currentCol);
-                a += 1;
-            }
-
-        }
-
-        fileData.setColumnCount(a);
-        fileData.setColumns(newCols);
     }
 
     public static String prepareColName(String s) {
@@ -255,43 +226,5 @@ CPU0Power
         return res;
     }
 
-    public static String[] prepareString(String[] spltStr) {
-        String[] res = new String[spltStr.length];
-        String str;
-
-        int a = 0;
-
-        for (int i = 0; i < spltStr.length; i++) {
-            str = spltStr[i];
-            if (str.equals("")) continue;
-
-            res[a] = str;
-            a += 1;
-        }
-
-        String[] strArray = new String[a];
-
-        for (int i = 0; i < a; i++) {
-            strArray[i] = res[i];
-        }
-
-        return strArray;
-    }
-
-    public static Date parseSessionStart(String sessionStart) {
-        String[] spltDate = sessionStart.split(" ");
-        String[] spltTime = spltDate[0].split(":");
-        Integer hour = Integer.parseInt(spltTime[0]);
-        Integer minute = Integer.parseInt(spltTime[1]);
-        Integer second = Integer.parseInt(spltTime[2]);
-        Integer month = Month.valueOf(spltDate[2].toUpperCase(Locale.ROOT)).getValue();
-        Integer date = Integer.parseInt(spltDate[3]);
-        Integer year = Integer.parseInt(spltDate[5]);
-        GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
-        calendar.set(year, month - 1, date, hour, minute, second);
-        Date res = calendar.getTime();
-//        int mo = Month.valueOf()
-        return res;
-    }
 
 }

@@ -5,51 +5,16 @@ import java.util.HashMap;
 
 public class FileData {
     private String fileName = "";
-    private String CPUID = "";
-    private String processor = "";
-    private String platform = "";
-    private String revision = "";
-    private String lithography = "";
-    private Date sessionStart;
-    private int columnCount;
     private int stringcount;
-    private HashMap<Integer, String> columns = new HashMap<>();
     private HashMap<Integer, String[]> strings = new HashMap<>();
 
     public void setStrings(HashMap<Integer, String[]> strings) {
         this.strings = strings;
+        this.stringcount = strings.size();
     }
 
     public FileData(String nameFile){
         this.fileName = nameFile;
-    }
-
-    public void setCPUID(String CPUID) {
-        this.CPUID = CPUID;
-    }
-
-    public void setProcessor(String processor) {
-        this.processor = processor;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
-
-    public void setRevision(String revision) {
-        this.revision = revision;
-    }
-
-    public void setLithography(String lithography) {
-        this.lithography = lithography;
-    }
-
-    public void setSessionStart(Date sessionStart) {
-        this.sessionStart = sessionStart;
-    }
-
-    public void setColumnCount(int columnCount) {
-        this.columnCount = columnCount;
     }
 
     public int getStringcount() {
@@ -60,54 +25,8 @@ public class FileData {
         this.stringcount = stringcount;
     }
 
-    public boolean addColumn(Integer num, String str) {
-
-        this.columns.put(num, str);
-        return true;
-    }
-
-    public void setColumns(HashMap<Integer, String> columns) {
-        this.columns = columns;
-    }
-
-    public void addString(Integer num, String[] str){
-        this.strings.put(num, str);
-    }
-
-    public String getCPUID() {
-        return CPUID;
-    }
-
-    public String getProcessor() {
-        return processor;
-    }
-
-    public String getPlatform() {
-        return platform;
-    }
-
-    public String getRevision() {
-        return revision;
-    }
-
-    public String getLithography() {
-        return lithography;
-    }
-
-    public Date getSessionStart() {
-        return sessionStart;
-    }
-
-    public int getColumnCount() {
-        return columnCount;
-    }
-
     public String getFileName() {
         return fileName;
-    }
-
-    public HashMap<Integer, String> getColumns() {
-        return columns;
     }
 
     public HashMap<Integer, String[]> getStrings() {

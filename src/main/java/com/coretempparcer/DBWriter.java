@@ -1,8 +1,8 @@
 package com.coretempparcer;
 
 
-
 import org.postgresql.jdbc.PgResultSet;
+
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -22,47 +22,52 @@ public class DBWriter {
 
         deleteAlreadyExistsRecords();
 
-        HashMap<Integer, String> columns = fileData.getColumns();
-
-//        Class.forName("org.postgresql.Driver");
+        String[] columns = MainClass.getColNames(); //here
 
         PreparedStatement stm;
 
         String queryText = getQueryTextInsert(columns);
 
-        if (MainClass.connectionToBase()){
-            stm = MainClass.con.prepareStatement(queryText);
-        }
-        else {
-            MainClass.writeToLog("fail write to base");
+        if (MainClass.connectionToBase()) {
+            stm = MainClass.connectionToDB.prepareStatement(queryText);
+        } else {
+            MainClass.addToLog("fail write to base");
             return;
         }
 
         HashMap<Integer, String[]> strings = fileData.getStrings();
         String[] oneString;
 
+
         for (HashMap.Entry pair : strings.entrySet()) {
+            if (MainClass.done) {
+                MainClass.addToLog("Can't write recort to base, process is stopped! Thread:" + Thread.currentThread().getName());
+                return;
+            }
             oneString = (String[]) pair.getValue();
             setupParameters(stm, oneString);
-            stm.executeUpdate();
+            try {
+                stm.executeUpdate();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         stm.close();
     }
 
     public void deleteAlreadyExistsRecords() throws ArrayIndexOutOfBoundsException, SQLException {
-        HashMap<Integer, String> columns = fileData.getColumns();
+        String[] columns = MainClass.getColNames();
         HashMap<Integer, String[]> strings = fileData.getStrings();
 
         PreparedStatement stm;
 
         String queryText = getQueryTextExists(columns);
 
-        if (MainClass.connectionToBase()){
-            stm = MainClass.con.prepareStatement(queryText);
-        }
-        else {
-            MainClass.writeToLog("fail deleteAlreadyExistsRecords");
+        if (MainClass.connectionToBase()) {
+            stm = MainClass.connectionToDB.prepareStatement(queryText);
+        } else {
+            MainClass.addToLog("fail deleteAlreadyExistsRecords");
             return;
         }
 
@@ -73,7 +78,6 @@ public class DBWriter {
         if (((PgResultSet) resSel).getLastUsedFetchSize() == strings.size()) {
             fileData.setStrings(new HashMap<>());
             fileData.setStringcount(0);
-//            con.close();
             stm.close();
             return;
         }
@@ -82,20 +86,19 @@ public class DBWriter {
             seekAndDestroy(resSel.getTimestamp(1), strings);
         }
 
-//        con.close();
         stm.close();
     }
 
-    private String getQueryTextInsert(HashMap<Integer, String> columns) {
+    private String getQueryTextInsert(String[] columns) {
         //        String sql = "INSERT INTO JC_CONTACT (FIRST_NAME, LAST_NAME, PHONE, EMAIL) VALUES (?, ?, ?,?)";
         String text = "";
-        int columnCount = fileData.getColumnCount();
+        int columnCount = columns.length;
 
         text = text.concat("INSERT INTO " + tableName + " ");
         text = text.concat("(");
 
         for (int i = 0; i < columnCount; i++) {
-            text = text.concat(columns.get(i)) + ",";
+            text = text.concat(columns[i]) + ",";
         }
 
         text = text.substring(0, text.length() - 1);
@@ -113,10 +116,10 @@ public class DBWriter {
         return text;
     }
 
-    private String getQueryTextExists(HashMap<Integer, String> columns) {
+    private String getQueryTextExists(String[] columns) {
         //SELECT TIME FROM CORETEMP WHERE TIME >= ? and TIME <= ?
         String text = "";
-        String colName = columns.get(0);
+        String colName = columns[0];
 
         text = text.concat("SELECT ");
         text = text.concat(colName);
@@ -199,10 +202,9 @@ public class DBWriter {
         try {
             spltTime = spltDate[0].split(":");
             spltDay = spltDate[1].split("/");
-        }
-        catch (ArrayIndexOutOfBoundsException e){
-            MainClass.writeToLog("Bad data in file " + filename);
-            MainClass.writeToLog("Original string is " + dateString);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            MainClass.addToLog("Bad data in file " + filename);
+            MainClass.addToLog("Original string is " + dateString);
             throw new ArrayIndexOutOfBoundsException();
         }
 

@@ -3,6 +3,7 @@ package com.coretempparcer;
 
 import java.io.*;
 import java.sql.*;
+import java.util.GregorianCalendar;
 
 public class ParcingFile_thread extends Thread {
     private String fileName = "";
@@ -57,14 +58,15 @@ public class ParcingFile_thread extends Thread {
     //testing functions-
 
     @Override
-    public void run() {
+    public void run() {  //here
 
         if (fileName.equals("")) {
             endOfthread();
             return;
         }
 
-        MainClass.writeToLog("Start parcing " + fileName);
+        GregorianCalendar cal = new GregorianCalendar();
+        MainClass.addToLog("Start parcing " + fileName + " Thread " + Thread.currentThread().getName() + " " + cal.getTime());
 
         FileData fd = null;
 
@@ -74,13 +76,14 @@ public class ParcingFile_thread extends Thread {
             e.printStackTrace();
         }
 
-        if (fd.getStringcount() == 0) {
+        if (fd == null || fd.getStringcount() == 0) {
             endOfthread();
             return;
         }
+
         synchronized (ParcingFile_thread.class) {
             if (!MainClass.dbChecked) {
-                DBChecker dbChecker = new DBChecker(fd.getColumns());
+                DBChecker dbChecker = new DBChecker();
 
                 dbChecker.checkDB();
 
@@ -106,6 +109,8 @@ public class ParcingFile_thread extends Thread {
 
     void endOfthread() {
         synchronized (ParcingFile_thread.class) {
+            GregorianCalendar cal = new GregorianCalendar();
+            MainClass.addToLog("Stop parcing " + fileName + " Thread " + Thread.currentThread().getName() + " " + cal.getTime());
             MainClass.currentWorkingThread -= 1;
             MainClass.countOfThreads -= 1;
             if (MainClass.countOfThreads == 0) {

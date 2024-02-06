@@ -17,16 +17,18 @@ public class MainClass {
     private static HashMap<String, String> systemPropertiesMap = new HashMap<>();
     private static String ver = "1.0";
     private static int firstStringOfData;
-    private static HashMap<Integer, String> columnsLocations = new HashMap<>();
+    private static int[] columns;
+    private static String[] colNames;
     private static boolean columnsSettingsIsReaded = false;
 
     private static String userSettings = "C:\\Pet\\CoreTempParcer\\src\\main\\java\\com\\coretempparcer\\properties\\UserSettings.properties";
     private static String systemProperties = "C:\\Pet\\CoreTempParcer\\src\\main\\java\\com\\coretempparcer\\properties\\SystemProperties.properties";
 
     private static boolean propertiesLoaded = false;
-    public static Connection con = null;
+    public static Connection connectionToDB = null;
 
-    private static int countOfCores;
+    private static int countOfCores = -1;
+
 
     public static String getVer() {
         return ver;
@@ -34,10 +36,6 @@ public class MainClass {
 
     public static HashMap<String, String> getUserSettingsMap() {
         return userSettingsMap;
-    }
-
-    public static void setUserSettingsMap(HashMap<String, String> userSettingsMap) {
-        MainClass.userSettingsMap = userSettingsMap;
     }
 
     public static HashMap<String, String> getSystemPropertiesMap() {
@@ -48,24 +46,12 @@ public class MainClass {
         return userSettingsMap.get("urlDB");
     }
 
-    public static void setUrlDB(String urlDB) {
-        userSettingsMap.put("urlDB", urlDB);
-    }
-
     public static String getLoginDB() {
         return userSettingsMap.get("loginDB");
     }
 
-    public static void setLoginDB(String loginDB) {
-        userSettingsMap.put("loginDB", loginDB);
-    }
-
     public static String getPasswordDB() {
         return userSettingsMap.get("passwordDB");
-    }
-
-    public static void setPasswordDB(String passwordDB) {
-        userSettingsMap.put("passwordDB", passwordDB);
     }
 
     public static String getDirectoryWithCTLogs() {
@@ -88,20 +74,40 @@ public class MainClass {
         return systemPropertiesMap.get("db_speed");
     }
 
-    public static String getColdb_cpu() {
-        return systemPropertiesMap.get("db_cpu");
-    }
-
     public static String getColdb_core() {
         return systemPropertiesMap.get("db_core");
     }
 
-    public static String getTableName() {
-        return userSettingsMap.get("tableName");
+    public static String getColdb_cpupower() {
+        return systemPropertiesMap.get("db_cpuPower");
     }
 
-    public static Integer getCountOfCharPoint() {
-        return Integer.parseInt(userSettingsMap.get("countOfCharPoint"));
+    public static String getColf_time() {
+        return systemPropertiesMap.get("f_time");
+    }
+
+    public static String getColf_core() {
+        return systemPropertiesMap.get("f_core");
+    }
+
+    public static String getColf_temp() {
+        return systemPropertiesMap.get("f_temp");
+    }
+
+    public static String getColf_load() {
+        return systemPropertiesMap.get("f_load");
+    }
+
+    public static String getColf_speed() {
+        return systemPropertiesMap.get("f_speed");
+    }
+
+    public static String getColf_cpupower() {
+        return systemPropertiesMap.get("f_cpuPower");
+    }
+
+    public static String getTableName() {
+        return userSettingsMap.get("tableName");
     }
 
     public static Integer getCountMinutesPerAutoGraphic() {
@@ -112,6 +118,9 @@ public class MainClass {
         return Integer.parseInt(userSettingsMap.get("maxParcingThreads"));
     }
 
+    public static Integer getCountOfCharPoint(){
+        return Integer.parseInt(userSettingsMap.get("countOfCharPoint"));
+    }
     public static int getCountOfCores() {
         return countOfCores;
     }
@@ -132,20 +141,28 @@ public class MainClass {
         MainClass.firstStringOfData = firstStringOfData;
     }
 
-    public static HashMap<Integer, String> getColumnsLocations() {
-        return columnsLocations;
-    }
-
-    public static void setColumnsLocations(HashMap<Integer, String> columnsLocations) {
-        MainClass.columnsLocations = columnsLocations;
-    }
-
     public static boolean isColumnsSettingsIsReaded() {
         return columnsSettingsIsReaded;
     }
 
     public static void setColumnsSettingsIsReaded(boolean columnsSettingsIsReaded) {
         MainClass.columnsSettingsIsReaded = columnsSettingsIsReaded;
+    }
+
+    public static int[] getColumns() {
+        return columns;
+    }
+
+    public static void setColumns(int[] columns) {
+        MainClass.columns = columns;
+    }
+
+    public static String[] getColNames() {
+        return colNames;
+    }
+
+    public static void setColNames(String[] colNames) {
+        MainClass.colNames = colNames;
     }
 
     static void loadProperties() throws IOException {
@@ -179,7 +196,7 @@ public class MainClass {
 
     public void main(String[] args) throws IOException {
         if (!propertiesLoaded) loadProperties();
-        if (connectionToBase()) new ParcingSession_thread(args).start();
+        if (connectionToBase()) new ParcingSession_thread().start();
 
     }
 
@@ -188,26 +205,31 @@ public class MainClass {
     }
 
     public static void deleteDB() {
-        Statement stm = null;
+        Statement stm;
         String tableName = getTableName();
         try {
-            stm = con.createStatement();
+            stm = connectionToDB.createStatement();
         } catch (SQLException e) {
-            MainClass.writeToLog(String.valueOf(e.getStackTrace()));
+            MainClass.addToLog(String.valueOf(e.getStackTrace()));
             return;
         }
         try {
             stm.execute("DROP TABLE IF EXISTS " + tableName);
+            MainClass.dbChecked = false;
         } catch (SQLException e) {
-            MainClass.writeToLog(String.valueOf(e.getStackTrace()));
+            MainClass.addToLog(String.valueOf(e.getStackTrace()));
             return;
         }
-        MainClass.writeToLog("Base " + tableName + " is deleted!");
+        MainClass.addToLog("Base " + tableName + " is deleted!");
     }
 
-    public static void writeToLog(String log) {
-        System.out.println(log); //D-D
+    public static void addToLog(String log) {
+//        System.out.println(log); //D-D
         MainClass.log = MainClass.log.concat(log).concat(System.lineSeparator());
+    }
+
+    public static void clearLog() {
+        log = "";
     }
 
     public static synchronized boolean connectionToBase() {
@@ -215,16 +237,12 @@ public class MainClass {
         String loginDB = getLoginDB();
         String passwordDB = getPasswordDB();
 
-        MainClass.writeToLog("ConnectionToBase start currentWorkingThread:" + currentWorkingThread);
-
         try {
-            MainClass.writeToLog("connectionToBase con validation start"); //D-D
-            if (con != null && con.isValid(3)) {
-                MainClass.writeToLog("connectionToBase con validation finish: return true");
+            if (connectionToDB != null && connectionToDB.isValid(3)) {
                 return true;
             }
         } catch (SQLException e) {
-            MainClass.writeToLog("Exception in DB connection validation");
+            MainClass.addToLog("Exception in DB connection validation");
             e.printStackTrace();
             return false;
         }
@@ -232,31 +250,20 @@ public class MainClass {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            MainClass.writeToLog("Don't find class org.postgresql.Driver!");
-            MainClass.writeToLog(String.valueOf(e.getStackTrace()));
+            MainClass.addToLog("Don't find class org.postgresql.Driver!");
+            MainClass.addToLog(String.valueOf(e.getStackTrace()));
             MainClass.done = true;
             return false;
         }
 
         try {
-            con = DriverManager.getConnection(urlDB, loginDB, passwordDB);
+            connectionToDB = DriverManager.getConnection(urlDB, loginDB, passwordDB);
         } catch (SQLException e) {
-            MainClass.writeToLog("Don't have connection to database!");
-            MainClass.writeToLog(String.valueOf(e.getStackTrace()));
+            MainClass.addToLog("Don't have connection to database!");
+            MainClass.addToLog(String.valueOf(e.getStackTrace()));
             MainClass.done = true;
             return false;
         }
-
-        MainClass.writeToLog("ConnectionToBase end currentWorkingThread:" + currentWorkingThread);
-
-        return true;
-    }
-
-    public static boolean validateColumn(String columnName) {
-
-        if (columnName.length() < 10) return true;
-
-        if (columnName.endsWith("Lowtemp") || columnName.endsWith("Hightemp")) return false;
 
         return true;
     }
@@ -281,25 +288,20 @@ class ParcingSession_thread extends Thread {
 
     public static Date lastDate = new Date(); //last date, which has been written in database
     public static HashMap<Date, String> mapFiles = new HashMap<>();
-
     String[] args;
     public static String directory = "";
 
-
-    public ParcingSession_thread(String[] args) {
-        this.args = args;
+    public ParcingSession_thread() {
     }
 
     public void run() {
 
         int maxParcingThreads = MainClass.getMaxParcingThreads();
 
-        if (args.length != 0) {
-            directory = args[0];
-        }
+        directory = MainClass.getDirectoryWithCTLogs();
 
         Calendar cal = new GregorianCalendar();
-        MainClass.writeToLog("Start: " + cal.getTime());
+        MainClass.addToLog("Start: " + cal.getTime());
         long lastTimeInBase = 0;
         long timeOfStartingFile = Long.MAX_VALUE;
         Date currentDateOfStartingFile = new Date();
@@ -312,7 +314,7 @@ class ParcingSession_thread extends Thread {
         String ext;
 
         if (directory.equals("")) {
-            MainClass.writeToLog("Directory to parce is not defined!");
+            MainClass.addToLog("Directory to parce is not defined!");
             MainClass.done = true;
             return;
         }
@@ -322,7 +324,7 @@ class ParcingSession_thread extends Thread {
         File file = new File(directory);
 
         if (!file.exists()) {
-            MainClass.writeToLog("Directory " + directory + " doesn't exist!");
+            MainClass.addToLog("Directory " + directory + " doesn't exist!");
             MainClass.done = true;
             return;
         }
@@ -330,15 +332,15 @@ class ParcingSession_thread extends Thread {
         File[] listFiles = file.listFiles(new MainClass.FileFilter(ext));
 
         if (listFiles.length == 0) {
-            MainClass.writeToLog("Finded 0 files in directory " + directory);
+            MainClass.addToLog("Finded 0 files in directory " + directory);
             MainClass.done = true;
             return;
         } else {
-            MainClass.writeToLog("Finded " + listFiles.length + " files.");
+            MainClass.addToLog("Finded " + listFiles.length + " files.");
         }
 
         if (!MainClass.connectionToBase()) {
-            MainClass.writeToLog("failed to run thread ParcingSession_thread - don't connection to base");
+            MainClass.addToLog("failed to run thread ParcingSession_thread - don't connection to base");
             return;
         }
 
@@ -346,7 +348,7 @@ class ParcingSession_thread extends Thread {
 
         if (dbDefined) {
             findLastDateInBase();
-            MainClass.writeToLog("Last record in the database is " + lastDate);
+            MainClass.addToLog("Last record in the database is " + lastDate);
             lastTimeInBase = lastDate.getTime();
         }
 
@@ -370,7 +372,17 @@ class ParcingSession_thread extends Thread {
             }
         }
 
-        //HERE realize to define column properties
+        if (!MainClass.isColumnsSettingsIsReaded()) {
+            for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
+                try {
+                    FileParcer.readColumnSettingsFromFile(entry.getValue());
+                } catch (IOException e) {
+                    MainClass.addToLog("Parcing session is failed because " + e);
+                    throw new RuntimeException(e);
+                }
+                break;
+            }
+        }
 
         for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
 
@@ -420,7 +432,7 @@ class ParcingSession_thread extends Thread {
         ResultSet resultSet = null;
 
         try {
-            stm = MainClass.con.createStatement();
+            stm = MainClass.connectionToDB.createStatement();
         } catch (SQLException e) {
             e.printStackTrace();
             return;
@@ -450,7 +462,10 @@ class ParcingSession_thread extends Thread {
     }
 
     public static String getQueryText_FindLastDate() {
-        String text = "SELECT time FROM CORETEMP " + "ORDER BY time DESC LIMIT 1";
+        String colTime = MainClass.getColdb_time();
+        String tableName = MainClass.getTableName();
+
+        String text = "SELECT " + colTime + " FROM " + tableName + " " + "ORDER BY time DESC LIMIT 1";
         return text;
     }
 }

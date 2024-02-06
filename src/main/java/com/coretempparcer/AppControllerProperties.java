@@ -38,6 +38,10 @@ public class AppControllerProperties implements Initializable {
     @FXML
     private TextField db_core;
     @FXML
+    private TextField db_cpuPower;
+    @FXML
+    private TextField f_cpuPower;
+    @FXML
     private TextField f_colTime;
     @FXML
     private TextField f_colTemp;
@@ -92,12 +96,14 @@ public class AppControllerProperties implements Initializable {
         db_colSpeed.setText(sysSett.get("db_speed"));
         db_colCpu.setText(sysSett.get("db_cpu"));
         db_core.setText(sysSett.get("db_core"));
+        db_cpuPower.setText(sysSett.get("db_cpuPower"));
         f_colTime.setText(sysSett.get("f_time"));
         f_colTemp.setText(sysSett.get("f_temp"));
         f_colLoad.setText(sysSett.get("f_load"));
         f_colSpeed.setText(sysSett.get("f_speed"));
         f_colCpu.setText(sysSett.get("f_cpu"));
         f_core.setText(sysSett.get("f_core"));
+        f_cpuPower.setText(sysSett.get("f_cpuPower"));
 
     }
 
@@ -116,6 +122,7 @@ public class AppControllerProperties implements Initializable {
         sysSett.put("f_speed", f_colSpeed.getText());
         sysSett.put("f_cpu", f_colCpu.getText());
         sysSett.put("f_core", f_core.getText());
+        sysSett.put("f_cpuPower", f_cpuPower.getText());
 
         sysSett.put("db_time", db_colTime.getText());
         sysSett.put("db_temp", db_colTemp.getText());
@@ -123,6 +130,7 @@ public class AppControllerProperties implements Initializable {
         sysSett.put("db_speed", db_colSpeed.getText());
         sysSett.put("db_cpu", db_colCpu.getText());
         sysSett.put("db_core", db_core.getText());
+        sysSett.put("db_cpuPower", db_cpuPower.getText());
 
         userProp.put("countOfCharPoint", countOfCharPoint.getText());
         userProp.put("countMinutesPerAutoGraphic", countMinutesPerAutoGraphic.getText());
@@ -130,6 +138,7 @@ public class AppControllerProperties implements Initializable {
         userProp.put("tableName", tableName.getText());
 
         MainClass.saveProperties();
+        MainClass.loadProperties();
     }
 
     public void onMouseClicked_userSettings_tab() {

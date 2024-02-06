@@ -1,13 +1,12 @@
 package com.coretempparcer;
 
 import java.sql.*;
-import java.util.HashMap;
 
 public class DBChecker {
-    private static HashMap<Integer, String> columns;
+    private static String[] columns;
 
-    public DBChecker(HashMap<Integer, String> columns) {
-        this.columns = columns;
+    public DBChecker() {
+        this.columns = MainClass.getColNames();
     }
 
     private static String getExecuteText() {
@@ -16,12 +15,12 @@ public class DBChecker {
         String tableName = MainClass.getTableName();
 
         text = text.concat("CREATE TABLE IF NOT EXISTS " + tableName + "(");
-        text = text.concat(columns.get(0) + " " + "timestamp UNIQUE, ");
+        text = text.concat(columns[0] + " " + "timestamp UNIQUE, ");
 
-        int ch = columns.size();
+        int ch = columns.length;
 
         for (int i = 1; i < ch; i++) {
-            colName = columns.get(i);
+            colName = columns[i];
             if (colName.equals("")) continue;
 
             text = text.concat(colName + " varchar(10), ");
@@ -36,7 +35,7 @@ public class DBChecker {
         Statement stm;
 
         try {
-            stm = MainClass.con.createStatement();
+            stm = MainClass.connectionToDB.createStatement();
         } catch (SQLException e) {
             e.printStackTrace();
             return;
@@ -56,7 +55,7 @@ public class DBChecker {
             e.printStackTrace();
         }
 
-        MainClass.writeToLog("Db checked in thread " + Thread.currentThread().getName());
+        MainClass.addToLog("Db checked in thread " + Thread.currentThread().getName());
 
     }
 
@@ -67,16 +66,16 @@ public class DBChecker {
         String queryText = getIsDefinedText();
 
         try {
-            stm = MainClass.con.createStatement();
+            stm = MainClass.connectionToDB.createStatement();
             resultSet = stm.executeQuery(queryText);
             resultSet.next();
             Timestamp d = resultSet.getTimestamp(1);
-            MainClass.writeToLog("checking db is defined: positive");
-            MainClass.writeToLog("searching actual files to parsing");
+            MainClass.addToLog("checking db is defined: positive");
+            MainClass.addToLog("searching actual files to parsing");
             return true;
         } catch (SQLException e) {
-            MainClass.writeToLog("checking db is defined: negative"); //Must rewrite this method of checking later
-            MainClass.writeToLog("All files will be parsed");
+            MainClass.addToLog("checking db is defined: negative"); //Must rewrite this method of checking later
+            MainClass.addToLog("All files will be parsed");
             return false;
         }
 

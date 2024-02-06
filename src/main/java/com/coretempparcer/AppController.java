@@ -10,12 +10,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javafx.animation.KeyFrame;
@@ -33,6 +28,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import javafx.util.Pair;
 import org.apache.commons.csv.*;
 
 
@@ -57,6 +53,8 @@ public class AppController {
     @FXML
     LineChart graphicSpeed;
     @FXML
+    LineChart graphicPower;
+    @FXML
     private TextArea textLog;
     @FXML
     DatePicker dateTo;
@@ -64,9 +62,23 @@ public class AppController {
     DatePicker dateFrom;
     @FXML
     ToggleButton autoButton;
+    private static HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData = new HashMap();
+    private static boolean chartDataIsDefined = false;
     Timeline tl;
     Timeline refresh;
     Timeline parsing;
+
+    public static HashMap<String, HashMap<String, SortedMap<Date, Float>>> getChartData() {
+        return chartData;
+    }
+
+    public static boolean isChartDataIsDefined() {
+        return chartDataIsDefined;
+    }
+
+    public static void setChartDataIsDefined(boolean chartDataIsDefined) {
+        AppController.chartDataIsDefined = chartDataIsDefined;
+    }
 
     public AppController() {
     }
@@ -78,7 +90,7 @@ public class AppController {
 
     protected void toParce() throws IOException {
         MainClass.log = "";
-        MainClass.writeToLog("Welcome to the jungle!!");
+        MainClass.addToLog("Welcome to the jungle!!");
         String dir = MainClass.getDirectoryWithCTLogs();
         String[] args = new String[]{dir};
         MainClass mainObject = new MainClass();
@@ -195,28 +207,15 @@ public class AppController {
         this.graphicLoad.getData().clear();
         this.graphicSpeed.getData().clear();
         this.graphicTemp.getData().clear();
+        this.graphicPower.getData().clear();
     }
-
     @FXML
     protected void onDeleteBaseButtonClick() {
         MainClass.log = "";
         MainClass.deleteBase();
         this.textLog.setText(MainClass.log);
-        this.textLog.forward();
     }
 
-    public void testButtonClicked() throws IOException {
-        String filePath = "C:\\Pet\\test\\test file\\CT-Log 2024-01-15 18-34-12.csv";
-        Reader in = new FileReader(filePath);
-        Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
-
-        for (CSVRecord record : records) {
-            String columnOne = record.get(0);
-
-            if (columnOne.equals("")) continue;
-            String columnTwo = record.get(1);
-        }
-    }
     public void refreshLinearChartToPeriod() {
         this.refreshLinearChart(true);
     }
@@ -226,24 +225,24 @@ public class AppController {
     }
 
     public void refreshLinearChart(boolean fixedPeriod) {
-        HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData = new HashMap();
+
         GregorianCalendar calendar;
         Date date1;
         Date date2;
         Integer countMinutesPerAutoGraphic = MainClass.getCountMinutesPerAutoGraphic();
         if (fixedPeriod) {
-            int year = ((LocalDate) this.dateFrom.getValue()).getYear();
-            int month = ((LocalDate) this.dateFrom.getValue()).getMonthValue();
-            int date = ((LocalDate) this.dateFrom.getValue()).getDayOfMonth();
+            int year = (this.dateFrom.getValue()).getYear();
+            int month = (this.dateFrom.getValue()).getMonthValue();
+            int date = (this.dateFrom.getValue()).getDayOfMonth();
             int hour = Integer.parseInt(this.dateFromH.getText());
             int minute = Integer.parseInt(this.dateFromM.getText());
             int second = Integer.parseInt(this.dateFromS.getText());
             calendar = new GregorianCalendar();
             calendar.set(year, month - 1, date, hour, minute, second);
             date1 = calendar.getTime();
-            year = ((LocalDate) this.dateTo.getValue()).getYear();
-            month = ((LocalDate) this.dateTo.getValue()).getMonthValue();
-            date = ((LocalDate) this.dateTo.getValue()).getDayOfMonth();
+            year = (this.dateTo.getValue()).getYear();
+            month = (this.dateTo.getValue()).getMonthValue();
+            date = (this.dateTo.getValue()).getDayOfMonth();
             hour = Integer.parseInt(this.dateToH.getText());
             minute = Integer.parseInt(this.dateToM.getText());
             second = Integer.parseInt(this.dateToS.getText());
@@ -263,71 +262,94 @@ public class AppController {
         this.fillingChartsData(chartData);
     }
 
-    private void fillingChartsData(HashMap<String, HashMap<String, HashMap<Date, Float>>> chartData) {
-        String colTime = MainClass.getColdb_time();
+    private void fillingChartsData(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData) {
         String colTemp = MainClass.getColdb_temp();
         String colLoad = MainClass.getColdb_load();
         String colSpeed = MainClass.getColdb_speed();
-        String colCpu = MainClass.getColdb_cpu();
-        String core = MainClass.getColdb_core();
-        int countOfCores = MainClass.getCountOfCores();
-        HashMap<String, HashMap<Date, Float>> chartTemp = chartData.get(colTemp);
-        HashMap<String, HashMap<Date, Float>> chartLoad = chartData.get(colLoad);
-        HashMap<String, HashMap<Date, Float>> chartSpeed = chartData.get(colSpeed);
+        String colCPUPower = MainClass.getColdb_cpupower();
+        HashMap<String, SortedMap<Date, Float>> chartTemp = chartData.get(colTemp);
+        HashMap<String, SortedMap<Date, Float>> chartLoad = chartData.get(colLoad);
+        HashMap<String, SortedMap<Date, Float>> chartSpeed = chartData.get(colSpeed);
+        HashMap<String, SortedMap<Date, Float>> chartCPUPower = chartData.get(colCPUPower);
+
         this.clearGraphics();
         int i;
-        HashMap coreMap;
+        SortedMap coreMap;
         Series series;
+
         if (chartTemp != null) {
-            for (i = 0; i < 1; ++i) {
-                coreMap = chartTemp.get(core + i + colTemp);
+            for (Map.Entry<String, SortedMap<Date, Float>> entry : chartTemp.entrySet()) {
+                coreMap = entry.getValue();
                 if (coreMap.size() > 0) {
                     series = new Series();
-                    series.setName(core + i + colTemp);
-                    this.fillForOneCore(core + i + colTemp, coreMap, series, this.graphicTemp);
+                    series.setName(entry.getKey());
+                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicTemp);
                 }
             }
         }
 
         if (chartLoad != null) {
-            for (i = 0; i < countOfCores; ++i) {
-                coreMap = (HashMap) chartLoad.get(core + i + colLoad);
+            for (Map.Entry<String, SortedMap<Date, Float>> entry : chartLoad.entrySet()) {
+                coreMap = entry.getValue();
                 if (coreMap.size() > 0) {
                     series = new Series();
-                    series.setName(core + i + colLoad);
-                    this.fillForOneCore(core + i + colLoad, coreMap, series, this.graphicLoad);
+                    series.setName(entry.getKey());
+                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicLoad);
                 }
             }
         }
 
         if (chartSpeed != null) {
-            for (i = 0; i < MainClass.getCountOfCores(); ++i) {
-                coreMap = chartSpeed.get(core + i + colSpeed);
+            for (Map.Entry<String, SortedMap<Date, Float>> entry : chartSpeed.entrySet()) {
+                coreMap = entry.getValue();
                 if (coreMap.size() > 0) {
                     series = new Series();
-                    series.setName(core + i + colSpeed);
-                    this.fillForOneCore(core + i + colSpeed, coreMap, series, this.graphicSpeed);
+                    series.setName(entry.getKey());
+                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicSpeed);
+                }
+            }
+        }
+
+        if (chartCPUPower != null) {
+            for (Map.Entry<String, SortedMap<Date, Float>> entry : chartCPUPower.entrySet()) {
+                coreMap = entry.getValue();
+                if (coreMap.size() > 0) {
+                    series = new Series();
+                    series.setName(entry.getKey());
+                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicPower);
                 }
             }
         }
 
     }
 
-    private void fillForOneCore(String s, HashMap<Date, Float> coreMap, Series series, LineChart chart) {
-        String dateSer = "";
+    public static void clearChartsData() {
+        for (Map.Entry<String, HashMap<String, SortedMap<Date, Float>>> entryCharts : chartData.entrySet()) {
+
+            HashMap<String, SortedMap<Date, Float>> currMapCores = entryCharts.getValue();
+
+            for (Map.Entry<String, SortedMap<Date, Float>> entryCores : currMapCores.entrySet()) {
+                SortedMap<Date, Float> currMapOneCore = entryCores.getValue();
+                currMapOneCore.clear();
+            }
+        }
+    }
+
+    private void fillForOneCore(String s, SortedMap<Date, Float> coreMap, Series series, LineChart chart) {
+        String dateSer;
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         Iterator<Entry<Date, Float>> iterator = coreMap.entrySet().iterator();
         Set<Date> set = coreMap.keySet();
-        Date[] arrDate = (Date[]) set.toArray(new Date[0]);
+        Date[] arrDate = set.toArray(new Date[0]);
         Arrays.sort(arrDate);
-        Date[] var11 = arrDate;
-        int var12 = arrDate.length;
+        Date[] dates = arrDate;
+        int length = arrDate.length;
 
-        for (int var13 = 0; var13 < var12; ++var13) {
-            Date d = var11[var13];
-            Float var = (Float) coreMap.get(d);
+        for (int i = 0; i < length; ++i) {
+            Date d = dates[i];
+            Float value = coreMap.get(d);
             dateSer = sdf.format(d);
-            series.getData().add(new Data(dateSer, var));
+            series.getData().add(new Data(dateSer, value));
         }
 
         chart.getData().add(series);
@@ -370,14 +392,14 @@ public class AppController {
 
     private void waitTillTheEnd() {
         if (MainClass.done) {
-            MainClass.writeToLog("Done");
-            this.textLog.setText(MainClass.log);
-            this.textLog.forward();
+            MainClass.addToLog("Done");
+            this.textLog.appendText(MainClass.log);
+            MainClass.clearLog();
             this.tl.stop();
         }
 
-        this.textLog.setText(MainClass.log);
-        this.textLog.forward();
+        this.textLog.appendText(MainClass.log);
+        MainClass.clearLog();
         if (!MainClass.done) {
             this.tl.playFromStart();
         }
@@ -397,28 +419,37 @@ public class AppController {
     }
 
     private void autoParse() throws IOException {
-        MainClass.writeToLog("autoParse #1 MainClassAuto: " + MainClass.auto);
+        MainClass.addToLog("autoParse #1 MainClassAuto: " + MainClass.auto);
         if (!MainClass.auto) {
             this.parsing.stop();
         }
 
-        MainClass.writeToLog("autoParse #2 MainClassDone: " + MainClass.done);
+        MainClass.addToLog("autoParse #2 MainClassDone: " + MainClass.done);
         if (MainClass.done) {
             this.toParce();
         } else {
-            MainClass.writeToLog("I can't parse because mainClass.done = false");
+            MainClass.addToLog("I can't parse because mainClass.done = false"); //HERE
         }
 
-        MainClass.writeToLog("autoParse #3 MainClassAuto: " + MainClass.auto);
+        MainClass.addToLog("autoParse #3 MainClassAuto: " + MainClass.auto);
         if (MainClass.auto) {
             this.parsing.playFromStart();
         }
 
     }
 
-    public void onDefinePropertiesButtonClick(ActionEvent actionEvent) throws IOException {
+    public void onDefinePropertiesButtonClick() throws IOException {
         PropertiesApplication propertiesApplication = new PropertiesApplication();
         Stage stage = new Stage();
         propertiesApplication.start(stage);
+    }
+    public void onStopButtonClick(){
+        MainClass.done = true;
+        MainClass.auto = false;
+        MainClass.countOfThreads = 0;
+        MainClass.currentWorkingThread = 0;
+        GregorianCalendar cal = new GregorianCalendar();
+
+        MainClass.addToLog("User stopped the process " + cal.getTime());
     }
 }
