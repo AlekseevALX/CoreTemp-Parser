@@ -7,6 +7,7 @@ package com.coretempparcer;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
@@ -18,7 +19,15 @@ import java.util.*;
 public class AppControllerProperties implements Initializable {
 
     @FXML
-    private TextField urlDB;
+    private TextField IPDB;
+    @FXML
+    private TextField DBName;
+    @FXML
+    private TextField portDB;
+    @FXML
+    private RadioButton PG;
+    @FXML
+    private RadioButton MSQL;
     @FXML
     private TextField loginDB;
     @FXML
@@ -80,7 +89,22 @@ public class AppControllerProperties implements Initializable {
         initialYOfSystemTab = sysProp_tab.getLayoutY();
 
         //users
-        urlDB.setText(userProp.get("urlDB"));
+        IPDB.setText(userProp.get("IPDB"));
+        DBName.setText(userProp.get("DBName"));
+        portDB.setText(userProp.get("portDB"));
+
+        try {
+            if (userProp.get("typeDB").toUpperCase().equals("PG")){
+                PG.setSelected(true);
+                MSQL.setSelected(false);
+            } else if (userProp.get("typeDB").toUpperCase().equals("MSQL")) {
+                MSQL.setSelected(true);
+                PG.setSelected(false);
+            }
+        } catch (Exception e){
+            //none
+        }
+
         loginDB.setText(userProp.get("loginDB"));
         passwordDB.setText(userProp.get("passwordDB"));
         directoryWithCTLogs.setText(userProp.get("directoryWithCTLogs"));
@@ -107,11 +131,29 @@ public class AppControllerProperties implements Initializable {
 
     }
 
+    public void onMouseClickedPG() {
+        PG.setSelected(true);
+        MSQL.setSelected(false);
+    }
+
+    public void onMouseClickedMSQL() {
+        MSQL.setSelected(true);
+        PG.setSelected(false);
+    }
+
     public void onMouseClickedAcceptButton() throws IOException {
         HashMap<String, String> userProp = MainClass.getUserSettingsMap();
         HashMap<String, String> sysSett = MainClass.getSystemPropertiesMap();
 
-        userProp.put("urlDB", urlDB.getText());
+        userProp.put("IPDB", IPDB.getText());
+        userProp.put("DBName", DBName.getText());
+        userProp.put("portDB", portDB.getText());
+        if (PG.isSelected()){
+            userProp.put("typeDB", "PG");
+        }
+        else if (MSQL.isSelected()){
+            userProp.put("typeDB", "MSQL");
+        }
         userProp.put("loginDB", loginDB.getText());
         userProp.put("passwordDB", passwordDB.getText());
         userProp.put("directoryWithCTLogs", directoryWithCTLogs.getText());

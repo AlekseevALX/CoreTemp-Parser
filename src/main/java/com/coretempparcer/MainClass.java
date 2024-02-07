@@ -13,7 +13,6 @@ public class MainClass {
     public static volatile boolean done = true;
     public static boolean auto;
     public static volatile String log = "";
-    //    public static volatile boolean auto = false;
     private static HashMap<String, String> userSettingsMap = new HashMap<>();
     private static HashMap<String, String> systemPropertiesMap = new HashMap<>();
     private static String ver = "1.0";
@@ -52,7 +51,33 @@ public class MainClass {
     }
 
     public static String getUrlDB() {
-        return userSettingsMap.get("urlDB");
+        String res = new String();
+        res = res.concat("jdbc:");
+
+        if (gettypeDB().toUpperCase().equals("PG")){
+            res = res.concat("postgresql://");
+        } else if (gettypeDB().toUpperCase().equals("MSQL")) {
+            res = res.concat("postgresql://"); //write right value later
+        }
+
+        res = res.concat(getIPDB())
+                .concat(":")
+                .concat(getportDB())
+                .concat("/")
+                .concat(getDBName());
+        return res;
+    }
+    public static String getIPDB() {
+        return userSettingsMap.get("IPDB");
+    }
+    public static String getDBName() {
+        return userSettingsMap.get("DBName");
+    }
+    public static String getportDB() {
+        return userSettingsMap.get("portDB");
+    }
+    public static String gettypeDB() {
+        return userSettingsMap.get("typeDB");
     }
 
     public static String getLoginDB() {

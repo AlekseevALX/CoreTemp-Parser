@@ -351,18 +351,12 @@ public class AppController {
 
     private void fillForOneCore(String s, SortedMap<Date, Float> coreMap, Series series, LineChart chart) {
         String dateSer;
+        Float value;
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        Iterator<Entry<Date, Float>> iterator = coreMap.entrySet().iterator();
-        Set<Date> set = coreMap.keySet();
-        Date[] arrDate = set.toArray(new Date[0]);
-        Arrays.sort(arrDate);
-        Date[] dates = arrDate;
-        int length = arrDate.length;
 
-        for (int i = 0; i < length; ++i) {
-            Date d = dates[i];
-            Float value = coreMap.get(d);
-            dateSer = sdf.format(d);
+        for (Map.Entry<Date, Float> entry:coreMap.entrySet()) {
+            dateSer = sdf.format(entry.getKey());
+            value = entry.getValue();
             series.getData().add(new Data(dateSer, value));
         }
 

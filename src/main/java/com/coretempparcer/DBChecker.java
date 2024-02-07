@@ -9,6 +9,21 @@ public class DBChecker {
         this.columns = MainClass.getColNames();
     }
 
+    public void checkDB() {
+
+        String queryText = getExecuteText();
+
+        try (Statement stm = MainClass.connectionToDB.createStatement();) {
+            stm.execute(queryText);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        MainClass.addToLog("Db checked in thread " + Thread.currentThread().getName());
+
+    }
+
     private static String getExecuteText() {
         String text = "";
         String colName = "";
@@ -31,35 +46,7 @@ public class DBChecker {
         return text;
     }
 
-    public void checkDB() {
-        Statement stm;
-
-        try {
-            stm = MainClass.connectionToDB.createStatement();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        String queryText = getExecuteText();
-
-        try {
-            stm.execute(queryText);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            stm.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        MainClass.addToLog("Db checked in thread " + Thread.currentThread().getName());
-
-    }
-
-    public static boolean dbIsDefined(){
+    public static boolean dbIsDefined() {
         Statement stm;
         ResultSet resultSet;
 

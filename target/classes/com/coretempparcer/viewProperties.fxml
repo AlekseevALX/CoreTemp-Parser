@@ -12,26 +12,33 @@
 <!--</VBox>-->
 
 <Pane id="all" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparcer.AppControllerProperties">
-   <TitledPane fx:id="userSettings_tab" animated="false" expanded="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#onMouseClicked_userSettings_tab" prefHeight="248.0" prefWidth="600.0" text="User settings">
+   <TitledPane fx:id="userSettings_tab" animated="false" expanded="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#onMouseClicked_userSettings_tab" prefHeight="389.0" prefWidth="600.0" text="User settings">
       <content>
          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="225.0" prefWidth="598.0">
             <children>
-               <TextField id="urlDB" fx:id="urlDB" layoutX="225.0" layoutY="14.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="loginDB" fx:id="loginDB" layoutX="225.0" layoutY="39.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="passwordDB" fx:id="passwordDB" layoutX="225.0" layoutY="64.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="directoryWithCTLogs" fx:id="directoryWithCTLogs" layoutX="225.0" layoutY="89.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="countOfCharPoint" fx:id="countOfCharPoint" layoutX="225.0" layoutY="114.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="countMinutesPerAutoGraphic" fx:id="countMinutesPerAutoGraphic" layoutX="225.0" layoutY="139.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="maxParcingThreads" fx:id="maxParcingThreads" layoutX="225.0" layoutY="164.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="tableName" fx:id="tableName" layoutX="225.0" layoutY="189.0" />
-               <Label layoutX="14.0" layoutY="18.0" text="DataBase URL:" />
-               <Label layoutX="14.0" layoutY="43.0" text="DataBase login:" />
-               <Label layoutX="14.0" layoutY="68.0" text="DataBase password:" />
-               <Label layoutX="14.0" layoutY="93.0" text="Directory that contains CoreTemp logs:" />
-               <Label layoutX="14.0" layoutY="118.0" text="Max count of points on charts:" />
-               <Label layoutX="14.0" layoutY="143.0" text="Count of minutes, viewing in the charts:" />
-               <Label layoutX="14.0" layoutY="168.0" text="Max count of thread for parcing:" />
-               <Label layoutX="14.0" layoutY="192.0" text="Table name:" />
+               <TextField id="IPDB" fx:id="IPDB" layoutX="225.0" layoutY="14.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="DBName" fx:id="DBName" layoutX="225.0" layoutY="39.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="portDB" fx:id="portDB" layoutX="225.0" layoutY="64.0" prefHeight="25.0" prefWidth="290.0" />
+               <RadioButton fx:id="PG" layoutX="225.0" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedPG" text="Postgres" />
+               <RadioButton fx:id="MSQL" layoutX="325" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedMSQL" text="MySQL" />
+               <TextField id="loginDB" fx:id="loginDB" layoutX="225.0" layoutY="114.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="passwordDB" fx:id="passwordDB" layoutX="225.0" layoutY="139.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="directoryWithCTLogs" fx:id="directoryWithCTLogs" layoutX="225.0" layoutY="164.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="countOfCharPoint" fx:id="countOfCharPoint" layoutX="225.0" layoutY="189.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="countMinutesPerAutoGraphic" fx:id="countMinutesPerAutoGraphic" layoutX="225.0" layoutY="214.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="maxParcingThreads" fx:id="maxParcingThreads" layoutX="225.0" layoutY="239.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="tableName" fx:id="tableName" layoutX="225.0" layoutY="264.0" />
+               <Label layoutX="14.0" layoutY="18.0" text="DataBase IP:" />
+               <Label layoutX="14.0" layoutY="43.0" text="DataBase name:" />
+               <Label layoutX="14.0" layoutY="68.0" text="DataBase port:" />
+               <Label layoutX="14.0" layoutY="93.0" text="DataBase type: " />
+               <Label layoutX="14.0" layoutY="118.0" text="DataBase login:" />
+               <Label layoutX="14.0" layoutY="143.0" text="DataBase password:" />
+               <Label layoutX="14.0" layoutY="168.0" text="Directory that contains CoreTemp logs:" />
+               <Label layoutX="14.0" layoutY="192.0" text="Max count of points on charts:" />
+               <Label layoutX="14.0" layoutY="217.0" text="Count of minutes, viewing in the charts:" />
+               <Label layoutX="14.0" layoutY="242.0" text="Max count of thread for parcing:" />
+               <Label layoutX="14.0" layoutY="267.0" text="Table name:" />
 
             </children></AnchorPane>
       </content>
