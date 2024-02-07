@@ -11,8 +11,9 @@ public class MainClass {
     public static volatile int currentWorkingThread = 0;
     public static volatile int countOfThreads = 0;
     public static volatile boolean done = true;
+    public static boolean auto;
     public static volatile String log = "";
-    public static volatile boolean auto = false;
+    //    public static volatile boolean auto = false;
     private static HashMap<String, String> userSettingsMap = new HashMap<>();
     private static HashMap<String, String> systemPropertiesMap = new HashMap<>();
     private static String ver = "1.0";
@@ -28,7 +29,15 @@ public class MainClass {
     public static Connection connectionToDB = null;
 
     private static int countOfCores = -1;
+    private static boolean logging = false;
 
+    public static boolean isLogging() {
+        return logging;
+    }
+
+    public static void setLogging(boolean logging) {
+        MainClass.logging = logging;
+    }
 
     public static String getVer() {
         return ver;
@@ -118,9 +127,10 @@ public class MainClass {
         return Integer.parseInt(userSettingsMap.get("maxParcingThreads"));
     }
 
-    public static Integer getCountOfCharPoint(){
+    public static Integer getCountOfCharPoint() {
         return Integer.parseInt(userSettingsMap.get("countOfCharPoint"));
     }
+
     public static int getCountOfCores() {
         return countOfCores;
     }
@@ -194,10 +204,30 @@ public class MainClass {
         properties.store(new FileOutputStream(systemProperties), null);
     }
 
-    public void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         if (!propertiesLoaded) loadProperties();
-        if (connectionToBase()) new ParcingSession_thread().start();
 
+        if (args.length > 0 && args[0].toUpperCase().equals("-a".toUpperCase())) {
+            System.out.println("start auto"); //DEBUG
+            MainClass mainClass = new MainClass();
+            mainClass.autoParcing();
+        }
+
+        if (args.length > 0 && args[0].toUpperCase().equals("-p".toUpperCase())) {
+            System.out.println("start parce"); //DEBUG
+            MainClass mainClass = new MainClass();
+            mainClass.startParceSession(false);
+        }
+    }
+
+    public void autoParcing() {
+        startParceSession(true);
+    }
+
+    public void startParceSession(boolean auto) {
+        done = true;
+
+        if (connectionToBase()) new ParcingSession_thread(auto).start();
     }
 
     public static void deleteBase() {
@@ -224,7 +254,7 @@ public class MainClass {
     }
 
     public static void addToLog(String log) {
-//        System.out.println(log); //D-D
+        if (!logging) return;
         MainClass.log = MainClass.log.concat(log).concat(System.lineSeparator());
     }
 
@@ -286,125 +316,147 @@ public class MainClass {
 
 class ParcingSession_thread extends Thread {
 
-    public static Date lastDate = new Date(); //last date, which has been written in database
-    public static HashMap<Date, String> mapFiles = new HashMap<>();
-    String[] args;
-    public static String directory = "";
+    private static Date lastDate = new Date(); //last date, which has been written in database
+    private static HashMap<Date, String> mapFiles = new HashMap<>();
+    private static String directory = "";
 
-    public ParcingSession_thread() {
+    public ParcingSession_thread(boolean auto) {
+        MainClass.auto = auto;
     }
 
     public void run() {
-
-        int maxParcingThreads = MainClass.getMaxParcingThreads();
-
-        directory = MainClass.getDirectoryWithCTLogs();
-
-        Calendar cal = new GregorianCalendar();
-        MainClass.addToLog("Start: " + cal.getTime());
-        long lastTimeInBase = 0;
-        long timeOfStartingFile = Long.MAX_VALUE;
-        Date currentDateOfStartingFile = new Date();
-        int a = 0;
-        mapFiles.clear();
-        boolean dbDefined = false;
-
-        ArrayList<Thread> threads = new ArrayList<>();
-
-        String ext;
-
-        if (directory.equals("")) {
-            MainClass.addToLog("Directory to parce is not defined!");
-            MainClass.done = true;
-            return;
-        }
-
-        ext = "csv";
-
-        File file = new File(directory);
-
-        if (!file.exists()) {
-            MainClass.addToLog("Directory " + directory + " doesn't exist!");
-            MainClass.done = true;
-            return;
-        }
-
-        File[] listFiles = file.listFiles(new MainClass.FileFilter(ext));
-
-        if (listFiles.length == 0) {
-            MainClass.addToLog("Finded 0 files in directory " + directory);
-            MainClass.done = true;
-            return;
-        } else {
-            MainClass.addToLog("Finded " + listFiles.length + " files.");
-        }
-
-        if (!MainClass.connectionToBase()) {
-            MainClass.addToLog("failed to run thread ParcingSession_thread - don't connection to base");
-            return;
-        }
-
-        dbDefined = DBChecker.dbIsDefined();
-
-        if (dbDefined) {
-            findLastDateInBase();
-            MainClass.addToLog("Last record in the database is " + lastDate);
-            lastTimeInBase = lastDate.getTime();
-        }
-
-        for (File f : listFiles) {
-            Date dateFile = parseFileNameToDate(f.getPath());
-            mapFiles.put(dateFile, f.getPath());
-            if (dbDefined && (lastTimeInBase - dateFile.getTime() >= 0) && (lastTimeInBase - dateFile.getTime() < timeOfStartingFile)) {
-                timeOfStartingFile = lastTimeInBase - dateFile.getTime();
-                currentDateOfStartingFile = dateFile;
-            }
-        }
-
-        if (dbDefined) {
-            Iterator iterator = mapFiles.entrySet().iterator();
-
-            while (iterator.hasNext()) {
-                Map.Entry<Date, String> entry = (Map.Entry<Date, String>) iterator.next();
-                if (entry.getKey().getTime() < currentDateOfStartingFile.getTime()) {
-                    iterator.remove();
-                }
-            }
-        }
-
-        if (!MainClass.isColumnsSettingsIsReaded()) {
-            for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
+        do {
+            System.out.println("start cycle"); //DEBUG
+            if (!MainClass.done) {
+                System.out.println("MainClass.done: " + MainClass.done + " i'm continuing"); //DEBUG
                 try {
-                    FileParcer.readColumnSettingsFromFile(entry.getValue());
-                } catch (IOException e) {
-                    MainClass.addToLog("Parcing session is failed because " + e);
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                break;
+                continue;
+            }
+
+            System.out.println("i'm working!"); //DEBUG
+
+            MainClass.done = false;
+
+            int maxParcingThreads = MainClass.getMaxParcingThreads();
+
+            directory = MainClass.getDirectoryWithCTLogs();
+
+            Calendar cal = new GregorianCalendar();
+            MainClass.addToLog("Start: " + cal.getTime());
+            long lastTimeInBase = 0;
+            long timeOfStartingFile = Long.MAX_VALUE;
+            Date currentDateOfStartingFile = new Date();
+            int a = 0;
+            mapFiles.clear();
+            boolean dbDefined;
+
+            ArrayList<Thread> threads = new ArrayList<>();
+
+            String ext;
+
+            if (directory.equals("")) {
+                MainClass.addToLog("Directory to parce is not defined!");
+                MainClass.done = true;
+                return;
+            }
+
+            ext = "csv";
+
+            File file = new File(directory);
+
+            if (!file.exists()) {
+                MainClass.addToLog("Directory " + directory + " doesn't exist!");
+                MainClass.done = true;
+                return;
+            }
+
+            File[] listFiles = file.listFiles(new MainClass.FileFilter(ext));
+
+            if (listFiles.length == 0) {
+                MainClass.addToLog("Finded 0 files in directory " + directory);
+                MainClass.done = true;
+                return;
+            } else {
+                MainClass.addToLog("Finded " + listFiles.length + " files.");
+            }
+
+            if (!MainClass.connectionToBase()) {
+                MainClass.addToLog("failed to run thread ParcingSession_thread - don't connection to base");
+                return;
+            }
+
+            dbDefined = DBChecker.dbIsDefined();
+
+            if (dbDefined) {
+                findLastDateInBase();
+                MainClass.addToLog("Last record in the database is " + lastDate);
+                lastTimeInBase = lastDate.getTime();
+            }
+
+            for (File f : listFiles) {
+                Date dateFile = parseFileNameToDate(f.getPath());
+                mapFiles.put(dateFile, f.getPath());
+                if (dbDefined && (lastTimeInBase - dateFile.getTime() >= 0) && (lastTimeInBase - dateFile.getTime() < timeOfStartingFile)) {
+                    timeOfStartingFile = lastTimeInBase - dateFile.getTime();
+                    currentDateOfStartingFile = dateFile;
+                }
+            }
+
+            if (dbDefined) {
+                Iterator iterator = mapFiles.entrySet().iterator();
+
+                while (iterator.hasNext()) {
+                    Map.Entry<Date, String> entry = (Map.Entry<Date, String>) iterator.next();
+                    if (entry.getKey().getTime() < currentDateOfStartingFile.getTime()) {
+                        iterator.remove();
+                    }
+                }
+            }
+
+            if (!MainClass.isColumnsSettingsIsReaded()) {
+                for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
+                    try {
+                        FileParcer.readColumnSettingsFromFile(entry.getValue());
+                    } catch (IOException e) {
+                        MainClass.addToLog("Parcing session is failed because " + e);
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                }
+            }
+
+            for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
+
+                ParcingFile_thread strtSc = new ParcingFile_thread(entry.getValue(), "Parcer " + a);
+
+                threads.add(strtSc);
+                a += 1;
+                MainClass.countOfThreads += 1;
+            }
+
+            for (Thread t : threads) {
+                while (MainClass.currentWorkingThread >= maxParcingThreads) {
+                    //wait
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+                    }
+                }
+                t.start();
+                MainClass.currentWorkingThread += 1;
+
+            }
+
+            if (MainClass.countOfThreads == 0) {
+                MainClass.done = true;
             }
         }
-
-        for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
-
-            ParcingFile_thread strtSc = new ParcingFile_thread(entry.getValue(), "Parcer " + a);
-
-            threads.add(strtSc);
-            a += 1;
-            MainClass.countOfThreads += 1;
-        }
-
-        for (Thread t : threads) {
-            while (MainClass.currentWorkingThread >= maxParcingThreads) {
-                //wait
-            }
-            t.start();
-            MainClass.currentWorkingThread += 1;
-
-        }
-
-        if (MainClass.countOfThreads == 0) {
-            MainClass.done = true;
-        }
+        while (MainClass.auto);
 
     }
 

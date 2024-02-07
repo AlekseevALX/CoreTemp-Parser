@@ -5,18 +5,14 @@
 
 package com.coretempparcer;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.Map.Entry;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart.Data;
@@ -27,9 +23,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import javafx.util.Pair;
-import org.apache.commons.csv.*;
 
 
 public class AppController {
@@ -88,15 +81,62 @@ public class AppController {
         this.toParce();
     }
 
+    public void onDefinePropertiesButtonClick() throws IOException {
+        PropertiesApplication propertiesApplication = new PropertiesApplication();
+        Stage stage = new Stage();
+        propertiesApplication.start(stage);
+    }
+
+    public void onStopButtonClick() {
+        MainClass.done = true;
+        MainClass.auto = false;
+        MainClass.countOfThreads = 0;
+        MainClass.currentWorkingThread = 0;
+        GregorianCalendar cal = new GregorianCalendar();
+
+        MainClass.addToLog("User stopped the process " + cal.getTime());
+    }
+
+    @FXML
+    protected void autoButtonClicked() {
+        if (this.autoButton.isSelected()) {
+            MainClass.setLogging(true);
+            MainClass.auto = true;
+            MainClass.log = "";
+            MainClass.addToLog("Welcome to the jungle!!");
+            MainClass mainClass = new MainClass();
+            mainClass.autoParcing();
+
+            KeyFrame kfRefresh;
+            if (MainClass.auto) {
+                kfRefresh = new KeyFrame(Duration.millis(1000.0D),
+                        (actionEvent) -> {
+                            this.autoRefresh();
+                        },
+                        new KeyValue[0]);
+                this.refresh = new Timeline(new KeyFrame[]{kfRefresh});
+                this.refresh.setCycleCount(1);
+                this.refresh.play();
+            }
+        } else {
+            MainClass.auto = false;
+        }
+
+    }
+
     protected void toParce() throws IOException {
+        if (!MainClass.done) return;
+
+        MainClass.setLogging(true);
         MainClass.log = "";
         MainClass.addToLog("Welcome to the jungle!!");
-        String dir = MainClass.getDirectoryWithCTLogs();
-        String[] args = new String[]{dir};
+//        String dir = MainClass.getDirectoryWithCTLogs();
+//        String[] args = new String[]{dir};
         MainClass mainObject = new MainClass();
-        MainClass.done = false;
+//        MainClass.done = false;
         MainClass.countOfThreads = 0;
-        mainObject.main(args);
+//        mainObject.main(args);
+        mainObject.startParceSession(false);
         KeyFrame kf = new KeyFrame(Duration.millis(100.0D), (actionEvent) -> {
             this.waitTillTheEnd();
         }, new KeyValue[0]);
@@ -105,33 +145,6 @@ public class AppController {
         this.tl.play();
     }
 
-    @FXML
-    protected void autoButtonClicked() {
-        MainClass.auto = this.autoButton.isSelected();
-        KeyFrame kfParse;
-        if (MainClass.auto) {
-            kfParse = new KeyFrame(Duration.millis(5000.0D), (actionEvent) -> {
-                this.autoRefresh();
-            }, new KeyValue[0]);
-            this.refresh = new Timeline(new KeyFrame[]{kfParse});
-            this.refresh.setCycleCount(1);
-            this.refresh.play();
-        }
-
-        if (MainClass.auto) {
-            kfParse = new KeyFrame(Duration.millis(5000.0D), (actionEvent) -> {
-                try {
-                    this.autoParse();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }, new KeyValue[0]);
-            this.parsing = new Timeline(new KeyFrame[]{kfParse});
-            this.parsing.setCycleCount(1);
-            this.parsing.play();
-        }
-
-    }
 
     @FXML
     protected void DateFromHOnKeyReleased() {
@@ -209,6 +222,7 @@ public class AppController {
         this.graphicTemp.getData().clear();
         this.graphicPower.getData().clear();
     }
+
     @FXML
     protected void onDeleteBaseButtonClick() {
         MainClass.log = "";
@@ -391,7 +405,7 @@ public class AppController {
     }
 
     private void waitTillTheEnd() {
-        if (MainClass.done) {
+        if (MainClass.done && !MainClass.auto) {
             MainClass.addToLog("Done");
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();
@@ -400,6 +414,7 @@ public class AppController {
 
         this.textLog.appendText(MainClass.log);
         MainClass.clearLog();
+
         if (!MainClass.done) {
             this.tl.playFromStart();
         }
@@ -407,49 +422,41 @@ public class AppController {
     }
 
     private void autoRefresh() {
-        if (!MainClass.auto) {
+        if (MainClass.done && !MainClass.auto) {
+            MainClass.addToLog("Done");
+            this.textLog.appendText(MainClass.log);
+            MainClass.clearLog();
             this.refresh.stop();
-        }
+        } else {
+            this.refreshLinearChartAuto();
 
-        this.refreshLinearChartAuto();
-        if (MainClass.auto) {
+            this.textLog.appendText(MainClass.log);
+            MainClass.clearLog();
+
             this.refresh.playFromStart();
         }
 
     }
 
-    private void autoParse() throws IOException {
-        MainClass.addToLog("autoParse #1 MainClassAuto: " + MainClass.auto);
-        if (!MainClass.auto) {
-            this.parsing.stop();
-        }
+//    private void autoParse() throws IOException {
+//        MainClass.addToLog("autoParse #1 MainClassAuto: " + MainClass.auto);
+//        if (!MainClass.auto) {
+//            this.parsing.stop();
+//        }
+//
+//        MainClass.addToLog("autoParse #2 MainClassDone: " + MainClass.done);
+//        if (MainClass.done) {
+//            this.toParce();
+//        } else {
+//            MainClass.addToLog("I can't parse because mainClass.done = false"); //HERE
+//        }
+//
+//        MainClass.addToLog("autoParse #3 MainClassAuto: " + MainClass.auto);
+//        if (MainClass.auto) {
+//            this.parsing.playFromStart();
+//        }
+//
+//    }
 
-        MainClass.addToLog("autoParse #2 MainClassDone: " + MainClass.done);
-        if (MainClass.done) {
-            this.toParce();
-        } else {
-            MainClass.addToLog("I can't parse because mainClass.done = false"); //HERE
-        }
 
-        MainClass.addToLog("autoParse #3 MainClassAuto: " + MainClass.auto);
-        if (MainClass.auto) {
-            this.parsing.playFromStart();
-        }
-
-    }
-
-    public void onDefinePropertiesButtonClick() throws IOException {
-        PropertiesApplication propertiesApplication = new PropertiesApplication();
-        Stage stage = new Stage();
-        propertiesApplication.start(stage);
-    }
-    public void onStopButtonClick(){
-        MainClass.done = true;
-        MainClass.auto = false;
-        MainClass.countOfThreads = 0;
-        MainClass.currentWorkingThread = 0;
-        GregorianCalendar cal = new GregorianCalendar();
-
-        MainClass.addToLog("User stopped the process " + cal.getTime());
-    }
 }

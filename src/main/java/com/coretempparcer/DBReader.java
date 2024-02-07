@@ -178,16 +178,11 @@ public class DBReader {
                                 fullnessIncreasePoint = chIncreasePoint / countOfIncreasePoints;
 
                             }
-
                         }
-
                         cores.put(coreName, res);
-
                     }
 
-
                 }
-
 
             }
         }

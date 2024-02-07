@@ -13,7 +13,7 @@ public class ParcingFile_thread extends Thread {
         this.fileName = fileName;
     }
 
-    //testing functions+
+    //testing functions+ //delete this in the end
     public static void testBase() {
         try {
             Class.forName("org.postgresql.Driver");
@@ -59,7 +59,7 @@ public class ParcingFile_thread extends Thread {
 
     @Override
     public void run() {  //here
-
+        System.out.println("start parcing thread " + Thread.currentThread().getName()); //DEBUG
         if (fileName.equals("")) {
             endOfthread();
             return;
@@ -116,6 +116,7 @@ public class ParcingFile_thread extends Thread {
             if (MainClass.countOfThreads == 0) {
                 MainClass.done = true;
             }
+            System.out.println("stop thread " + Thread.currentThread().getName()); //DEBUG
         }
     }
 }
