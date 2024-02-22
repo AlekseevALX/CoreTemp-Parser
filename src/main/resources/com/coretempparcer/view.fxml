@@ -20,7 +20,7 @@
          <content>
            <AnchorPane prefHeight="643.0" prefWidth="1400.0">
                   <children>
-                     <LineChart id="graphicTemp" fx:id="graphicTemp" animated="false" centerShape="false" layoutX="22.0" opacity="0.62" prefHeight="180.0" prefWidth="1058.0" stylesheets="@../../css/1.css" title="">
+                     <LineChart id="graphicTemp" fx:id="graphicTemp" animated="false" centerShape="false" layoutX="22.0" opacity="0.62" prefHeight="180.0" prefWidth="1028.0" stylesheets="@../../css/1.css" title="">
                        <xAxis>
                          <CategoryAxis side="BOTTOM" />
                        </xAxis>
@@ -31,7 +31,7 @@
                         <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
                      </opaqueInsets>
                      </LineChart>
-                      <LineChart id="graphicLoad" fx:id="graphicLoad" animated="false" layoutX="22.0" layoutY="140.0" prefHeight="180.0" prefWidth="1058.0" stylesheets="@../../css/1.css" title="">
+                      <LineChart id="graphicLoad" fx:id="graphicLoad" animated="false" layoutX="22.0" layoutY="140.0" prefHeight="180.0" prefWidth="1015.0" stylesheets="@../../css/1.css" title="">
                           <xAxis>
                               <CategoryAxis side="BOTTOM" />
                           </xAxis>
@@ -39,7 +39,7 @@
                               <NumberAxis label="load" side="LEFT" />
                           </yAxis>
                       </LineChart>
-                      <LineChart id="graphicSpeed" fx:id="graphicSpeed" animated="false" layoutX="22.0" layoutY="282.0" prefHeight="180.0" prefWidth="1058.0" stylesheets="@../../css/1.css" title="">
+                      <LineChart id="graphicSpeed" fx:id="graphicSpeed" animated="false" layoutX="22.0" layoutY="282.0" prefHeight="180.0" prefWidth="1002.0" stylesheets="@../../css/1.css" title="">
                           <xAxis>
                               <CategoryAxis side="BOTTOM" />
                           </xAxis>
@@ -47,7 +47,7 @@
                               <NumberAxis label="speed" side="LEFT" />
                           </yAxis>
                       </LineChart>
-                      <LineChart id="graphicPower" fx:id="graphicPower" animated="false" layoutX="22.0" layoutY="427.0" prefHeight="180.0" prefWidth="1058.0" stylesheets="@../../css/1.css" title="">
+                      <LineChart id="graphicPower" fx:id="graphicPower" animated="false" layoutX="22.0" layoutY="427.0" prefHeight="180.0" prefWidth="990.0" stylesheets="@../../css/1.css" title="">
                           <xAxis>
                               <CategoryAxis side="BOTTOM" />
                           </xAxis>
@@ -55,21 +55,27 @@
                               <NumberAxis label="power" side="LEFT" />
                           </yAxis>
                       </LineChart>
-                  <DatePicker id="DateFrom" fx:id="dateFrom" layoutX="1094.0" layoutY="13.0" />
-                  <DatePicker id="DateTo" fx:id="dateTo" layoutX="1094.0" layoutY="44.0" />
-                  <Button id="MainOKButton" fx:id="mainOkButton" layoutX="1094.0" layoutY="74.0" mnemonicParsing="false" onMouseClicked="#mainOKButtonClicked" text="OK" />
-                  <Button id="MainClearButton" fx:id="MainClearButton" layoutX="1129.0" layoutY="74.0" mnemonicParsing="false" onMouseClicked="#mainClearButtonClicked" text="Clear" />
-                  <TextField id="DateFromH" fx:id="dateFromH" layoutX="1277.0" layoutY="13.0" onKeyReleased="#DateFromHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
-                  <TextField id="DateFromM" fx:id="dateFromM" layoutX="1312.0" layoutY="13.0" onKeyReleased="#DateFromMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
-                  <TextField id="DateFromS" fx:id="dateFromS" layoutX="1347.0" layoutY="13.0" onKeyReleased="#DateFromSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
-                  <Text layoutX="1308.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
-                  <Text layoutX="1343.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
-                  <Text layoutX="1343.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
-                  <Text layoutX="1308.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
-                  <TextField id="DateToH" fx:id="dateToH" layoutX="1277.0" layoutY="44.0" onKeyReleased="#DateToHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
-                  <TextField id="DateToM" fx:id="dateToM" layoutX="1312.0" layoutY="44.0" onKeyReleased="#DateToMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
-                  <TextField id="DateToS" fx:id="dateToS" layoutX="1347.0" layoutY="44.0" onKeyReleased="#DateToSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
-                  <ToggleButton fx:id="autoButton" layoutX="1094.0" layoutY="107.0" mnemonicParsing="false" onMouseClicked="#autoButtonClicked" text="Auto" />
+                  <DatePicker id="DateFrom" fx:id="dateFrom" layoutX="1117.0" layoutY="38.0" prefHeight="25.0" prefWidth="160.0" />
+                  <DatePicker id="DateTo" fx:id="dateTo" layoutX="1117.0" layoutY="66.0" prefHeight="25.0" prefWidth="160.0" />
+                  <Button id="MainOKButton" fx:id="mainOkButton" layoutX="1094.0" layoutY="130.0" mnemonicParsing="false" onMouseClicked="#mainOKButtonClicked" text="OK" />
+                  <Button id="MainClearButton" fx:id="MainClearButton" layoutX="1129.0" layoutY="130.0" mnemonicParsing="false" onMouseClicked="#mainClearButtonClicked" text="Clear" />
+                  <TextField id="DateFromH" fx:id="dateFromH" layoutX="1286.0" layoutY="38.0" onKeyReleased="#DateFromHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
+                  <TextField id="DateFromM" fx:id="dateFromM" layoutX="1321.0" layoutY="38.0" onKeyReleased="#DateFromMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
+                  <TextField id="DateFromS" fx:id="dateFromS" layoutX="1356.0" layoutY="38.0" onKeyReleased="#DateFromSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
+                  <Text layoutX="1317.0" layoutY="82.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1352.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1352.0" layoutY="82.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1317.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <TextField id="DateToH" fx:id="dateToH" layoutX="1286.0" layoutY="66.0" onKeyReleased="#DateToHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
+                  <TextField id="DateToM" fx:id="dateToM" layoutX="1321.0" layoutY="66.0" onKeyReleased="#DateToMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
+                  <TextField id="DateToS" fx:id="dateToS" layoutX="1356.0" layoutY="66.0" onKeyReleased="#DateToSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
+                  <ToggleButton fx:id="autoButton" layoutX="1094.0" layoutY="163.0" mnemonicParsing="false" onMouseClicked="#autoButtonClicked" text="Auto" />
+                  <Label layoutX="1059.0" layoutY="42.0" text="from:" />
+                  <Label layoutX="1059.0" layoutY="70.0" text="to:" />
+                  <Label layoutX="1059.0" layoutY="98.0" text="computer:" />
+                  <Label layoutX="1059.0" layoutY="6.0" text="this computer:" />
+                  <Label fx:id="thisCompName" layoutX="1142.0" layoutY="6.0" prefHeight="22.0" prefWidth="243.0" />
+                  <ChoiceBox fx:id="compChoice" layoutX="1117.0" layoutY="94.0" prefHeight="25.0" prefWidth="269.0" />
                   </children>
                </AnchorPane>
          </content>

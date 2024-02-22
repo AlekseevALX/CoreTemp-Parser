@@ -7,19 +7,19 @@ import java.util.Date;
 public class DBReader {
     java.sql.Timestamp tsStart;
     java.sql.Timestamp tsFinish;
-    private Date dateFrom;
-    private Date dateTo;
+
     private ResultSet resSel;
 
     public DBReader() {
+
     }
 
     private String tableName = MainClass.getTableName();
 
-    public HashMap<String, HashMap<String, SortedMap<Date, Float>>> prepareChartData(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData) {
+    public HashMap<String, HashMap<String, SortedMap<Date, Float>>> prepareChartData(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData, String compName) {
 
         try {
-            readFromDB(chartData);
+            readFromDB(chartData, compName);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -27,11 +27,28 @@ public class DBReader {
         return chartData;
     }
 
-    private void readFromDB(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData) throws SQLException {
+    public ArrayList findComputersInDB() throws SQLException {
+
+        ArrayList<String> res = new ArrayList<>();
+
+        PreparedStatement stm;
+        String queryText = getQueryTextFindComp();
+
+        if (MainClass.connectionToBase()) {
+            stm = MainClass.connectionToDB.prepareStatement(queryText);
+            resSel = stm.executeQuery();
+            while (resSel.next()) {
+                res.add(resSel.getString(1));
+            }
+        }
+        return res;
+    }
+
+    private void readFromDB(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData, String compName) throws SQLException {
 
         PreparedStatement stm;
 
-        String queryText = getQueryTextRead();
+        String queryText = getQueryTextRead(compName);
 
         String[] columns;
 
@@ -39,19 +56,11 @@ public class DBReader {
 
             stm = MainClass.connectionToDB.prepareStatement(queryText);
 
-            setupParametersToSelect(stm, tsStart, tsFinish);
+            setupParametersToSelect(stm, tsStart, tsFinish, compName);
 
             resSel = stm.executeQuery();
 
-            if (MainClass.isColumnsSettingsIsReaded()) {
-                columns = MainClass.getColNames();
-            } else {
-                columns = getColumnNamesFromDataBase();
-            }
-
-            if (MainClass.getCountOfCores() < 0) {
-                defineCountOfCores(columns);
-            }
+            columns = MainClass.getColNames(compName);
 
             if (!AppController.isChartDataIsDefined()) {
                 defineChartDataStructure(chartData, columns);
@@ -84,12 +93,12 @@ public class DBReader {
 
     private void roundTheGraphToTheNumberOfPoints(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartsData) {
         int numCharPoints = MainClass.getCountOfCharPoint();
-        int initialCountPoints = 0;
-        int baseSizeOnePoint = 0;
-        int increaseSizeOnePoint = 0;
-        int countOfBasePoints = 0;
-        int countOfIncreasePoints = 0;
-        int residue = 0;
+        int initialCountPoints;
+        int baseSizeOnePoint;
+        int increaseSizeOnePoint;
+        int countOfBasePoints;
+        int countOfIncreasePoints;
+        int residue;
 
         for (Map.Entry<String, HashMap<String, SortedMap<Date, Float>>> chart : chartsData.entrySet()) {    //1
 
@@ -261,49 +270,93 @@ public class DBReader {
 
     }
 
-    private void defineCountOfCores(String[] columns) {
-        int currCore = 0;
-        int countOfCores = MainClass.getCountOfCores();
-        String colCore = MainClass.getColdb_core();
-
-        if (countOfCores < 0) {
-            for (String s : columns) {
-                if (s.length() < 5) continue;
-                if ((s.toUpperCase().contains(colCore.toUpperCase())) && Integer.parseInt(s.substring(4, 5)) > currCore) {
-                    currCore = Integer.parseInt(s.substring(4, 5));
-                }
-            }
-
-            countOfCores = currCore + 1;
-            MainClass.setCountOfCores(countOfCores);
-        }
-    }
-
-    private String getQueryTextRead() {
+    private String getQueryTextRead(String compName) {
         String text = "";
 
-        text = text.concat("SELECT ");
-        text = text.concat("*");
-        text = text.concat(" FROM " + tableName);
-        text = text.concat(" WHERE ");
-        text = text.concat("time" + " >= ?");
-        text = text.concat(" and ");
-        text = text.concat("time" + " <= ?");
+        String colCompName = MainClass.getColCompName();
+
+        text = text.concat("SELECT ")
+                .concat("*")
+                .concat(" FROM " + tableName)
+                .concat(" WHERE ")
+                .concat("time" + " >= ?")
+                .concat(" and ")
+                .concat("time" + " <= ?");
+
+        if (!compName.isEmpty()) {
+            text = text.concat(" and ")
+                    .concat(colCompName + "= ?");
+        }
 
         return text;
     }
 
-    private String[] getColumnNamesFromDataBase() throws SQLException {
+    private String getQueryTextFindComp() {
+        String text = "";
 
-        ResultSetMetaData rsmd = resSel.getMetaData();
+        String colCompName = MainClass.getColCompName();
 
-        String[] columns = new String[rsmd.getColumnCount()];
+        text = text.concat("SELECT ")
+                .concat(colCompName)
+                .concat(" FROM " + tableName)
+                .concat(" GROUP BY ")
+                .concat(colCompName);
 
-        for (int i = 0; i < rsmd.getColumnCount(); i++) {
-            columns[i] = rsmd.getColumnName(i + 1);
+        return text;
+    }
+
+    private String getQueryTextFindColumns(String compName) {
+        String text = "";
+
+        text = text.concat("SELECT *")
+                .concat(" FROM " + tableName)
+                .concat(" WHERE ")
+                .concat(MainClass.getColCompName())
+                .concat(" = ?")
+                .concat(" LIMIT 1 ");
+
+
+        return text;
+    }
+
+    public String[] getColumnNamesFromDataBase(String compName) {
+
+        ArrayList<String> columns = new ArrayList<>();
+
+        String var;
+
+        PreparedStatement stm;
+
+        String queryText = getQueryTextFindColumns(compName);
+
+        if (MainClass.connectionToBase()) {
+
+            try {
+                stm = MainClass.connectionToDB.prepareStatement(queryText);
+                stm.setString(1, compName);
+                resSel = stm.executeQuery();
+                resSel.next();
+                ResultSetMetaData rsmd = resSel.getMetaData();
+
+                for (int i = 0; i < rsmd.getColumnCount(); i++) {
+                    if (i + 1 == 1) {
+                        columns.add(rsmd.getColumnName(i + 1));
+                    } else {
+                        var = resSel.getString(i + 1);
+                        if (var != null && !var.isEmpty()) {
+                            columns.add(rsmd.getColumnName(i + 1));
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                columns.toArray(new String[0]);
+            }
+
+        } else {
+            columns.toArray(new String[0]);
         }
 
-        return columns;
+        return columns.toArray(new String[0]);
     }
 
     public void setupTimeStamps(Date dateFrom, Date dateTo) {
@@ -316,10 +369,13 @@ public class DBReader {
 
     }
 
-    private void setupParametersToSelect(PreparedStatement stm, java.sql.Timestamp tsStart, java.sql.Timestamp tsFinish) {
+    private void setupParametersToSelect(PreparedStatement stm, java.sql.Timestamp tsStart, java.sql.Timestamp tsFinish, String compName) {
         try {
             stm.setTimestamp(1, tsStart);
             stm.setTimestamp(2, tsFinish);
+            if (!compName.isEmpty()) {
+                stm.setString(3, compName);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -7,10 +7,7 @@ package com.coretempparcer;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -74,6 +71,8 @@ public class AppControllerProperties implements Initializable {
     private TitledPane userSettings_tab;
     @FXML
     private TitledPane sysProp_tab;
+    @FXML
+    private Label checkConnectionResult;
 
 //    double initialYOfUserTab = userSettings_tab.getLayoutY();
 
@@ -94,14 +93,14 @@ public class AppControllerProperties implements Initializable {
         portDB.setText(userProp.get("portDB"));
 
         try {
-            if (userProp.get("typeDB").toUpperCase().equals("PG")){
+            if (userProp.get("typeDB").toUpperCase().equals("PG")) {
                 PG.setSelected(true);
                 MSQL.setSelected(false);
             } else if (userProp.get("typeDB").toUpperCase().equals("MSQL")) {
                 MSQL.setSelected(true);
                 PG.setSelected(false);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             //none
         }
 
@@ -129,6 +128,8 @@ public class AppControllerProperties implements Initializable {
         f_core.setText(sysSett.get("f_core"));
         f_cpuPower.setText(sysSett.get("f_cpuPower"));
 
+        checkConnectionResult.setText("unknown");
+
     }
 
     public void onMouseClickedPG() {
@@ -148,10 +149,9 @@ public class AppControllerProperties implements Initializable {
         userProp.put("IPDB", IPDB.getText());
         userProp.put("DBName", DBName.getText());
         userProp.put("portDB", portDB.getText());
-        if (PG.isSelected()){
+        if (PG.isSelected()) {
             userProp.put("typeDB", "PG");
-        }
-        else if (MSQL.isSelected()){
+        } else if (MSQL.isSelected()) {
             userProp.put("typeDB", "MSQL");
         }
         userProp.put("loginDB", loginDB.getText());
@@ -179,8 +179,19 @@ public class AppControllerProperties implements Initializable {
         userProp.put("maxParcingThreads", maxParcingThreads.getText());
         userProp.put("tableName", tableName.getText());
 
+        MainClass.closeConnection();
+
         MainClass.saveProperties();
         MainClass.loadProperties();
+    }
+
+    public void onMouseClickedCheckConnection() {
+        if (MainClass.connectionToBase()){
+            checkConnectionResult.setText("OK");
+        }
+        else {
+            checkConnectionResult.setText("failed");
+        }
     }
 
     public void onMouseClicked_userSettings_tab() {

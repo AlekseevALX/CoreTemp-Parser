@@ -59,7 +59,7 @@ public class ParcingFile_thread extends Thread {
 
     @Override
     public void run() {  //here
-        System.out.println("start parcing thread " + Thread.currentThread().getName()); //DEBUG
+
         if (fileName.equals("")) {
             endOfthread();
             return;
@@ -83,11 +83,7 @@ public class ParcingFile_thread extends Thread {
 
         synchronized (ParcingFile_thread.class) {
             if (!MainClass.dbChecked) {
-                DBChecker dbChecker = new DBChecker();
-
-                dbChecker.checkDB();
-
-                MainClass.dbChecked = true;
+                MainClass.checkDB();
             }
         }
 
@@ -116,7 +112,6 @@ public class ParcingFile_thread extends Thread {
             if (MainClass.countOfThreads == 0) {
                 MainClass.done = true;
             }
-            System.out.println("stop thread " + Thread.currentThread().getName()); //DEBUG
         }
     }
 }

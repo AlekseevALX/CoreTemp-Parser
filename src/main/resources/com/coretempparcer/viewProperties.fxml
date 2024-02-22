@@ -39,6 +39,8 @@
                <Label layoutX="14.0" layoutY="217.0" text="Count of minutes, viewing in the charts:" />
                <Label layoutX="14.0" layoutY="242.0" text="Max count of thread for parcing:" />
                <Label layoutX="14.0" layoutY="267.0" text="Table name:" />
+               <Button fx:id="checkCon" layoutX="14.0" layoutY="293.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedCheckConnection" text="Check connection" />
+               <Label fx:id="checkConnectionResult" layoutX="225.0" layoutY="293.0" text="checkResult" />
 
             </children></AnchorPane>
       </content>

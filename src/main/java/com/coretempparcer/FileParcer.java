@@ -84,6 +84,7 @@ public class FileParcer {
     private static void toFindNeededColumns(CSVRecord record) {
         String currCol;
         String[] tempString = new String[record.size()];
+        String compName = MainClass.getComputerName();
 
 
         String db_colTime = MainClass.getColdb_time();
@@ -206,9 +207,8 @@ public class FileParcer {
             ch++;
         }
 
-        MainClass.setColNames(colNames);
+        MainClass.setColNames(compName, colNames);
         MainClass.setColumns(columns);
-        MainClass.setColumnsSettingsIsReaded(true);
 
     }
 

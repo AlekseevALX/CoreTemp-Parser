@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="Lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/commons-csv-1.10.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/javafx-base-21.0.2-win.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/javafx-controls-21.0.2-win.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/javafx-fxml-21.0.2-win.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/javafx-graphics-21.0.2-win.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/postgresql-42.7.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/commons-csv-1.10.0-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/postgresql-42.7.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

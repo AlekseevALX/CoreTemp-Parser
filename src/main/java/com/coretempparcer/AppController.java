@@ -6,6 +6,8 @@
 package com.coretempparcer;
 
 import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -13,19 +15,20 @@ import java.util.Map.Entry;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableListBase;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 
-public class AppController {
+public class AppController implements Initializable {
     DBReader dbReader = new DBReader();
     @FXML
     private TextField dateFromH;
@@ -39,6 +42,10 @@ public class AppController {
     private TextField dateToM;
     @FXML
     private TextField dateToS;
+    @FXML
+    private ChoiceBox compChoice;
+    @FXML
+    private Label thisCompName;
     @FXML
     LineChart graphicTemp;
     @FXML
@@ -55,14 +62,57 @@ public class AppController {
     DatePicker dateFrom;
     @FXML
     ToggleButton autoButton;
+
+    private static String choosenComputer;
     private static HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData = new HashMap();
     private static boolean chartDataIsDefined = false;
+
+    private static String computerName = MainClass.getComputerName();
     Timeline tl;
     Timeline refresh;
-    Timeline parsing;
 
-    public static HashMap<String, HashMap<String, SortedMap<Date, Float>>> getChartData() {
-        return chartData;
+    public AppController() {
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        setInitialFormValues();
+        refillForm();
+    }
+
+    public void refillForm() {
+        MainClass.setLogging(true);
+        thisCompName.setText(computerName);
+
+        if (!MainClass.dbChecked) {
+            MainClass.checkDB();
+        }
+
+        ArrayList<String> computersInDB = new ArrayList<>();
+
+        try {
+            computersInDB = dbReader.findComputersInDB();
+        } catch (SQLException e) {
+            System.out.println("Failed trying to find any other computers in DB!");
+        }
+
+        if (!computersInDB.contains(computerName)) {
+            computersInDB.add(computerName);
+        }
+
+        ObservableList<String> oList = FXCollections.observableArrayList(computersInDB);
+
+        compChoice.setItems(oList);
+    }
+
+    public void setInitialFormValues() {
+        dateFromH.setText("00");
+        dateFromM.setText("00");
+        dateFromS.setText("00");
+
+        dateToH.setText("00");
+        dateToM.setText("00");
+        dateToS.setText("00");
     }
 
     public static boolean isChartDataIsDefined() {
@@ -71,9 +121,6 @@ public class AppController {
 
     public static void setChartDataIsDefined(boolean chartDataIsDefined) {
         AppController.chartDataIsDefined = chartDataIsDefined;
-    }
-
-    public AppController() {
     }
 
     @FXML
@@ -99,6 +146,9 @@ public class AppController {
 
     @FXML
     protected void autoButtonClicked() {
+
+        if (!checkChoosenCompName()) return;
+
         if (this.autoButton.isSelected()) {
             MainClass.setLogging(true);
             MainClass.auto = true;
@@ -124,18 +174,13 @@ public class AppController {
 
     }
 
-    protected void toParce() throws IOException {
+    protected void toParce() {
         if (!MainClass.done) return;
 
-        MainClass.setLogging(true);
         MainClass.log = "";
         MainClass.addToLog("Welcome to the jungle!!");
-//        String dir = MainClass.getDirectoryWithCTLogs();
-//        String[] args = new String[]{dir};
         MainClass mainObject = new MainClass();
-//        MainClass.done = false;
         MainClass.countOfThreads = 0;
-//        mainObject.main(args);
         mainObject.startParceSession(false);
         KeyFrame kf = new KeyFrame(Duration.millis(100.0D), (actionEvent) -> {
             this.waitTillTheEnd();
@@ -144,7 +189,6 @@ public class AppController {
         this.tl.setCycleCount(1);
         this.tl.play();
     }
-
 
     @FXML
     protected void DateFromHOnKeyReleased() {
@@ -208,7 +252,11 @@ public class AppController {
 
     @FXML
     protected void mainOKButtonClicked() {
-        this.refreshLinearChartToPeriod();
+        if (!checkChoosenCompName()) {
+            return;
+        }
+
+        this.refreshLinearChartToPeriod(compChoice.getValue().toString());
     }
 
     @FXML
@@ -228,22 +276,24 @@ public class AppController {
         MainClass.log = "";
         MainClass.deleteBase();
         this.textLog.setText(MainClass.log);
+
+        refillForm();
     }
 
-    public void refreshLinearChartToPeriod() {
-        this.refreshLinearChart(true);
+    public void refreshLinearChartToPeriod(String compName) {
+        this.refreshLinearChart(true, compName);
     }
 
-    public void refreshLinearChartAuto() {
-        this.refreshLinearChart(false);
+    public void refreshLinearChartAuto(String compName) {
+        this.refreshLinearChart(false, compName);
     }
 
-    public void refreshLinearChart(boolean fixedPeriod) {
+    public void refreshLinearChart(boolean fixedPeriod, String compName) {
 
         GregorianCalendar calendar;
         Date date1;
         Date date2;
-        Integer countMinutesPerAutoGraphic = MainClass.getCountMinutesPerAutoGraphic();
+
         if (fixedPeriod) {
             int year = (this.dateFrom.getValue()).getYear();
             int month = (this.dateFrom.getValue()).getMonthValue();
@@ -263,6 +313,7 @@ public class AppController {
             calendar.set(year, month - 1, date, hour, minute, second);
             date2 = calendar.getTime();
         } else {
+            Integer countMinutesPerAutoGraphic = MainClass.getCountMinutesPerAutoGraphic();
             calendar = new GregorianCalendar();
             date2 = calendar.getTime();
             Long timeInMillis = calendar.getTimeInMillis();
@@ -272,7 +323,7 @@ public class AppController {
         }
 
         this.dbReader.setupTimeStamps(date1, date2);
-        this.dbReader.prepareChartData(chartData);
+        this.dbReader.prepareChartData(chartData, compName);
         this.fillingChartsData(chartData);
     }
 
@@ -354,7 +405,7 @@ public class AppController {
         Float value;
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
-        for (Map.Entry<Date, Float> entry:coreMap.entrySet()) {
+        for (Map.Entry<Date, Float> entry : coreMap.entrySet()) {
             dateSer = sdf.format(entry.getKey());
             value = entry.getValue();
             series.getData().add(new Data(dateSer, value));
@@ -403,6 +454,7 @@ public class AppController {
             MainClass.addToLog("Done");
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();
+            refillForm();
             this.tl.stop();
         }
 
@@ -416,13 +468,15 @@ public class AppController {
     }
 
     private void autoRefresh() {
+
         if (MainClass.done && !MainClass.auto) {
             MainClass.addToLog("Done");
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();
             this.refresh.stop();
         } else {
-            this.refreshLinearChartAuto();
+            checkChoosenCompName();
+            this.refreshLinearChartAuto(compChoice.getValue().toString());
 
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();
@@ -430,6 +484,26 @@ public class AppController {
             this.refresh.playFromStart();
         }
 
+    }
+
+    private boolean checkChoosenCompName() {
+        if (compChoice.getValue() == null) {
+            MainClass.addToLog("Choose the computer!");
+            this.textLog.appendText(MainClass.log);
+            MainClass.clearLog();
+            return false;
+        }
+
+        if (choosenComputer == null || choosenComputer.equals("")) {
+            choosenComputer = compChoice.getValue().toString();
+        }
+
+        if (!choosenComputer.equals(compChoice.getValue().toString())) {
+            chartData = new HashMap<>();
+            setChartDataIsDefined(false);
+            choosenComputer = compChoice.getValue().toString();
+        }
+        return true;
     }
 
 //    private void autoParse() throws IOException {

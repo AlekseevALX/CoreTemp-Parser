@@ -20,13 +20,15 @@ public class DBWriter {
 
     public void writeToBase() throws ClassNotFoundException, SQLException {
 
-        deleteAlreadyExistsRecords();
+        String compName = MainClass.getComputerName();
 
-        String[] columns = MainClass.getColNames(); //here
+        deleteAlreadyExistsRecords(compName);
+
+        String[] columns = MainClass.getColNames(compName); //here
 
         PreparedStatement stm;
 
-        String queryText = getQueryTextInsert(columns);
+        String queryText = getQueryTextInsert(columns, compName);
 
         if (MainClass.connectionToBase()) {
             stm = MainClass.connectionToDB.prepareStatement(queryText);
@@ -41,11 +43,11 @@ public class DBWriter {
 
         for (HashMap.Entry pair : strings.entrySet()) {
             if (MainClass.done) {
-                MainClass.addToLog("Can't write recort to base, process is stopped! Thread:" + Thread.currentThread().getName());
+                MainClass.addToLog("Can't write record to base, process is stopped! Thread:" + Thread.currentThread().getName());
                 return;
             }
             oneString = (String[]) pair.getValue();
-            setupParameters(stm, oneString);
+            setupParameters(stm, oneString, compName);
             try {
                 stm.executeUpdate();
             } catch (Exception e) {
@@ -56,13 +58,13 @@ public class DBWriter {
         stm.close();
     }
 
-    public void deleteAlreadyExistsRecords() throws ArrayIndexOutOfBoundsException, SQLException {
-        String[] columns = MainClass.getColNames();
+    public void deleteAlreadyExistsRecords(String compName) throws ArrayIndexOutOfBoundsException, SQLException {
+        String[] columns = MainClass.getColNames(compName);
         HashMap<Integer, String[]> strings = fileData.getStrings();
 
         PreparedStatement stm;
 
-        String queryText = getQueryTextExists(columns);
+        String queryText = getQueryTextExists(columns, compName);
 
         if (MainClass.connectionToBase()) {
             stm = MainClass.connectionToDB.prepareStatement(queryText);
@@ -71,7 +73,7 @@ public class DBWriter {
             return;
         }
 
-        setupParametersToSelect(stm, fileData);
+        setupParametersToSelect(stm, fileData, compName);
 
         resSel = stm.executeQuery();
 
@@ -89,7 +91,7 @@ public class DBWriter {
         stm.close();
     }
 
-    private String getQueryTextInsert(String[] columns) {
+    private String getQueryTextInsert(String[] columns, String compName) {
         //        String sql = "INSERT INTO JC_CONTACT (FIRST_NAME, LAST_NAME, PHONE, EMAIL) VALUES (?, ?, ?,?)";
         String text = "";
         int columnCount = columns.length;
@@ -101,6 +103,10 @@ public class DBWriter {
             text = text.concat(columns[i]) + ",";
         }
 
+        if (!compName.isEmpty()){
+            text = text.concat(MainClass.getColCompName()) + ",";
+        }
+
         text = text.substring(0, text.length() - 1);
         text = text.concat(") ");
         text = text.concat("VALUES ");
@@ -110,29 +116,38 @@ public class DBWriter {
             text = text.concat("?,");
         }
 
+        if (!compName.isEmpty()){
+            text = text.concat("?,");
+        }
+
         text = text.substring(0, text.length() - 1);
         text = text.concat(") ");
 
         return text;
     }
 
-    private String getQueryTextExists(String[] columns) {
+    private String getQueryTextExists(String[] columns, String compName) {
         //SELECT TIME FROM CORETEMP WHERE TIME >= ? and TIME <= ?
         String text = "";
-        String colName = columns[0];
+        String colTime = columns[0];
 
-        text = text.concat("SELECT ");
-        text = text.concat(colName);
-        text = text.concat(" FROM " + tableName);
-        text = text.concat(" WHERE ");
-        text = text.concat(colName + " >= ?");
-        text = text.concat(" and ");
-        text = text.concat(colName + " <= ?");
+        text = text.concat("SELECT ")
+        .concat(colTime)
+        .concat(" FROM " + tableName)
+        .concat(" WHERE ")
+        .concat(colTime + " >= ?")
+        .concat(" and ")
+        .concat(colTime + " <= ?");
+
+        if (!compName.isEmpty()){
+            text = text.concat(" and ")
+                    .concat(MainClass.getColCompName() + " =?");
+        }
 
         return text;
     }
 
-    private void setupParameters(PreparedStatement stm, String[] oneString) {
+    private void setupParameters(PreparedStatement stm, String[] oneString, String compName) {
 
         for (int i = 0; i < oneString.length; i++) {
             try {
@@ -148,9 +163,17 @@ public class DBWriter {
             }
         }
 
+        if (!compName.isEmpty()){
+            try {
+                stm.setString(oneString.length+1, compName);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
-    private void setupParametersToSelect(PreparedStatement stm, FileData fileData) throws ArrayIndexOutOfBoundsException {
+    private void setupParametersToSelect(PreparedStatement stm, FileData fileData, String compName) throws ArrayIndexOutOfBoundsException {
 //        java.sql.Timestamp dd = parseDate(oneString[i]);
 //        stm.setTimestamp(i + 1, dd);
         java.sql.Timestamp d1 = new java.sql.Timestamp(0);
@@ -168,6 +191,14 @@ public class DBWriter {
             stm.setTimestamp(2, d2);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+
+        if (!compName.isEmpty()){
+            try {
+                stm.setString(3, compName);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }
