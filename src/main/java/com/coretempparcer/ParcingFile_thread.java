@@ -8,9 +8,12 @@ import java.util.GregorianCalendar;
 public class ParcingFile_thread extends Thread {
     private String fileName = "";
 
-    public ParcingFile_thread(String fileName, String threadName) {
+    private long[] lastFile;
+
+    public ParcingFile_thread(String fileName, long[] lastFile, String threadName) {
         super(threadName);
         this.fileName = fileName;
+        this.lastFile = lastFile;
     }
 
     //testing functions+ //delete this in the end
@@ -58,7 +61,7 @@ public class ParcingFile_thread extends Thread {
     //testing functions-
 
     @Override
-    public void run() {  //here
+    public void run() {
 
         if (fileName.equals("")) {
             endOfthread();
@@ -71,7 +74,7 @@ public class ParcingFile_thread extends Thread {
         FileData fd = null;
 
         try {
-            fd = FileParcer.parceFile(fileName);
+            fd = FileParcer.parceFile(fileName, lastFile);
         } catch (IOException e) {
             e.printStackTrace();
         }

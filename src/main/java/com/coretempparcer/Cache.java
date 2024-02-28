@@ -9,6 +9,42 @@ public class Cache {
 
     private HashMap<String, Integer> countOfCores = new HashMap<>();
 
+    private Long elapsedTime = (long) 0;
+
+    //lastFile[0] - file time in millis (Date dateFile.getTime())
+    //lastFile[1] - index of position, where file reading had stopped last time
+    private long[] lastFile = new long[2];
+
+    public Cache() {
+        this.lastFile[0] = 0;
+        this.lastFile[1] = 0;
+    }
+
+    public void setLastFile(Long filetime, Long position) {
+        synchronized (Cache.class) {
+            if (filetime >= lastFile[0]) {
+                lastFile[0] = filetime;
+                lastFile[1] = position;
+            }
+        }
+    }
+
+    public long[] getLastFile() {
+        return lastFile;
+    }
+
+    public Long getElapsedTime() {
+        return elapsedTime;
+    }
+
+    public void setElapsedTime(Long elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
+
+    public void clearElapsedTime() {
+        elapsedTime = (long) 0;
+    }
+
     public String[] getColNamesForOneComputer(String compName) {
         String[] res = colNames.get(compName);
 

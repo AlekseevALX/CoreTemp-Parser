@@ -57,8 +57,8 @@
                       </LineChart>
                   <DatePicker id="DateFrom" fx:id="dateFrom" layoutX="1117.0" layoutY="38.0" prefHeight="25.0" prefWidth="160.0" />
                   <DatePicker id="DateTo" fx:id="dateTo" layoutX="1117.0" layoutY="66.0" prefHeight="25.0" prefWidth="160.0" />
-                  <Button id="MainOKButton" fx:id="mainOkButton" layoutX="1094.0" layoutY="130.0" mnemonicParsing="false" onMouseClicked="#mainOKButtonClicked" text="OK" />
-                  <Button id="MainClearButton" fx:id="MainClearButton" layoutX="1129.0" layoutY="130.0" mnemonicParsing="false" onMouseClicked="#mainClearButtonClicked" text="Clear" />
+                  <Button id="MainOKButton" fx:id="mainOkButton" layoutX="1116.0" layoutY="128.0" mnemonicParsing="false" onMouseClicked="#mainOKButtonClicked" prefHeight="25.0" prefWidth="74.0" text="OK" />
+                  <Button id="MainClearButton" fx:id="MainClearButton" layoutX="1197.0" layoutY="128.0" mnemonicParsing="false" onMouseClicked="#mainClearButtonClicked" prefHeight="25.0" prefWidth="82.0" text="Clear" />
                   <TextField id="DateFromH" fx:id="dateFromH" layoutX="1286.0" layoutY="38.0" onKeyReleased="#DateFromHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
                   <TextField id="DateFromM" fx:id="dateFromM" layoutX="1321.0" layoutY="38.0" onKeyReleased="#DateFromMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
                   <TextField id="DateFromS" fx:id="dateFromS" layoutX="1356.0" layoutY="38.0" onKeyReleased="#DateFromSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
@@ -69,13 +69,14 @@
                   <TextField id="DateToH" fx:id="dateToH" layoutX="1286.0" layoutY="66.0" onKeyReleased="#DateToHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
                   <TextField id="DateToM" fx:id="dateToM" layoutX="1321.0" layoutY="66.0" onKeyReleased="#DateToMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
                   <TextField id="DateToS" fx:id="dateToS" layoutX="1356.0" layoutY="66.0" onKeyReleased="#DateToSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
-                  <ToggleButton fx:id="autoButton" layoutX="1094.0" layoutY="163.0" mnemonicParsing="false" onMouseClicked="#autoButtonClicked" text="Auto" />
                   <Label layoutX="1059.0" layoutY="42.0" text="from:" />
                   <Label layoutX="1059.0" layoutY="70.0" text="to:" />
                   <Label layoutX="1059.0" layoutY="98.0" text="computer:" />
                   <Label layoutX="1059.0" layoutY="6.0" text="this computer:" />
                   <Label fx:id="thisCompName" layoutX="1142.0" layoutY="6.0" prefHeight="22.0" prefWidth="243.0" />
                   <ChoiceBox fx:id="compChoice" layoutX="1117.0" layoutY="94.0" prefHeight="25.0" prefWidth="269.0" />
+                  <ToggleButton fx:id="autoParse_btn" layoutX="1117.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoparseButtonClick" text="Auto parse" />
+                  <ToggleButton fx:id="autoRefresh_btn" layoutX="1197.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoRefreshButtonClick" text="Auto refresh" />
                   </children>
                </AnchorPane>
          </content>

@@ -1,10 +1,6 @@
 package com.coretempparcer;
 
-import javafx.scene.shape.Path;
-
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -13,6 +9,7 @@ import java.net.UnknownHostException;
 
 public class MainClass {
 
+    public static MainClass mainObject;
     public static String computerName;
     public static volatile boolean dbChecked = false;
     public static volatile int currentWorkingThread = 0;
@@ -30,7 +27,16 @@ public class MainClass {
     private static boolean propertiesLoaded = false;
     public static Connection connectionToDB = null;
     private static boolean logging = false;
-    private static Cache cache = new Cache();
+    private static volatile Cache cache = new Cache();
+
+    public static MainClass getInstance() {
+        if (mainObject == null) {
+            return new MainClass();
+        } else {
+            return mainObject;
+        }
+    }
+
     public static void setLogging(boolean logging) {
         MainClass.logging = logging;
     }
@@ -68,7 +74,7 @@ public class MainClass {
         if (gettypeDB().toUpperCase().equals("PG")) {
             res = res.concat("postgresql://");
         } else if (gettypeDB().toUpperCase().equals("MSQL")) {
-            res = res.concat("postgresql://"); //write right value later
+            res = res.concat("mysql://");
         }
 
         res = res.concat(getIPDB())
@@ -196,10 +202,30 @@ public class MainClass {
     }
 
     public static String[] getColNames(String compName) {
-        if (compName.equals("")){
+        if (compName.equals("")) {
             compName = MainClass.getComputerName();
         }
         return cache.getColNamesForOneComputer(compName);
+    }
+
+    public static Long getElapsedTime() {
+        return cache.getElapsedTime();
+    }
+
+    public static void increaseElapsedTimeCounter(Long time) {
+        cache.setElapsedTime(cache.getElapsedTime() + time);
+    }
+
+    public static void clearElapsedTimeCounter() {
+        cache.clearElapsedTime();
+    }
+
+    public static void setLastFile(Long filetime, Long position) {
+        cache.setLastFile(filetime, position);
+    }
+
+    public static long[] getLastFileFromCache() {
+        return cache.getLastFile();
     }
 
     public static void setColNames(String compName, String[] colNames) {
@@ -256,11 +282,29 @@ public class MainClass {
     static void saveProperties() throws IOException {
         Properties properties = new Properties();
         properties.putAll(userSettingsMap);
-        properties.store(new FileOutputStream(userSettings), null);
+        try {
+            properties.store(new FileOutputStream(userSettings), null);
+        } catch (Exception e) {
+            try {
+                properties.store(new FileOutputStream("target/" + userSettings), null); //DEBUG
+            } catch (Exception e1) {
+
+            }
+        }
+
 
         properties = new Properties();
         properties.putAll(systemPropertiesMap);
-        properties.store(new FileOutputStream(systemProperties), null);
+
+        try {
+            properties.store(new FileOutputStream(systemProperties), null);
+        } catch (Exception e) {
+            try {
+                properties.store(new FileOutputStream("target/" + systemProperties), null);
+            } catch (Exception e1) {
+
+            }
+        }
 
     }
 
@@ -354,14 +398,27 @@ public class MainClass {
             return false;
         }
 
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            MainClass.addToLog("Don't find class org.postgresql.Driver!");
-            MainClass.addToLog(String.valueOf(e.getStackTrace()));
-            MainClass.done = true;
-            return false;
+        if (gettypeDB().toUpperCase().equals("MSQL")) {
+//            try {
+//                Class.forName("com.mysql.Driver");
+//            } catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+//                MainClass.addToLog("Don't find class com.mysql.Driver!");
+//                MainClass.addToLog(String.valueOf(e.getStackTrace()));
+//                MainClass.done = true;
+//                return false;
+//            }
+        } else if (gettypeDB().toUpperCase().equals("PG")) {
+//            try {
+//                Class.forName("org.postgresql.Driver");
+//            } catch (ClassNotFoundException e) {
+//                MainClass.addToLog("Don't find class org.postgresql.Driver!");
+//                MainClass.addToLog(String.valueOf(e.getStackTrace()));
+//                MainClass.done = true;
+//                return false;
+//            }
         }
+
 
         try {
             connectionToDB = DriverManager.getConnection(urlDB, loginDB, passwordDB);
@@ -435,11 +492,63 @@ public class MainClass {
 class ParcingSession_thread extends Thread {
 
     private static Date lastDate = new Date(); //last date, which has been written in database
-    private static HashMap<Date, String> mapFiles = new HashMap<>();
-    private static String directory = "";
+
+    private static HashMap<Long, String> mapFiles = new HashMap<>();
 
     public ParcingSession_thread(boolean auto) {
         MainClass.auto = auto;
+    }
+
+    private static void prepareFilesToParse(long[] lastFile) {
+        boolean dbDefined;
+        long lastTimeInBase = 0;
+        long timeOfStartingFile = Long.MAX_VALUE;
+        long currentDateOfStartingFile = 0;
+        mapFiles.clear();
+        dbDefined = DBChecker.dbIsDefined();
+        File[] listFiles = MainClass.getListLogFiles();
+
+        if (listFiles.length == 0) return;
+
+        if (lastFile[0] == 0) {
+            if (dbDefined) {
+                findLastDateInBase();
+                if (lastDate != null) {
+                    MainClass.addToLog("Last record in the database is " + lastDate);
+                    lastTimeInBase = lastDate.getTime();
+                } else {
+                    MainClass.addToLog("No records in database from computer " + MainClass.getComputerName() + " yet ");
+                }
+            }
+
+            for (File f : listFiles) {
+                long fTime = parseFileNameToDate(f.getPath());
+                mapFiles.put(fTime, f.getPath());
+                if (dbDefined && (lastTimeInBase - fTime >= 0) && (lastTimeInBase - fTime < timeOfStartingFile)) {
+                    timeOfStartingFile = lastTimeInBase - fTime;
+                    currentDateOfStartingFile = fTime;
+                }
+            }
+
+            if (dbDefined && lastTimeInBase > 0) {
+                Iterator iterator = mapFiles.entrySet().iterator();
+
+                while (iterator.hasNext()) {
+                    Map.Entry<Long, String> entry = (Map.Entry<Long, String>) iterator.next();
+                    if (entry.getKey() < currentDateOfStartingFile) {
+                        iterator.remove();
+                    }
+                }
+            }
+        } else {
+            for (File f : listFiles) {
+                long fTime = parseFileNameToDate(f.getPath());
+                if (fTime >= lastFile[0]) {
+                    mapFiles.put(fTime, f.getPath());
+                }
+
+            }
+        }
     }
 
     public void run() {
@@ -458,65 +567,33 @@ class ParcingSession_thread extends Thread {
 
             int maxParcingThreads = MainClass.getMaxParcingThreads();
 
+            long[] lastFile = MainClass.getLastFileFromCache();
+
+            prepareFilesToParse(lastFile);
+
+            if (mapFiles.isEmpty()) {
+                MainClass.done = true;
+                return;
+            }
+
             Calendar cal = new GregorianCalendar();
             MainClass.addToLog("Start: " + cal.getTime());
-            long lastTimeInBase = 0;
-            long timeOfStartingFile = Long.MAX_VALUE;
-            Date currentDateOfStartingFile = new Date();
+
             int a = 0;
-            mapFiles.clear();
-            boolean dbDefined;
 
             ArrayList<Thread> threads = new ArrayList<>();
-
-            File[] listFiles = MainClass.getListLogFiles();
-
-            if (listFiles.length == 0) return;
 
             if (!MainClass.connectionToBase()) {
                 MainClass.addToLog("failed to run thread ParcingSession_thread - don't connection to base");
                 return;
             }
 
-            dbDefined = DBChecker.dbIsDefined();
-
-            if (dbDefined) {
-                findLastDateInBase();
-                if (lastDate != null) {
-                    MainClass.addToLog("Last record in the database is " + lastDate);
-                    lastTimeInBase = lastDate.getTime();
-                } else {
-                    MainClass.addToLog("No records in database from computer " + MainClass.getComputerName() + " yet ");
-                }
-
-
-            }
-
-            for (File f : listFiles) {
-                Date dateFile = parseFileNameToDate(f.getPath());
-                mapFiles.put(dateFile, f.getPath());
-                if (dbDefined && (lastTimeInBase - dateFile.getTime() >= 0) && (lastTimeInBase - dateFile.getTime() < timeOfStartingFile)) {
-                    timeOfStartingFile = lastTimeInBase - dateFile.getTime();
-                    currentDateOfStartingFile = dateFile;
-                }
-            }
-
-            if (dbDefined && lastTimeInBase > 0) {
-                Iterator iterator = mapFiles.entrySet().iterator();
-
-                while (iterator.hasNext()) {
-                    Map.Entry<Date, String> entry = (Map.Entry<Date, String>) iterator.next();
-                    if (entry.getKey().getTime() < currentDateOfStartingFile.getTime()) {
-                        iterator.remove();
-                    }
-                }
-            }
-
             DBChecker.checkDBColumns();
 
-            for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
+//            for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
+            for (Map.Entry<Long, String> entry : mapFiles.entrySet()) {
 
-                ParcingFile_thread strtSc = new ParcingFile_thread(entry.getValue(), "Parcer " + a);
+                ParcingFile_thread strtSc = new ParcingFile_thread(entry.getValue(), lastFile, "Parcer " + a);
 
                 threads.add(strtSc);
                 a += 1;
@@ -545,7 +622,7 @@ class ParcingSession_thread extends Thread {
 
     }
 
-    public static Date parseFileNameToDate(String s) {
+    public static long parseFileNameToDate(String s) {
         String[] spltStr = s.split("CT-Log");
         spltStr[1] = spltStr[1].substring(1, spltStr[1].length());
         Integer hour = Integer.parseInt(spltStr[1].substring(11, 13));
@@ -558,7 +635,7 @@ class ParcingSession_thread extends Thread {
 
         GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
         calendar.set(year, month - 1, date, hour, minute, second);
-        Date res = calendar.getTime();
+        long res = calendar.getTimeInMillis() / 1000;
 
         return res;
     }

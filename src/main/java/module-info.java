@@ -5,6 +5,7 @@ module com.coretempparcer {
     requires org.postgresql.jdbc;
     requires java.desktop;
     requires org.apache.commons.csv;
+    requires mysql.connector.j;
 
     opens com.coretempparcer to javafx.fxml;
     exports com.coretempparcer;

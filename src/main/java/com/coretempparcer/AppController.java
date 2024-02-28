@@ -10,14 +10,12 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Map.Entry;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableListBase;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
@@ -60,8 +58,12 @@ public class AppController implements Initializable {
     DatePicker dateTo;
     @FXML
     DatePicker dateFrom;
+
     @FXML
-    ToggleButton autoButton;
+    ToggleButton autoParse_btn;
+
+    @FXML
+    ToggleButton autoRefresh_btn;
 
     private static String choosenComputer;
     private static HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData = new HashMap();
@@ -69,7 +71,9 @@ public class AppController implements Initializable {
 
     private static String computerName = MainClass.getComputerName();
     Timeline tl;
-    Timeline refresh;
+    Timeline refresh_tl;
+    Timeline autoRefreshLineCharts_tl;
+    Timeline autoParse_tl;
 
     public AppController() {
     }
@@ -83,6 +87,11 @@ public class AppController implements Initializable {
     public void refillForm() {
         MainClass.setLogging(true);
         thisCompName.setText(computerName);
+        String choosenComp = "";
+
+        if (compChoice.getValue() != null) {
+            choosenComp = compChoice.getValue().toString();
+        }
 
         if (!MainClass.dbChecked) {
             MainClass.checkDB();
@@ -103,6 +112,8 @@ public class AppController implements Initializable {
         ObservableList<String> oList = FXCollections.observableArrayList(computersInDB);
 
         compChoice.setItems(oList);
+
+        compChoice.setValue(choosenComp);
     }
 
     public void setInitialFormValues() {
@@ -122,10 +133,49 @@ public class AppController implements Initializable {
     public static void setChartDataIsDefined(boolean chartDataIsDefined) {
         AppController.chartDataIsDefined = chartDataIsDefined;
     }
-
     @FXML
-    protected void onStartButtonClick() throws IOException {
+    protected void onStartButtonClick() {
         this.toParce();
+    }
+    @FXML
+    protected void onAutoparseButtonClick() {
+
+        if (this.autoParse_btn.isSelected()) {
+            MainClass.setLogging(true);
+            MainClass.auto = true;
+            MainClass.log = "";
+            MainClass.addToLog("Welcome to the jungle!!");
+            MainClass mainClass = new MainClass();
+            mainClass.autoParcing();
+
+            KeyFrame kfAutoParse;
+            if (MainClass.auto) {
+                kfAutoParse = new KeyFrame(Duration.millis(1000.0D),
+                        (actionEvent) -> {
+                            this.autoParse();
+                        },
+                        new KeyValue[0]);
+                this.autoParse_tl = new Timeline(new KeyFrame[]{kfAutoParse});
+                this.autoParse_tl.setCycleCount(1);
+                this.autoParse_tl.play();
+            }
+        } else {
+            MainClass.auto = false;
+        }
+    }
+    @FXML
+    protected void onAutoRefreshButtonClick() {
+        if (!checkChosenCompName()) return;
+
+        KeyFrame kfRefresh;
+        kfRefresh = new KeyFrame(Duration.millis(1000.0D),
+                (actionEvent) -> {
+                    this.autoRefreshLineCharts();
+                },
+                new KeyValue[0]);
+        this.autoRefreshLineCharts_tl = new Timeline(new KeyFrame[]{kfRefresh});
+        this.autoRefreshLineCharts_tl.setCycleCount(1);
+        this.autoRefreshLineCharts_tl.play();
     }
 
     public void onDefinePropertiesButtonClick() throws IOException {
@@ -144,42 +194,12 @@ public class AppController implements Initializable {
         MainClass.addToLog("User stopped the process " + cal.getTime());
     }
 
-    @FXML
-    protected void autoButtonClicked() {
-
-        if (!checkChoosenCompName()) return;
-
-        if (this.autoButton.isSelected()) {
-            MainClass.setLogging(true);
-            MainClass.auto = true;
-            MainClass.log = "";
-            MainClass.addToLog("Welcome to the jungle!!");
-            MainClass mainClass = new MainClass();
-            mainClass.autoParcing();
-
-            KeyFrame kfRefresh;
-            if (MainClass.auto) {
-                kfRefresh = new KeyFrame(Duration.millis(1000.0D),
-                        (actionEvent) -> {
-                            this.autoRefresh();
-                        },
-                        new KeyValue[0]);
-                this.refresh = new Timeline(new KeyFrame[]{kfRefresh});
-                this.refresh.setCycleCount(1);
-                this.refresh.play();
-            }
-        } else {
-            MainClass.auto = false;
-        }
-
-    }
-
     protected void toParce() {
         if (!MainClass.done) return;
 
         MainClass.log = "";
         MainClass.addToLog("Welcome to the jungle!!");
-        MainClass mainObject = new MainClass();
+        MainClass mainObject = MainClass.getInstance();
         MainClass.countOfThreads = 0;
         mainObject.startParceSession(false);
         KeyFrame kf = new KeyFrame(Duration.millis(100.0D), (actionEvent) -> {
@@ -189,7 +209,6 @@ public class AppController implements Initializable {
         this.tl.setCycleCount(1);
         this.tl.play();
     }
-
     @FXML
     protected void DateFromHOnKeyReleased() {
         String val = this.dateFromH.getText();
@@ -252,7 +271,7 @@ public class AppController implements Initializable {
 
     @FXML
     protected void mainOKButtonClicked() {
-        if (!checkChoosenCompName()) {
+        if (!checkChosenCompName()) {
             return;
         }
 
@@ -452,6 +471,8 @@ public class AppController implements Initializable {
     private void waitTillTheEnd() {
         if (MainClass.done && !MainClass.auto) {
             MainClass.addToLog("Done");
+            MainClass.addToLog("Elapsed time " + MainClass.getElapsedTime());//DEBUG
+            MainClass.clearElapsedTimeCounter();//DEBUG
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();
             refillForm();
@@ -467,26 +488,34 @@ public class AppController implements Initializable {
 
     }
 
-    private void autoRefresh() {
+    private void autoRefreshLineCharts() {
 
-        if (MainClass.done && !MainClass.auto) {
-            MainClass.addToLog("Done");
-            this.textLog.appendText(MainClass.log);
-            MainClass.clearLog();
-            this.refresh.stop();
-        } else {
-            checkChoosenCompName();
+        if (autoRefresh_btn.isSelected()) {
+            checkChosenCompName();
             this.refreshLinearChartAuto(compChoice.getValue().toString());
-
-            this.textLog.appendText(MainClass.log);
-            MainClass.clearLog();
-
-            this.refresh.playFromStart();
+            this.autoRefreshLineCharts_tl.playFromStart();
+        } else {
+            this.autoRefreshLineCharts_tl.stop();
         }
 
     }
 
-    private boolean checkChoosenCompName() {
+    private void autoParse() {
+        if (MainClass.done && !MainClass.auto) {
+            MainClass.addToLog("Done");
+            this.textLog.appendText(MainClass.log);
+            MainClass.clearLog();
+            this.autoParse_tl.stop();
+        } else {
+
+            this.textLog.appendText(MainClass.log);
+            MainClass.clearLog();
+
+            this.autoParse_tl.playFromStart();
+        }
+    }
+
+    private boolean checkChosenCompName() {
         if (compChoice.getValue() == null) {
             MainClass.addToLog("Choose the computer!");
             this.textLog.appendText(MainClass.log);
@@ -505,26 +534,6 @@ public class AppController implements Initializable {
         }
         return true;
     }
-
-//    private void autoParse() throws IOException {
-//        MainClass.addToLog("autoParse #1 MainClassAuto: " + MainClass.auto);
-//        if (!MainClass.auto) {
-//            this.parsing.stop();
-//        }
-//
-//        MainClass.addToLog("autoParse #2 MainClassDone: " + MainClass.done);
-//        if (MainClass.done) {
-//            this.toParce();
-//        } else {
-//            MainClass.addToLog("I can't parse because mainClass.done = false"); //HERE
-//        }
-//
-//        MainClass.addToLog("autoParse #3 MainClassAuto: " + MainClass.auto);
-//        if (MainClass.auto) {
-//            this.parsing.playFromStart();
-//        }
-//
-//    }
 
 
 }

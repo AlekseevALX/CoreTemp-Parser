@@ -22,9 +22,11 @@ public class DBWriter {
 
         String compName = MainClass.getComputerName();
 
-        deleteAlreadyExistsRecords(compName);
+        if (fileData.isNeedsToFindExistingRecords()) {
+            deleteAlreadyExistsRecords(compName);
+        }
 
-        String[] columns = MainClass.getColNames(compName); //here
+        String[] columns = MainClass.getColNames(compName);
 
         PreparedStatement stm;
 
@@ -77,7 +79,8 @@ public class DBWriter {
 
         resSel = stm.executeQuery();
 
-        if (((PgResultSet) resSel).getLastUsedFetchSize() == strings.size()) {
+//        if (((PgResultSet) resSel).getLastUsedFetchSize() == strings.size()) {
+        if (resSel.getFetchSize() == strings.size()) {
             fileData.setStrings(new HashMap<>());
             fileData.setStringcount(0);
             stm.close();
@@ -103,7 +106,7 @@ public class DBWriter {
             text = text.concat(columns[i]) + ",";
         }
 
-        if (!compName.isEmpty()){
+        if (!compName.isEmpty()) {
             text = text.concat(MainClass.getColCompName()) + ",";
         }
 
@@ -116,7 +119,7 @@ public class DBWriter {
             text = text.concat("?,");
         }
 
-        if (!compName.isEmpty()){
+        if (!compName.isEmpty()) {
             text = text.concat("?,");
         }
 
@@ -132,14 +135,14 @@ public class DBWriter {
         String colTime = columns[0];
 
         text = text.concat("SELECT ")
-        .concat(colTime)
-        .concat(" FROM " + tableName)
-        .concat(" WHERE ")
-        .concat(colTime + " >= ?")
-        .concat(" and ")
-        .concat(colTime + " <= ?");
+                .concat(colTime)
+                .concat(" FROM " + tableName)
+                .concat(" WHERE ")
+                .concat(colTime + " >= ?")
+                .concat(" and ")
+                .concat(colTime + " <= ?");
 
-        if (!compName.isEmpty()){
+        if (!compName.isEmpty()) {
             text = text.concat(" and ")
                     .concat(MainClass.getColCompName() + " =?");
         }
@@ -163,9 +166,9 @@ public class DBWriter {
             }
         }
 
-        if (!compName.isEmpty()){
+        if (!compName.isEmpty()) {
             try {
-                stm.setString(oneString.length+1, compName);
+                stm.setString(oneString.length + 1, compName);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -174,8 +177,7 @@ public class DBWriter {
     }
 
     private void setupParametersToSelect(PreparedStatement stm, FileData fileData, String compName) throws ArrayIndexOutOfBoundsException {
-//        java.sql.Timestamp dd = parseDate(oneString[i]);
-//        stm.setTimestamp(i + 1, dd);
+
         java.sql.Timestamp d1 = new java.sql.Timestamp(0);
 
         try {
@@ -193,7 +195,7 @@ public class DBWriter {
             e.printStackTrace();
         }
 
-        if (!compName.isEmpty()){
+        if (!compName.isEmpty()) {
             try {
                 stm.setString(3, compName);
             } catch (SQLException e) {
