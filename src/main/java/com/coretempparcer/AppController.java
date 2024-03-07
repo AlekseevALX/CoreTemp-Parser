@@ -65,13 +65,19 @@ public class AppController implements Initializable {
     @FXML
     ToggleButton autoRefresh_btn;
 
+    @FXML
+    CheckBox showLog;
+
+    int countTlRefresh = 0;
+
+    int countTlParse = 0;
+
     private static String choosenComputer;
     private static HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData = new HashMap();
     private static boolean chartDataIsDefined = false;
 
     private static String computerName = MainClass.getComputerName();
     Timeline tl;
-    Timeline refresh_tl;
     Timeline autoRefreshLineCharts_tl;
     Timeline autoParse_tl;
 
@@ -97,11 +103,18 @@ public class AppController implements Initializable {
             MainClass.checkDB();
         }
 
+        if (!MainClass.dbChecked) {
+            System.out.println("Data base isn't checked! Check out the properties!");
+            MainClass.addToLog("Data base isn't checked! Check out the properties!");
+            return;
+        }
+
         ArrayList<String> computersInDB = new ArrayList<>();
 
         try {
             computersInDB = dbReader.findComputersInDB();
         } catch (SQLException e) {
+            MainClass.addToLog("Failed trying to find any other computers in DB!");
             System.out.println("Failed trying to find any other computers in DB!");
         }
 
@@ -117,6 +130,7 @@ public class AppController implements Initializable {
     }
 
     public void setInitialFormValues() {
+
         dateFromH.setText("00");
         dateFromM.setText("00");
         dateFromS.setText("00");
@@ -133,15 +147,26 @@ public class AppController implements Initializable {
     public static void setChartDataIsDefined(boolean chartDataIsDefined) {
         AppController.chartDataIsDefined = chartDataIsDefined;
     }
+
     @FXML
     protected void onStartButtonClick() {
         this.toParce();
     }
+
     @FXML
     protected void onAutoparseButtonClick() {
+        startAutoParse();
+    }
+
+    @FXML
+    protected void onAutoRefreshButtonClick() {
+        startAutoRefresh();
+    }
+
+    private void startAutoParse() {
 
         if (this.autoParse_btn.isSelected()) {
-            MainClass.setLogging(true);
+            MainClass.setLogging(showLog.isSelected());
             MainClass.auto = true;
             MainClass.log = "";
             MainClass.addToLog("Welcome to the jungle!!");
@@ -156,32 +181,44 @@ public class AppController implements Initializable {
                         },
                         new KeyValue[0]);
                 this.autoParse_tl = new Timeline(new KeyFrame[]{kfAutoParse});
-                this.autoParse_tl.setCycleCount(1);
+                this.autoParse_tl.setCycleCount(Timeline.INDEFINITE);
                 this.autoParse_tl.play();
             }
         } else {
             MainClass.auto = false;
         }
     }
-    @FXML
-    protected void onAutoRefreshButtonClick() {
-        if (!checkChosenCompName()) return;
 
-        KeyFrame kfRefresh;
-        kfRefresh = new KeyFrame(Duration.millis(1000.0D),
-                (actionEvent) -> {
-                    this.autoRefreshLineCharts();
-                },
-                new KeyValue[0]);
-        this.autoRefreshLineCharts_tl = new Timeline(new KeyFrame[]{kfRefresh});
-        this.autoRefreshLineCharts_tl.setCycleCount(1);
-        this.autoRefreshLineCharts_tl.play();
+    private void startAutoRefresh() {
+        if (!checkChosenCompName()) return;
+        if (autoRefresh_btn.isSelected()) {
+            KeyFrame kfRefresh;
+            kfRefresh = new KeyFrame(Duration.millis(1000.0D),
+                    (actionEvent) -> {
+                        this.autoRefreshLineCharts();
+                    },
+                    new KeyValue[0]);
+            this.autoRefreshLineCharts_tl = new Timeline(new KeyFrame[]{kfRefresh});
+            this.autoRefreshLineCharts_tl.setCycleCount(Timeline.INDEFINITE);
+            this.autoRefreshLineCharts_tl.play();
+        } else {
+            this.autoRefreshLineCharts_tl.stop();
+        }
+
     }
 
     public void onDefinePropertiesButtonClick() throws IOException {
         PropertiesApplication propertiesApplication = new PropertiesApplication();
         Stage stage = new Stage();
         propertiesApplication.start(stage);
+    }
+
+    public void showLogSetted() {
+        MainClass.setLogging(showLog.isSelected());
+        if (!showLog.isSelected()) {
+            MainClass.clearLog();
+            textLog.clear();
+        }
     }
 
     public void onStopButtonClick() {
@@ -196,7 +233,7 @@ public class AppController implements Initializable {
 
     protected void toParce() {
         if (!MainClass.done) return;
-
+        MainClass.setLogging(showLog.isSelected());
         MainClass.log = "";
         MainClass.addToLog("Welcome to the jungle!!");
         MainClass mainObject = MainClass.getInstance();
@@ -206,9 +243,10 @@ public class AppController implements Initializable {
             this.waitTillTheEnd();
         }, new KeyValue[0]);
         this.tl = new Timeline(new KeyFrame[]{kf});
-        this.tl.setCycleCount(1);
+        this.tl.setCycleCount(Timeline.INDEFINITE);
         this.tl.play();
     }
+
     @FXML
     protected void DateFromHOnKeyReleased() {
         String val = this.dateFromH.getText();
@@ -296,6 +334,7 @@ public class AppController implements Initializable {
         MainClass.deleteBase();
         this.textLog.setText(MainClass.log);
 
+        MainClass.clearCache();
         refillForm();
     }
 
@@ -471,8 +510,6 @@ public class AppController implements Initializable {
     private void waitTillTheEnd() {
         if (MainClass.done && !MainClass.auto) {
             MainClass.addToLog("Done");
-            MainClass.addToLog("Elapsed time " + MainClass.getElapsedTime());//DEBUG
-            MainClass.clearElapsedTimeCounter();//DEBUG
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();
             refillForm();
@@ -482,26 +519,17 @@ public class AppController implements Initializable {
         this.textLog.appendText(MainClass.log);
         MainClass.clearLog();
 
-        if (!MainClass.done) {
-            this.tl.playFromStart();
-        }
-
     }
 
     private void autoRefreshLineCharts() {
-
-        if (autoRefresh_btn.isSelected()) {
-            checkChosenCompName();
-            this.refreshLinearChartAuto(compChoice.getValue().toString());
-            this.autoRefreshLineCharts_tl.playFromStart();
-        } else {
-            this.autoRefreshLineCharts_tl.stop();
-        }
-
+        checkChosenCompName();
+        this.refreshLinearChartAuto(compChoice.getValue().toString());
     }
 
     private void autoParse() {
+
         if (MainClass.done && !MainClass.auto) {
+
             MainClass.addToLog("Done");
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();
@@ -511,12 +539,11 @@ public class AppController implements Initializable {
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();
 
-            this.autoParse_tl.playFromStart();
         }
     }
 
     private boolean checkChosenCompName() {
-        if (compChoice.getValue() == null) {
+        if (compChoice.getValue() == null || compChoice.getValue().equals("")) {
             MainClass.addToLog("Choose the computer!");
             this.textLog.appendText(MainClass.log);
             MainClass.clearLog();

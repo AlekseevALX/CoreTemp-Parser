@@ -12,7 +12,7 @@ public class ParcerApplication extends Application {
     public void start(Stage stage) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(ParcerApplication.class.getResource("view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1400, 600);
+        Scene scene = new Scene(fxmlLoader.load(), 1400, 700);
         stage.setTitle("CoreTemp Parcer!" + " ver: " + MainClass.getVer());
         stage.setScene(scene);
         stage.show();
@@ -23,7 +23,6 @@ public class ParcerApplication extends Application {
 
         launch();
     }
-
 
 
 }

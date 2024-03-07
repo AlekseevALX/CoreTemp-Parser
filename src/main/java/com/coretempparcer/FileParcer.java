@@ -20,8 +20,6 @@ public class FileParcer {
     }
 
     public static FileData fileParsing_withCSVRecord(String file) {
-        System.out.println("start parsing file with csv reader " + file);//DEBUG
-        Long time1 = new GregorianCalendar().getTime().getTime();//DEBUG
 
         FileData dataOfFile = new FileData(file);
 
@@ -61,15 +59,10 @@ public class FileParcer {
         }
 
         dataOfFile.setStrings(readedRecords);
-        Long time2 = new GregorianCalendar().getTime().getTime();//DEBUG
-        System.out.println("Finish parsing file " + file + " Elapsed time " + (time2 - time1) + "msec");//DEBUG
-        increaseElapsedTime(time2 - time1);//DEBUG
         return dataOfFile;
     }
 
     public static FileData fileParsing_withBufferedReader(String file, long currfTime) {
-        System.out.println("start parsing file with buffer " + file);//DEBUG
-        Long time1 = new GregorianCalendar().getTime().getTime();//DEBUG
 
         FileData dataOfFile = new FileData(file);
 
@@ -106,15 +99,10 @@ public class FileParcer {
         }
 
         dataOfFile.setStrings(readedRecords);
-        Long time2 = new GregorianCalendar().getTime().getTime();//DEBUG
-        System.out.println("Finish parsing file " + file + " Elapsed time " + (time2 - time1) + "msec");//DEBUG
-        increaseElapsedTime(time2 - time1);//DEBUG
         return dataOfFile;
     }
 
     public static FileData fileParsing_withRandomAccess(String file, long[] lastFile) {
-        System.out.println("start parsing file with random access " + file);//DEBUG
-        Long time1 = new GregorianCalendar().getTime().getTime();//DEBUG
 
         long currfTime = ParcingSession_thread.parseFileNameToDate(file);
 
@@ -141,7 +129,6 @@ public class FileParcer {
                 raf.read(buf);
                 MainClass.setLastFile(currfTime, raf.getFilePointer());
             } else {
-                System.out.println("finded cache!");//DEBUG
                 raf.seek(lastFile[1]);
                 len = (int) (raf.length() - (int) lastFile[1]);
                 buf = new byte[len];
@@ -175,9 +162,6 @@ public class FileParcer {
 
 
         dataOfFile.setStrings(readedRecords);
-        Long time2 = new GregorianCalendar().getTime().getTime();//DEBUG
-        System.out.println("Finish parsing file " + file + " Elapsed time " + (time2 - time1) + "msec");//DEBUG
-        increaseElapsedTime(time2 - time1);//DEBUG
         return dataOfFile;
     }
 

@@ -15,26 +15,38 @@ public class DBChecker {
         this.columns = MainClass.getColNames("");
     }
 
-    public void checkDB() throws SQLException {
+    public boolean checkDB() throws SQLException {
 
         String queryText = getExecuteText();
+
+        if (queryText.equals("")) {
+            System.out.println("Db is not checked!");
+            return false;
+        }
 
         if (MainClass.connectionToBase()) {
             try (Statement stm = MainClass.connectionToDB.createStatement()) {
                 stm.execute(queryText);
             } catch (SQLException e) {
                 e.printStackTrace();
-                return;
+                return false;
             }
 
             MainClass.addToLog("Db checked in thread " + Thread.currentThread().getName());
+            return true;
         } else {
-            MainClass.addToLog("Db is not checked! In thread " + Thread.currentThread().getName());
+            System.out.println("Db is not checked! No connection to base! In thread " + Thread.currentThread().getName());
+            MainClass.addToLog("Db is not checked! No connection to base! In thread " + Thread.currentThread().getName());
+            return false;
         }
 
     }
 
     private static String getExecuteText() {
+        if (columns == null || columns.length == 0) {
+            return "";
+        }
+
         String text = "";
         String colName = "";
         String tableName = MainClass.getTableName();

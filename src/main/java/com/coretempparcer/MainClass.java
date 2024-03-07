@@ -41,6 +41,10 @@ public class MainClass {
         MainClass.logging = logging;
     }
 
+    public static boolean getLogging() {
+        return logging;
+    }
+
     public static String getVer() {
         return ver;
     }
@@ -59,6 +63,7 @@ public class MainClass {
             computerName = address.getHostName();
         } catch (UnknownHostException e) {
             addToLog("Can't get the computer name!");
+            System.out.println("Can't get the computer name!");
             computerName = "noname";
         }
     }
@@ -220,6 +225,10 @@ public class MainClass {
         cache.clearElapsedTime();
     }
 
+    public static void clearCache() {
+        cache.clearCache();
+    }
+
     public static void setLastFile(Long filetime, Long position) {
         cache.setLastFile(filetime, position);
     }
@@ -279,7 +288,7 @@ public class MainClass {
 
     }
 
-    static void saveProperties() throws IOException {
+    static void saveProperties() {
         Properties properties = new Properties();
         properties.putAll(userSettingsMap);
         try {
@@ -291,7 +300,6 @@ public class MainClass {
 
             }
         }
-
 
         properties = new Properties();
         properties.putAll(systemPropertiesMap);
@@ -343,12 +351,12 @@ public class MainClass {
         DBChecker dbChecker = new DBChecker();
 
         try {
-            dbChecker.checkDB();
+            if (dbChecker.checkDB()) MainClass.dbChecked = true;
+            else MainClass.dbChecked = false;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        MainClass.dbChecked = true;
     }
 
     public static void deleteBase() {
@@ -398,26 +406,26 @@ public class MainClass {
             return false;
         }
 
-        if (gettypeDB().toUpperCase().equals("MSQL")) {
-//            try {
-//                Class.forName("com.mysql.Driver");
-//            } catch (ClassNotFoundException e) {
-//                e.printStackTrace();
-//                MainClass.addToLog("Don't find class com.mysql.Driver!");
-//                MainClass.addToLog(String.valueOf(e.getStackTrace()));
-//                MainClass.done = true;
-//                return false;
-//            }
-        } else if (gettypeDB().toUpperCase().equals("PG")) {
-//            try {
-//                Class.forName("org.postgresql.Driver");
-//            } catch (ClassNotFoundException e) {
-//                MainClass.addToLog("Don't find class org.postgresql.Driver!");
-//                MainClass.addToLog(String.valueOf(e.getStackTrace()));
-//                MainClass.done = true;
-//                return false;
-//            }
-        }
+//        if (gettypeDB().toUpperCase().equals("MSQL")) {
+////            try {
+////                Class.forName("com.mysql.Driver");
+////            } catch (ClassNotFoundException e) {
+////                e.printStackTrace();
+////                MainClass.addToLog("Don't find class com.mysql.Driver!");
+////                MainClass.addToLog(String.valueOf(e.getStackTrace()));
+////                MainClass.done = true;
+////                return false;
+////            }
+//        } else if (gettypeDB().toUpperCase().equals("PG")) {
+////            try {
+////                Class.forName("org.postgresql.Driver");
+////            } catch (ClassNotFoundException e) {
+////                MainClass.addToLog("Don't find class org.postgresql.Driver!");
+////                MainClass.addToLog(String.valueOf(e.getStackTrace()));
+////                MainClass.done = true;
+////                return false;
+////            }
+//        }
 
 
         try {
@@ -616,6 +624,7 @@ class ParcingSession_thread extends Thread {
 
             if (MainClass.countOfThreads == 0) {
                 MainClass.done = true;
+                MainClass.closeConnection();
             }
         }
         while (MainClass.auto);

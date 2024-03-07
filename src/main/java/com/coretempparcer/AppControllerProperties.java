@@ -180,16 +180,16 @@ public class AppControllerProperties implements Initializable {
         userProp.put("tableName", tableName.getText());
 
         MainClass.closeConnection();
+        MainClass.clearCache();
 
         MainClass.saveProperties();
         MainClass.loadProperties();
     }
 
     public void onMouseClickedCheckConnection() {
-        if (MainClass.connectionToBase()){
+        if (MainClass.connectionToBase()) {
             checkConnectionResult.setText("OK");
-        }
-        else {
+        } else {
             checkConnectionResult.setText("failed");
         }
     }

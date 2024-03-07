@@ -50,8 +50,14 @@ public class Cache {
 
         if (res == null || res.length == 0) {
             if (compName.equals(MainClass.getComputerName())) {
-                findColNamesInLogs();
-                res = colNames.get(compName);
+                try {
+                    findColNamesInLogs();
+                    res = colNames.get(compName);
+                } catch (IOException e) {
+                    res = findColNamesInDB(compName);
+                    colNames.put(compName, res);
+                }
+
             } else {
                 res = findColNamesInDB(compName);
                 colNames.put(compName, res);
@@ -70,13 +76,14 @@ public class Cache {
         return dbReader.getColumnNamesFromDataBase(compName);
     }
 
-    private void findColNamesInLogs() {
+    private void findColNamesInLogs() throws IOException {
+
         File[] listFiles = MainClass.getListLogFiles();
-        try {
+
+        if (listFiles.length > 0) {
             FileParcer.readColumnSettingsFromFile(listFiles[0].getAbsolutePath());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
     }
 
     public Integer getCountOfCoresForOneComputer(String compName) {
@@ -108,4 +115,11 @@ public class Cache {
         return countOfCores;
     }
 
+    public void clearCache() {
+        colNames.clear();
+        countOfCores.clear();
+        elapsedTime = (long) 0;
+        lastFile[0] = 0;
+        lastFile[1] = 0;
+    }
 }

@@ -20,7 +20,7 @@
          <content>
            <AnchorPane prefHeight="643.0" prefWidth="1400.0">
                   <children>
-                     <LineChart id="graphicTemp" fx:id="graphicTemp" animated="false" centerShape="false" layoutX="22.0" opacity="0.62" prefHeight="180.0" prefWidth="1028.0" stylesheets="@../../css/1.css" title="">
+                     <LineChart id="graphicTemp" fx:id="graphicTemp" animated="false" layoutX="22.0" legendSide="RIGHT" legendVisible="false" prefHeight="180.0" prefWidth="1030.0" stylesheets="@../../css/1.css" title="">
                        <xAxis>
                          <CategoryAxis side="BOTTOM" />
                        </xAxis>
@@ -28,10 +28,10 @@
                          <NumberAxis label="temp" side="LEFT" />
                        </yAxis>
                      <opaqueInsets>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                        <Insets />
                      </opaqueInsets>
                      </LineChart>
-                      <LineChart id="graphicLoad" fx:id="graphicLoad" animated="false" layoutX="22.0" layoutY="140.0" prefHeight="180.0" prefWidth="1015.0" stylesheets="@../../css/1.css" title="">
+                      <LineChart id="graphicLoad" fx:id="graphicLoad" animated="false" layoutX="22.0" layoutY="140.0" legendSide="RIGHT" legendVisible="false" prefHeight="180.0" prefWidth="1030.0" stylesheets="@../../css/1.css" title="">
                           <xAxis>
                               <CategoryAxis side="BOTTOM" />
                           </xAxis>
@@ -39,7 +39,7 @@
                               <NumberAxis label="load" side="LEFT" />
                           </yAxis>
                       </LineChart>
-                      <LineChart id="graphicSpeed" fx:id="graphicSpeed" animated="false" layoutX="22.0" layoutY="282.0" prefHeight="180.0" prefWidth="1002.0" stylesheets="@../../css/1.css" title="">
+                      <LineChart id="graphicSpeed" fx:id="graphicSpeed" animated="false" layoutX="22.0" layoutY="282.0" legendSide="RIGHT" legendVisible="false" prefHeight="180.0" prefWidth="1030.0" stylesheets="@../../css/1.css" title="">
                           <xAxis>
                               <CategoryAxis side="BOTTOM" />
                           </xAxis>
@@ -47,7 +47,7 @@
                               <NumberAxis label="speed" side="LEFT" />
                           </yAxis>
                       </LineChart>
-                      <LineChart id="graphicPower" fx:id="graphicPower" animated="false" layoutX="22.0" layoutY="427.0" prefHeight="180.0" prefWidth="990.0" stylesheets="@../../css/1.css" title="">
+                      <LineChart id="graphicPower" fx:id="graphicPower" animated="false" layoutX="22.0" layoutY="427.0" legendSide="RIGHT" legendVisible="false" prefHeight="180.0" prefWidth="1030.0" stylesheets="@../../css/1.css" title="">
                           <xAxis>
                               <CategoryAxis side="BOTTOM" />
                           </xAxis>
@@ -73,7 +73,7 @@
                   <Label layoutX="1059.0" layoutY="70.0" text="to:" />
                   <Label layoutX="1059.0" layoutY="98.0" text="computer:" />
                   <Label layoutX="1059.0" layoutY="6.0" text="this computer:" />
-                  <Label fx:id="thisCompName" layoutX="1142.0" layoutY="6.0" prefHeight="22.0" prefWidth="243.0" />
+                  <Label fx:id="thisCompName" layoutX="1142.0" layoutY="3.0" prefHeight="22.0" prefWidth="243.0" />
                   <ChoiceBox fx:id="compChoice" layoutX="1117.0" layoutY="94.0" prefHeight="25.0" prefWidth="269.0" />
                   <ToggleButton fx:id="autoParse_btn" layoutX="1117.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoparseButtonClick" text="Auto parse" />
                   <ToggleButton fx:id="autoRefresh_btn" layoutX="1197.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoRefreshButtonClick" text="Auto refresh" />
@@ -93,6 +93,7 @@
                                  <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#onDeleteBaseButtonClick" prefHeight="25.0" prefWidth="100.0" text="Delete all base" textFill="#fc0000" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="72.0" />
                               <Button id="properties" fx:id="properties" layoutX="10.0" layoutY="41.0" mnemonicParsing="false" onAction="#onDefinePropertiesButtonClick" prefHeight="25.0" prefWidth="99.0" text="Properties" />
                               <Button id="stop" fx:id="stop" layoutX="60.0" layoutY="10.0" mnemonicParsing="false" onAction="#onStopButtonClick" prefHeight="25.0" prefWidth="48.0" text="Stop" />
+                              <CheckBox fx:id="showLog" layoutX="113.0" layoutY="11.0" mnemonicParsing="false" onAction="#showLogSetted" prefHeight="24.0" prefWidth="73.0" text="Show log" />
                               </children>
                            </AnchorPane>
                          <AnchorPane>

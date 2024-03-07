@@ -1,4 +1,22 @@
 .chart-line-symbol {
-    -fx-background-radius: 0;
+    -fx-background-radius: 2;
     -fx-background-color:  transparent;
+
 }
+.chart-series-line {
+    -fx-stroke-width: 0.5px;
+    -fx-effect: null;
+}
+.default-color0.chart-series-line { -fx-stroke: #FF0000; }
+.default-color1.chart-series-line { -fx-stroke: #0000FF; }
+.default-color2.chart-series-line { -fx-stroke: #008000; }
+.default-color3.chart-series-line { -fx-stroke: #FFFF00; }
+.default-color4.chart-series-line { -fx-stroke: #00FF00; }
+.default-color5.chart-series-line { -fx-stroke: #00FFFF; }
+.default-color6.chart-series-line { -fx-stroke: #FF00FF; }
+.default-color7.chart-series-line { -fx-stroke: #D2691E; }
+.default-color8.chart-series-line { -fx-stroke: #1E90FF; }
+.default-color9.chart-series-line { -fx-stroke: #006400; }
+.default-color10.chart-series-line { -fx-stroke: #FF1493; }
+.default-color11.chart-series-line { -fx-stroke: #FA8072; }
+
