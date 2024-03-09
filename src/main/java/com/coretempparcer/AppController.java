@@ -27,7 +27,7 @@ import javafx.util.Duration;
 
 
 public class AppController implements Initializable {
-    DBReader dbReader = new DBReader();
+
     @FXML
     private TextField dateFromH;
     @FXML
@@ -68,9 +68,8 @@ public class AppController implements Initializable {
     @FXML
     CheckBox showLog;
 
-    int countTlRefresh = 0;
-
-    int countTlParse = 0;
+    DBReader dbReader = new DBReader();
+    ChartsFiller chartsFiller;
 
     private static String choosenComputer;
     private static HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData = new HashMap();
@@ -86,6 +85,7 @@ public class AppController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        chartsFiller = new ChartsFiller(graphicTemp, graphicLoad, graphicSpeed, graphicPower);
         setInitialFormValues();
         refillForm();
     }
@@ -202,7 +202,8 @@ public class AppController implements Initializable {
             this.autoRefreshLineCharts_tl.setCycleCount(Timeline.INDEFINITE);
             this.autoRefreshLineCharts_tl.play();
         } else {
-            this.autoRefreshLineCharts_tl.stop();
+            if (this.autoRefreshLineCharts_tl != null)
+                this.autoRefreshLineCharts_tl.stop();
         }
 
     }
@@ -318,14 +319,8 @@ public class AppController implements Initializable {
 
     @FXML
     protected void mainClearButtonClicked() {
-        this.clearGraphics();
-    }
-
-    protected void clearGraphics() {
-        this.graphicLoad.getData().clear();
-        this.graphicSpeed.getData().clear();
-        this.graphicTemp.getData().clear();
-        this.graphicPower.getData().clear();
+//        this.clearGraphics();
+        chartsFiller.clearGraphics();
     }
 
     @FXML
@@ -380,70 +375,10 @@ public class AppController implements Initializable {
             date1 = calendar.getTime();
         }
 
-        this.dbReader.setupTimeStamps(date1, date2);
-        this.dbReader.prepareChartData(chartData, compName);
-        this.fillingChartsData(chartData);
-    }
-
-    private void fillingChartsData(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData) {
-        String colTemp = MainClass.getColdb_temp();
-        String colLoad = MainClass.getColdb_load();
-        String colSpeed = MainClass.getColdb_speed();
-        String colCPUPower = MainClass.getColdb_cpupower();
-        HashMap<String, SortedMap<Date, Float>> chartTemp = chartData.get(colTemp);
-        HashMap<String, SortedMap<Date, Float>> chartLoad = chartData.get(colLoad);
-        HashMap<String, SortedMap<Date, Float>> chartSpeed = chartData.get(colSpeed);
-        HashMap<String, SortedMap<Date, Float>> chartCPUPower = chartData.get(colCPUPower);
-
-        this.clearGraphics();
-        int i;
-        SortedMap coreMap;
-        Series series;
-
-        if (chartTemp != null) {
-            for (Map.Entry<String, SortedMap<Date, Float>> entry : chartTemp.entrySet()) {
-                coreMap = entry.getValue();
-                if (coreMap.size() > 0) {
-                    series = new Series();
-                    series.setName(entry.getKey());
-                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicTemp);
-                }
-            }
-        }
-
-        if (chartLoad != null) {
-            for (Map.Entry<String, SortedMap<Date, Float>> entry : chartLoad.entrySet()) {
-                coreMap = entry.getValue();
-                if (coreMap.size() > 0) {
-                    series = new Series();
-                    series.setName(entry.getKey());
-                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicLoad);
-                }
-            }
-        }
-
-        if (chartSpeed != null) {
-            for (Map.Entry<String, SortedMap<Date, Float>> entry : chartSpeed.entrySet()) {
-                coreMap = entry.getValue();
-                if (coreMap.size() > 0) {
-                    series = new Series();
-                    series.setName(entry.getKey());
-                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicSpeed);
-                }
-            }
-        }
-
-        if (chartCPUPower != null) {
-            for (Map.Entry<String, SortedMap<Date, Float>> entry : chartCPUPower.entrySet()) {
-                coreMap = entry.getValue();
-                if (coreMap.size() > 0) {
-                    series = new Series();
-                    series.setName(entry.getKey());
-                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicPower);
-                }
-            }
-        }
-
+        chartsFiller.setDbReader(this.dbReader);
+        chartsFiller.setupTimeStamps(date1, date2);
+        chartsFiller.prepareChartData(chartData, compName);
+        chartsFiller.fillingChartsData(chartData);
     }
 
     public static void clearChartsData() {
@@ -456,20 +391,6 @@ public class AppController implements Initializable {
                 currMapOneCore.clear();
             }
         }
-    }
-
-    private void fillForOneCore(String s, SortedMap<Date, Float> coreMap, Series series, LineChart chart) {
-        String dateSer;
-        Float value;
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-
-        for (Map.Entry<Date, Float> entry : coreMap.entrySet()) {
-            dateSer = sdf.format(entry.getKey());
-            value = entry.getValue();
-            series.getData().add(new Data(dateSer, value));
-        }
-
-        chart.getData().add(series);
     }
 
     private String validateTimeFieldValue(String s, String variant) {

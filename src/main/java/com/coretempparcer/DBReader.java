@@ -14,18 +14,11 @@ public class DBReader {
 
     }
 
-    private String tableName = MainClass.getTableName();
-
-    public HashMap<String, HashMap<String, SortedMap<Date, Float>>> prepareChartData(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData, String compName) {
-
-        try {
-            readFromDB(chartData, compName);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return chartData;
+    public ResultSet getResSel() {
+        return resSel;
     }
+
+    private String tableName = MainClass.getTableName();
 
     public ArrayList findComputersInDB() throws SQLException {
 
@@ -44,7 +37,7 @@ public class DBReader {
         return res;
     }
 
-    private void readFromDB(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData, String compName) throws SQLException {
+    public void readFromDB(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData, String compName) throws SQLException {
 
         PreparedStatement stm;
 
@@ -68,152 +61,28 @@ public class DBReader {
                 AppController.clearChartsData();
             }
 
-            String colTime = MainClass.getColdb_time();
-            String colTemp = MainClass.getColdb_temp();
-            String colLoad = MainClass.getColdb_load();
-            String colSpeed = MainClass.getColdb_speed();
-            String colPower = MainClass.getColdb_cpupower();
+//            String colTime = MainClass.getColdb_time();
+//            String colTemp = MainClass.getColdb_temp();
+//            String colLoad = MainClass.getColdb_load();
+//            String colSpeed = MainClass.getColdb_speed();
+//            String colPower = MainClass.getColdb_cpupower();
 
-            while (resSel.next()) {
+//            while (resSel.next()) {
+//
+//                Date date = resSel.getTimestamp(colTime);
+//
+//                fillingOneChart(chartData, resSel, date, colTemp);
+//                fillingOneChart(chartData, resSel, date, colLoad);
+//                fillingOneChart(chartData, resSel, date, colSpeed);
+//                fillingOneChart(chartData, resSel, date, colPower);
+//
+//            }
 
-                Date date = resSel.getTimestamp(colTime);
-
-                fillingOneChart(chartData, resSel, date, colTemp);
-                fillingOneChart(chartData, resSel, date, colLoad);
-                fillingOneChart(chartData, resSel, date, colSpeed);
-                fillingOneChart(chartData, resSel, date, colPower);
-
-            }
-
-            if (MainClass.getCountOfCharPoint() > 0) {
-                roundTheGraphToTheNumberOfPoints(chartData);
-            }
-        }
-    }
-
-    private void roundTheGraphToTheNumberOfPoints(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartsData) {
-        int numCharPoints = MainClass.getCountOfCharPoint();
-        int initialCountPoints;
-        int baseSizeOnePoint;
-        int increaseSizeOnePoint;
-        int countOfBasePoints;
-        int countOfIncreasePoints;
-        int residue;
-
-        for (Map.Entry<String, HashMap<String, SortedMap<Date, Float>>> chart : chartsData.entrySet()) {    //1
-
-            HashMap<String, SortedMap<Date, Float>> cores = chart.getValue();
-
-            for (Map.Entry<String, SortedMap<Date, Float>> core : cores.entrySet()) {                       //2
-                SortedMap<Date, Float> coreData = core.getValue();
-                String coreName = core.getKey();
-
-                if (coreData.size() > numCharPoints) {
-                    SortedMap<Date, Float> res = new TreeMap<>();
-
-                    initialCountPoints = coreData.size();
-                    baseSizeOnePoint = initialCountPoints / numCharPoints;
-                    increaseSizeOnePoint = baseSizeOnePoint + 1;
-                    residue = initialCountPoints % numCharPoints;
-
-                    countOfBasePoints = numCharPoints - residue;
-                    countOfIncreasePoints = residue;
-
-                    Date dateNewPoint = null;
-
-                    float newPoint = 0;
-                    int ch = 0;
-
-                    float fullnessBasePoint = 0;
-                    float fullnessIncreasePoint = 0;
-
-                    float chBasePoint = 0;
-                    float chIncreasePoint = 0;
+//            if (MainClass.getCountOfCharPoint() > 0) {
+//                roundTheGraphToTheNumberOfPoints(chartData);
+//            }
 
 
-                    if (residue == 0) {
-                        for (Map.Entry<Date, Float> record : coreData.entrySet()) {     //this map which we must operate with                        //3
-                            ch++;
-                            newPoint += record.getValue();
-
-                            if (dateNewPoint == null) {
-                                dateNewPoint = record.getKey();
-                            }
-
-                            if (ch == baseSizeOnePoint) { //when no need to increase points
-                                newPoint = newPoint / ch;
-                                ch = 0;
-                                res.put(dateNewPoint, newPoint);
-
-                                newPoint = 0;
-                                dateNewPoint = null;
-
-                            }
-                        }
-                        cores.put(coreName, res);
-
-                    } else {
-                        for (Map.Entry<Date, Float> record : coreData.entrySet()) {     //this map which we must operate with                        //3
-                            ch++;
-                            newPoint += record.getValue();
-
-                            if (dateNewPoint == null) {
-                                dateNewPoint = record.getKey();
-                            }
-
-                            if (ch == baseSizeOnePoint && fullnessBasePoint < 1 && fullnessBasePoint < fullnessIncreasePoint) {
-                                newPoint = newPoint / ch;
-                                ch = 0;
-                                res.put(dateNewPoint, newPoint);
-
-                                newPoint = 0;
-                                dateNewPoint = null;
-
-                                chBasePoint++;
-                                fullnessBasePoint = chBasePoint / countOfBasePoints;
-
-                                continue;
-                            }
-
-                            if (ch == increaseSizeOnePoint && fullnessIncreasePoint < 1 && fullnessBasePoint >= fullnessIncreasePoint) {
-                                newPoint = newPoint / ch;
-                                ch = 0;
-                                res.put(dateNewPoint, newPoint);
-
-                                newPoint = 0;
-                                dateNewPoint = null;
-
-                                chIncreasePoint++;
-                                fullnessIncreasePoint = chIncreasePoint / countOfIncreasePoints;
-
-                            }
-                        }
-                        cores.put(coreName, res);
-                    }
-
-                }
-
-            }
-        }
-    }
-
-    private void fillingOneChart(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData, ResultSet resSel, Date date, String col) throws SQLException {
-        HashMap<String, SortedMap<Date, Float>> mapCores = chartData.get(col);
-
-        String field;
-
-        Float val;
-
-        if (mapCores != null) {
-            for (Map.Entry<String, SortedMap<Date, Float>> entry : mapCores.entrySet()) {
-                field = entry.getKey();
-
-                if (!field.endsWith(col)) continue;
-
-                SortedMap<Date, Float> pointsOfCore = mapCores.get(field);
-                val = resSel.getFloat(field);
-                pointsOfCore.put(date, val);
-            }
         }
     }
 
@@ -305,7 +174,7 @@ public class DBReader {
         return text;
     }
 
-    private String getQueryTextFindColumns(String compName) {
+    private String getQueryTextFindColumns() {
         String text = "";
 
         text = text.concat("SELECT *")
@@ -314,7 +183,6 @@ public class DBReader {
                 .concat(MainClass.getColCompName())
                 .concat(" = ?")
                 .concat(" LIMIT 1 ");
-
 
         return text;
     }
@@ -327,7 +195,7 @@ public class DBReader {
 
         PreparedStatement stm;
 
-        String queryText = getQueryTextFindColumns(compName);
+        String queryText = getQueryTextFindColumns();
 
         if (MainClass.connectionToBase()) {
 
