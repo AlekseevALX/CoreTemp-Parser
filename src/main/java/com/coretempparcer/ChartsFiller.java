@@ -20,15 +20,12 @@ public class ChartsFiller {
         this.dbReader = dbReader;
     }
 
-    public ChartsFiller(LineChart graphicTemp, LineChart graphicLoad, LineChart graphicSpeed, LineChart graphicPower) {
+    public ChartsFiller(LineChart graphicTemp, LineChart graphicLoad, LineChart graphicSpeed, LineChart graphicPower, DBReader dbReader) {
         this.graphicTemp = graphicTemp;
         this.graphicLoad = graphicLoad;
         this.graphicSpeed = graphicSpeed;
         this.graphicPower = graphicPower;
-
-        if (dbReader == null) {
-            dbReader = new DBReader();
-        }
+        this.dbReader = dbReader;
     }
 
     public void setupTimeStamps(Date dateFrom, Date dateTo) {

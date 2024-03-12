@@ -85,7 +85,7 @@ public class AppController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        chartsFiller = new ChartsFiller(graphicTemp, graphicLoad, graphicSpeed, graphicPower);
+        chartsFiller = new ChartsFiller(graphicTemp, graphicLoad, graphicSpeed, graphicPower, dbReader);
         setInitialFormValues();
         refillForm();
     }
@@ -375,7 +375,6 @@ public class AppController implements Initializable {
             date1 = calendar.getTime();
         }
 
-        chartsFiller.setDbReader(this.dbReader);
         chartsFiller.setupTimeStamps(date1, date2);
         chartsFiller.prepareChartData(chartData, compName);
         chartsFiller.fillingChartsData(chartData);

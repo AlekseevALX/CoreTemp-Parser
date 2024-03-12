@@ -213,16 +213,8 @@ public class MainClass {
         return cache.getColNamesForOneComputer(compName);
     }
 
-    public static Long getElapsedTime() {
-        return cache.getElapsedTime();
-    }
-
     public static void increaseElapsedTimeCounter(Long time) {
         cache.setElapsedTime(cache.getElapsedTime() + time);
-    }
-
-    public static void clearElapsedTimeCounter() {
-        cache.clearElapsedTime();
     }
 
     public static void clearCache() {
@@ -588,7 +580,7 @@ class ParcingSession_thread extends Thread {
             MainClass.addToLog("Start: " + cal.getTime());
 
             int a = 0;
-
+            
             ArrayList<Thread> threads = new ArrayList<>();
 
             if (!MainClass.connectionToBase()) {
