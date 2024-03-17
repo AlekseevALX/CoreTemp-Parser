@@ -67,7 +67,6 @@ public class AppController implements Initializable {
 
     @FXML
     CheckBox showLog;
-
     DBReader dbReader = new DBReader();
     ChartsFiller chartsFiller;
 

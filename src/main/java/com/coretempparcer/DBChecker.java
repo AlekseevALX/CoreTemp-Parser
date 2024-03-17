@@ -1,7 +1,5 @@
 package com.coretempparcer;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +15,7 @@ public class DBChecker {
 
     public boolean checkDB() throws SQLException {
 
-        String queryText = getExecuteText();
+        String queryText = QueryTextGenerator.getQueryText_CreateIfNotExist(columns, colCompName);
 
         if (queryText.equals("")) {
             System.out.println("Db is not checked!");
@@ -35,53 +33,18 @@ public class DBChecker {
             MainClass.addToLog("Db checked in thread " + Thread.currentThread().getName());
             return true;
         } else {
-            System.out.println("Db is not checked! No connection to base! In thread " + Thread.currentThread().getName());
-            MainClass.addToLog("Db is not checked! No connection to base! In thread " + Thread.currentThread().getName());
+            System.out.println("Db is not checked! No connection to base!");
+            MainClass.addToLog("Db is not checked! No connection to base!");
             return false;
         }
 
-    }
-
-    private static String getExecuteText() {
-        if (columns == null || columns.length == 0) {
-            return "";
-        }
-
-        String text = "";
-        String colName = "";
-        String tableName = MainClass.getTableName();
-
-        text = text.concat("CREATE TABLE IF NOT EXISTS " + tableName + "(");
-
-        text = text.concat(columns[0] + " " + "timestamp, ");
-
-        text = text.concat(colCompName + " varchar(20), ");
-
-        int ch = columns.length;
-
-        for (int i = 1; i < ch; i++) {
-            colName = columns[i];
-            if (colName.equals("")) continue;
-
-            text = text.concat(colName + " varchar(10), ");
-        }
-
-        text = text.concat("PRIMARY KEY (")
-                .concat(columns[0])
-                .concat(",")
-                .concat(colCompName)
-                .concat(")");
-
-        text = text.concat(");");
-
-        return text;
     }
 
     public static boolean dbIsDefined() {
         Statement stm;
         ResultSet resultSet;
 
-        String queryText = getIsDefinedText();
+        String queryText = QueryTextGenerator.getQueryText_IsDefined();
 
         try {
             stm = MainClass.connectionToDB.createStatement();
@@ -105,7 +68,7 @@ public class DBChecker {
         String[] main_ColNames = MainClass.getColNames(MainClass.getComputerName());
         ArrayList<String> newColumns = new ArrayList<>();
 
-        String queryText = getcheckDBColumnsText();
+        String queryText = QueryTextGenerator.getQueryText_CheckDBColumns();
 
         int db_colCount = 0;
 
@@ -147,43 +110,9 @@ public class DBChecker {
 
     private static void increaseTable(ArrayList<String> newColumns) throws SQLException {
         Statement stm;
-        String queryText = getIncreaseText(newColumns);
+        String queryText = QueryTextGenerator.getQueryText_IncreaseTable(newColumns);
         stm = MainClass.connectionToDB.createStatement();
         stm.execute(queryText);
     }
 
-    private static String getIncreaseText(ArrayList<String> newColumns) {
-        String text = "";
-        text = text.concat("ALTER TABLE ")
-                .concat(MainClass.getTableName());
-
-        for (String s : newColumns) {
-            text = text.concat(" ADD ")
-                    .concat(s)
-                    .concat(" varchar(10),");
-        }
-
-        text = text.substring(0, text.length() - 1);
-
-        return text;
-    }
-
-    private static String getIsDefinedText() {
-        String tableName = MainClass.getTableName();
-        String colTime = MainClass.getColdb_time();
-        String text = "SELECT " + colTime + " FROM " + tableName.toUpperCase() + " " +
-                "ORDER BY " + colTime + " DESC LIMIT 1";
-
-        return text;
-    }
-
-    private static String getcheckDBColumnsText() {
-        String text = "";
-        String tableName = MainClass.getTableName();
-        text = text.concat("SELECT * FROM ")
-                .concat(tableName)
-                .concat(" LIMIT 1");
-
-        return text;
-    }
 }

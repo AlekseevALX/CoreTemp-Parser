@@ -25,7 +25,8 @@ public class DBReader {
         ArrayList<String> res = new ArrayList<>();
 
         PreparedStatement stm;
-        String queryText = getQueryTextFindComp();
+
+        String queryText = QueryTextGenerator.getQueryText_FindComps(tableName);
 
         if (MainClass.connectionToBase()) {
             stm = MainClass.connectionToDB.prepareStatement(queryText);
@@ -41,7 +42,7 @@ public class DBReader {
 
         PreparedStatement stm;
 
-        String queryText = getQueryTextRead(compName);
+        String queryText = QueryTextGenerator.getQueryText_Read(compName, tableName);
 
         String[] columns;
 
@@ -60,28 +61,6 @@ public class DBReader {
             } else {
                 AppController.clearChartsData();
             }
-
-//            String colTime = MainClass.getColdb_time();
-//            String colTemp = MainClass.getColdb_temp();
-//            String colLoad = MainClass.getColdb_load();
-//            String colSpeed = MainClass.getColdb_speed();
-//            String colPower = MainClass.getColdb_cpupower();
-
-//            while (resSel.next()) {
-//
-//                Date date = resSel.getTimestamp(colTime);
-//
-//                fillingOneChart(chartData, resSel, date, colTemp);
-//                fillingOneChart(chartData, resSel, date, colLoad);
-//                fillingOneChart(chartData, resSel, date, colSpeed);
-//                fillingOneChart(chartData, resSel, date, colPower);
-//
-//            }
-
-//            if (MainClass.getCountOfCharPoint() > 0) {
-//                roundTheGraphToTheNumberOfPoints(chartData);
-//            }
-
 
         }
     }
@@ -139,54 +118,6 @@ public class DBReader {
 
     }
 
-    private String getQueryTextRead(String compName) {
-        String text = "";
-
-        String colCompName = MainClass.getColCompName();
-
-        text = text.concat("SELECT ")
-                .concat("*")
-                .concat(" FROM " + tableName)
-                .concat(" WHERE ")
-                .concat("time" + " >= ?")
-                .concat(" and ")
-                .concat("time" + " <= ?");
-
-        if (!compName.isEmpty()) {
-            text = text.concat(" and ")
-                    .concat(colCompName + "= ?");
-        }
-
-        return text;
-    }
-
-    private String getQueryTextFindComp() {
-        String text = "";
-
-        String colCompName = MainClass.getColCompName();
-
-        text = text.concat("SELECT ")
-                .concat(colCompName)
-                .concat(" FROM " + tableName)
-                .concat(" GROUP BY ")
-                .concat(colCompName);
-
-        return text;
-    }
-
-    private String getQueryTextFindColumns() {
-        String text = "";
-
-        text = text.concat("SELECT *")
-                .concat(" FROM " + tableName)
-                .concat(" WHERE ")
-                .concat(MainClass.getColCompName())
-                .concat(" = ?")
-                .concat(" LIMIT 1 ");
-
-        return text;
-    }
-
     public String[] getColumnNamesFromDataBase(String compName) {
 
         ArrayList<String> columns = new ArrayList<>();
@@ -195,7 +126,7 @@ public class DBReader {
 
         PreparedStatement stm;
 
-        String queryText = getQueryTextFindColumns();
+        String queryText = QueryTextGenerator.getQueryText_FindColumns(tableName);
 
         if (MainClass.connectionToBase()) {
 

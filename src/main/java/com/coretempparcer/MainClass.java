@@ -580,7 +580,7 @@ class ParcingSession_thread extends Thread {
             MainClass.addToLog("Start: " + cal.getTime());
 
             int a = 0;
-            
+
             ArrayList<Thread> threads = new ArrayList<>();
 
             if (!MainClass.connectionToBase()) {

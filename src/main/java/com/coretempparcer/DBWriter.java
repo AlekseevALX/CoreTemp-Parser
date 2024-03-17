@@ -1,8 +1,5 @@
 package com.coretempparcer;
 
-
-import org.postgresql.jdbc.PgResultSet;
-
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -30,7 +27,7 @@ public class DBWriter {
 
         PreparedStatement stm;
 
-        String queryText = getQueryTextInsert(columns, compName);
+        String queryText = QueryTextGenerator.getQueryText_Insert(columns, compName, tableName);
 
         if (MainClass.connectionToBase()) {
             stm = MainClass.connectionToDB.prepareStatement(queryText);
@@ -66,7 +63,7 @@ public class DBWriter {
 
         PreparedStatement stm;
 
-        String queryText = getQueryTextExists(columns, compName);
+        String queryText = QueryTextGenerator.getQueryText_Exists(columns, compName, tableName);
 
         if (MainClass.connectionToBase()) {
             stm = MainClass.connectionToDB.prepareStatement(queryText);
@@ -79,7 +76,6 @@ public class DBWriter {
 
         resSel = stm.executeQuery();
 
-//        if (((PgResultSet) resSel).getLastUsedFetchSize() == strings.size()) {
         if (resSel.getFetchSize() == strings.size()) {
             fileData.setStrings(new HashMap<>());
             fileData.setStringcount(0);
@@ -92,62 +88,6 @@ public class DBWriter {
         }
 
         stm.close();
-    }
-
-    private String getQueryTextInsert(String[] columns, String compName) {
-        //        String sql = "INSERT INTO JC_CONTACT (FIRST_NAME, LAST_NAME, PHONE, EMAIL) VALUES (?, ?, ?,?)";
-        String text = "";
-        int columnCount = columns.length;
-
-        text = text.concat("INSERT INTO " + tableName + " ");
-        text = text.concat("(");
-
-        for (int i = 0; i < columnCount; i++) {
-            text = text.concat(columns[i]) + ",";
-        }
-
-        if (!compName.isEmpty()) {
-            text = text.concat(MainClass.getColCompName()) + ",";
-        }
-
-        text = text.substring(0, text.length() - 1);
-        text = text.concat(") ");
-        text = text.concat("VALUES ");
-        text = text.concat("(");
-
-        for (int i = 0; i < columnCount; i++) {
-            text = text.concat("?,");
-        }
-
-        if (!compName.isEmpty()) {
-            text = text.concat("?,");
-        }
-
-        text = text.substring(0, text.length() - 1);
-        text = text.concat(") ");
-
-        return text;
-    }
-
-    private String getQueryTextExists(String[] columns, String compName) {
-        //SELECT TIME FROM CORETEMP WHERE TIME >= ? and TIME <= ?
-        String text = "";
-        String colTime = columns[0];
-
-        text = text.concat("SELECT ")
-                .concat(colTime)
-                .concat(" FROM " + tableName)
-                .concat(" WHERE ")
-                .concat(colTime + " >= ?")
-                .concat(" and ")
-                .concat(colTime + " <= ?");
-
-        if (!compName.isEmpty()) {
-            text = text.concat(" and ")
-                    .concat(MainClass.getColCompName() + " =?");
-        }
-
-        return text;
     }
 
     private void setupParameters(PreparedStatement stm, String[] oneString, String compName) {
@@ -226,9 +166,9 @@ public class DBWriter {
 
     private static java.sql.Timestamp parseDateToTimeStamp(String dateString, String filename) throws ArrayIndexOutOfBoundsException {
         //16:07:11 03/06/22
-        String[] spltDate = new String[2];
-        String[] spltTime = new String[3];
-        String[] spltDay = new String[3];
+        String[] spltDate;
+        String[] spltTime;
+        String[] spltDay;
 
         spltDate = dateString.split(" ");
 
@@ -248,7 +188,7 @@ public class DBWriter {
 
         Integer month = Integer.parseInt(spltDay[0]);
         Integer date = Integer.parseInt(spltDay[1]);
-        Integer year = 2000 + Integer.parseInt(spltDay[2]); //dobavlaem Vladivostok
+        Integer year = 2000 + Integer.parseInt(spltDay[2]); //adding Vladivostok
 
         GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
         calendar.set(year, month - 1, date, hour, minute, second);
@@ -257,7 +197,6 @@ public class DBWriter {
         java.sql.Timestamp sqlDate = new java.sql.Timestamp(res.getTime());
         sqlDate.setNanos(0);
 
-//        int mo = Month.valueOf()
         return sqlDate;
     }
 }

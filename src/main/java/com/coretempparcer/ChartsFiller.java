@@ -16,10 +16,6 @@ public class ChartsFiller {
     LineChart graphicSpeed;
     LineChart graphicPower;
 
-    public void setDbReader(DBReader dbReader) {
-        this.dbReader = dbReader;
-    }
-
     public ChartsFiller(LineChart graphicTemp, LineChart graphicLoad, LineChart graphicSpeed, LineChart graphicPower, DBReader dbReader) {
         this.graphicTemp = graphicTemp;
         this.graphicLoad = graphicLoad;
