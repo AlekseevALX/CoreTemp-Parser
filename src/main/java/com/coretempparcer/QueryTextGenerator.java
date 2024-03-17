@@ -176,4 +176,30 @@ public class QueryTextGenerator {
 
         return text;
     }
+
+    public static String getQueryText_FindLastDate() {
+        String colTime = MainClass.getColdb_time();
+        String colComp = MainClass.getColCompName();
+        String tableName = MainClass.getTableName();
+        String thisCompName = MainClass.getComputerName();
+        String text = "";
+
+        text = text.concat("SELECT ")
+                .concat(colTime)
+                .concat(" FROM ")
+                .concat(tableName)
+                .concat(" WHERE ")
+                .concat(colComp)
+                .concat(" = ")
+                .concat("'")
+                .concat(thisCompName)
+                .concat("'")
+                .concat(" ORDER BY time DESC LIMIT 1");
+
+        return text;
+    }
+
+    public static String getQueryText_DeleteBase(String tableName) {
+        return "DROP TABLE IF EXISTS " + tableName;
+    }
 }

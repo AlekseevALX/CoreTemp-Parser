@@ -308,7 +308,7 @@ public class MainClass {
 
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (!propertiesLoaded) loadProperties();
 
         if (args.length == 0) {
@@ -358,6 +358,8 @@ public class MainClass {
     public static void deleteDB() {
         Statement stm;
         String tableName = getTableName();
+        String queryText = QueryTextGenerator.getQueryText_DeleteBase(tableName);
+
         try {
             stm = connectionToDB.createStatement();
         } catch (SQLException e) {
@@ -365,13 +367,13 @@ public class MainClass {
             return;
         }
         try {
-            stm.execute("DROP TABLE IF EXISTS " + tableName);
+            stm.execute(queryText);
             MainClass.dbChecked = false;
         } catch (SQLException e) {
             MainClass.addToLog(String.valueOf(e.getStackTrace()));
             return;
         }
-        MainClass.addToLog("Base " + tableName + " is deleted!");
+        MainClass.addToLog("Table " + tableName + " is deleted!");
     }
 
     public static void addToLog(String log) {
@@ -397,28 +399,6 @@ public class MainClass {
             e.printStackTrace();
             return false;
         }
-
-//        if (gettypeDB().toUpperCase().equals("MSQL")) {
-////            try {
-////                Class.forName("com.mysql.Driver");
-////            } catch (ClassNotFoundException e) {
-////                e.printStackTrace();
-////                MainClass.addToLog("Don't find class com.mysql.Driver!");
-////                MainClass.addToLog(String.valueOf(e.getStackTrace()));
-////                MainClass.done = true;
-////                return false;
-////            }
-//        } else if (gettypeDB().toUpperCase().equals("PG")) {
-////            try {
-////                Class.forName("org.postgresql.Driver");
-////            } catch (ClassNotFoundException e) {
-////                MainClass.addToLog("Don't find class org.postgresql.Driver!");
-////                MainClass.addToLog(String.valueOf(e.getStackTrace()));
-////                MainClass.done = true;
-////                return false;
-////            }
-//        }
-
 
         try {
             connectionToDB = DriverManager.getConnection(urlDB, loginDB, passwordDB);
@@ -590,7 +570,6 @@ class ParcingSession_thread extends Thread {
 
             DBChecker.checkDBColumns();
 
-//            for (Map.Entry<Date, String> entry : mapFiles.entrySet()) {
             for (Map.Entry<Long, String> entry : mapFiles.entrySet()) {
 
                 ParcingFile_thread strtSc = new ParcingFile_thread(entry.getValue(), lastFile, "Parcer " + a);
@@ -642,7 +621,6 @@ class ParcingSession_thread extends Thread {
     }
 
     public static void findLastDateInBase() {
-        Date res = new Date();
         Statement stm;
         ResultSet resultSet = null;
 
@@ -653,7 +631,7 @@ class ParcingSession_thread extends Thread {
             return;
         }
 
-        String queryText = getQueryText_FindLastDate();
+        String queryText = QueryTextGenerator.getQueryText_FindLastDate();
 
         try {
             resultSet = stm.executeQuery(queryText);
@@ -679,25 +657,4 @@ class ParcingSession_thread extends Thread {
         }
     }
 
-    public static String getQueryText_FindLastDate() {
-        String colTime = MainClass.getColdb_time();
-        String colComp = MainClass.getColCompName();
-        String tableName = MainClass.getTableName();
-        String thisCompName = MainClass.getComputerName();
-        String text = "";
-
-        text = text.concat("SELECT ")
-                .concat(colTime)
-                .concat(" FROM ")
-                .concat(tableName)
-                .concat(" WHERE ")
-                .concat(colComp)
-                .concat(" = ")
-                .concat("'")
-                .concat(thisCompName)
-                .concat("'")
-                .concat(" ORDER BY time DESC LIMIT 1");
-
-        return text;
-    }
 }
