@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--<?scenebuilder-stylesheet 1.css?>-->
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<!--<VBox alignment="CENTER" prefHeight="648.0" prefWidth="797.0" spacing="20.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparser.AppController">-->
+<!--    <padding>-->
+<!--        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />-->
+<!--    </padding>-->
+<!--</VBox>-->
+
+<TabPane tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparser.AppController">
+     <tabs>
+       <Tab text="Chart">
+         <content>
+           <AnchorPane prefHeight="643.0" prefWidth="1400.0">
+                  <children>
+                     <LineChart id="graphicTemp" fx:id="graphicTemp" animated="false" layoutX="22.0" legendSide="RIGHT" legendVisible="false" prefHeight="180.0" prefWidth="1030.0" stylesheets="@../../css/1.css" title="">
+                       <xAxis>
+                         <CategoryAxis side="BOTTOM" />
+                       </xAxis>
+                       <yAxis>
+                         <NumberAxis label="temp" side="LEFT" />
+                       </yAxis>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     </LineChart>
+                      <LineChart id="graphicLoad" fx:id="graphicLoad" animated="false" layoutX="22.0" layoutY="140.0" legendSide="RIGHT" legendVisible="false" prefHeight="180.0" prefWidth="1030.0" stylesheets="@../../css/1.css" title="">
+                          <xAxis>
+                              <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                              <NumberAxis label="load" side="LEFT" />
+                          </yAxis>
+                      </LineChart>
+                      <LineChart id="graphicSpeed" fx:id="graphicSpeed" animated="false" layoutX="22.0" layoutY="282.0" legendSide="RIGHT" legendVisible="false" prefHeight="180.0" prefWidth="1030.0" stylesheets="@../../css/1.css" title="">
+                          <xAxis>
+                              <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                              <NumberAxis label="speed" side="LEFT" />
+                          </yAxis>
+                      </LineChart>
+                      <LineChart id="graphicPower" fx:id="graphicPower" animated="false" layoutX="22.0" layoutY="427.0" legendSide="RIGHT" legendVisible="false" prefHeight="180.0" prefWidth="1030.0" stylesheets="@../../css/1.css" title="">
+                          <xAxis>
+                              <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                              <NumberAxis label="power" side="LEFT" />
+                          </yAxis>
+                      </LineChart>
+                  <DatePicker id="DateFrom" fx:id="dateFrom" layoutX="1117.0" layoutY="38.0" prefHeight="25.0" prefWidth="160.0" />
+                  <DatePicker id="DateTo" fx:id="dateTo" layoutX="1117.0" layoutY="66.0" prefHeight="25.0" prefWidth="160.0" />
+                  <Button id="MainOKButton" fx:id="mainOkButton" layoutX="1116.0" layoutY="128.0" mnemonicParsing="false" onMouseClicked="#mainOKButtonClicked" prefHeight="25.0" prefWidth="74.0" text="OK" />
+                  <Button id="MainClearButton" fx:id="MainClearButton" layoutX="1197.0" layoutY="128.0" mnemonicParsing="false" onMouseClicked="#mainClearButtonClicked" prefHeight="25.0" prefWidth="82.0" text="Clear" />
+                  <TextField id="DateFromH" fx:id="dateFromH" layoutX="1286.0" layoutY="38.0" onKeyReleased="#DateFromHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
+                  <TextField id="DateFromM" fx:id="dateFromM" layoutX="1321.0" layoutY="38.0" onKeyReleased="#DateFromMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
+                  <TextField id="DateFromS" fx:id="dateFromS" layoutX="1356.0" layoutY="38.0" onKeyReleased="#DateFromSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
+                  <Text layoutX="1317.0" layoutY="82.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1352.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1352.0" layoutY="82.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <Text layoutX="1317.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text=":" wrappingWidth="3.0" />
+                  <TextField id="DateToH" fx:id="dateToH" layoutX="1286.0" layoutY="66.0" onKeyReleased="#DateToHOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="hh" />
+                  <TextField id="DateToM" fx:id="dateToM" layoutX="1321.0" layoutY="66.0" onKeyReleased="#DateToMOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="mm" />
+                  <TextField id="DateToS" fx:id="dateToS" layoutX="1356.0" layoutY="66.0" onKeyReleased="#DateToSOnKeyReleased" prefHeight="25.0" prefWidth="30.0" promptText="ss" />
+                  <Label layoutX="1059.0" layoutY="42.0" text="from:" />
+                  <Label layoutX="1059.0" layoutY="70.0" text="to:" />
+                  <Label layoutX="1059.0" layoutY="98.0" text="computer:" />
+                  <Label layoutX="1059.0" layoutY="6.0" text="this computer:" />
+                  <Label fx:id="thisCompName" layoutX="1142.0" layoutY="3.0" prefHeight="22.0" prefWidth="243.0" />
+                  <ChoiceBox fx:id="compChoice" layoutX="1117.0" layoutY="94.0" prefHeight="25.0" prefWidth="269.0" />
+                  <ToggleButton fx:id="autoParse_btn" layoutX="1117.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoparseButtonClick" text="Auto parse" />
+                  <ToggleButton fx:id="autoRefresh_btn" layoutX="1197.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoRefreshButtonClick" text="Auto refresh" />
+                  </children>
+               </AnchorPane>
+         </content>
+       </Tab>
+       <Tab text="Parse">
+         <content>
+           <AnchorPane>
+               <children>
+                     <SplitPane dividerPositions="0.2" prefHeight="643.0" prefWidth="865.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                       <items>
+                         <AnchorPane minHeight="100.0" minWidth="100.0" prefHeight="282.0" prefWidth="222.0">
+                              <children>
+                                  <Button onAction="#onStartButtonClick" text="Parse" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                                 <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#onDeleteBaseButtonClick" prefHeight="25.0" prefWidth="100.0" text="Delete all base" textFill="#fc0000" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="72.0" />
+                              <Button id="properties" fx:id="properties" layoutX="10.0" layoutY="41.0" mnemonicParsing="false" onAction="#onDefinePropertiesButtonClick" prefHeight="25.0" prefWidth="99.0" text="Properties" />
+                              <Button id="stop" fx:id="stop" layoutX="60.0" layoutY="10.0" mnemonicParsing="false" onAction="#onStopButtonClick" prefHeight="25.0" prefWidth="48.0" text="Stop" />
+                              <CheckBox fx:id="showLog" layoutX="113.0" layoutY="11.0" mnemonicParsing="false" onAction="#showLogSetted" prefHeight="24.0" prefWidth="73.0" text="Show log" />
+                              </children>
+                           </AnchorPane>
+                         <AnchorPane>
+                              <children>
+                                 <Label layoutX="5.0" layoutY="6.0" nodeOrientation="LEFT_TO_RIGHT" text="Log:" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="6.0" />
+                              
+                                       <TextArea id="textLog" fx:id="textLog" blendMode="DARKEN" layoutY="26.0" prefHeight="610.0" prefWidth="1105.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="26.0" />
+                              </children>
+                           </AnchorPane>
+                       </items>
+                     </SplitPane>
+               </children></AnchorPane>
+         </content>
+       </Tab>
+     </tabs>
+   </TabPane>

@@ -1,4 +1,4 @@
-module com.coretempparcer {
+module com.coretempparser {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
@@ -7,6 +7,6 @@ module com.coretempparcer {
     requires org.apache.commons.csv;
     requires mysql.connector.j;
 
-    opens com.coretempparcer to javafx.fxml;
-    exports com.coretempparcer;
+    opens com.coretempparser to javafx.fxml;
+    exports com.coretempparser;
 }
