@@ -13,12 +13,12 @@ public class ParserApplication extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(ParserApplication.class.getResource("view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1400, 700);
-        stage.setTitle("CoreTemp Parcer!" + " ver: " + MainClass.getVer());
+        stage.setTitle("CoreTemp Parser!" + " ver: " + MainClass.getVer());
         stage.setScene(scene);
         stage.show();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (!MainClass.isPropertiesLoaded()) MainClass.loadProperties();
 
         launch();

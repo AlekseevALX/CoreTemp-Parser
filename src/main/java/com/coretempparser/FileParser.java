@@ -176,7 +176,7 @@ public class FileParser {
             firstCol = record.get(0);
             if (firstCol.isEmpty()) continue;
 
-            if (firstCol.toUpperCase().equals(f_colTime.toUpperCase())) {
+            if (firstCol.equalsIgnoreCase(f_colTime)) {
                 MainClass.setFirstStringOfData((int) record.getRecordNumber() + 1);
                 toFindNeededColumns(record);
                 break;
@@ -197,19 +197,24 @@ public class FileParser {
         String db_colTemp = MainClass.getColdb_temp();
         String db_colLoad = MainClass.getColdb_load();
         String db_colSpeed = MainClass.getColdb_speed();
-        String db_colCPUPower = MainClass.getColdb_cpupower();
+        String db_colCPUPower = MainClass.getColdb_cpuPower();
 
         String f_core = MainClass.getColf_core();
         String f_colTime = MainClass.getColf_time();
         String f_colTemp = MainClass.getColf_temp();
         String f_colLoad = MainClass.getColf_load();
         String f_colSpeed = MainClass.getColf_speed();
-        String f_colCPUPower = MainClass.getColf_cpupower();
+        String f_colCPUPower = MainClass.getColf_cpuPower();
+
+        boolean startCore;
+        boolean endTemp;
+        boolean endSpeed;
+        boolean endLoad;
 
         int[] columns;
         String[] colNames;
         int colCount = 0; //count of columns which really must be readed in the database
-        int currCorenumber = -1;
+        int currCoreNumber = -1;
         int currCore = -1;
 
         //prepare col names
@@ -231,20 +236,23 @@ public class FileParser {
             }
 
             //col Time
-            if (currCol.toUpperCase().equals(f_colTime.toUpperCase())) {
+            if (currCol.equalsIgnoreCase(f_colTime)) {
                 tempString[i] = db_colTime;
                 colCount++;
                 continue;
             }
 
             //col Core ? Temp.
-            if (currCol.toUpperCase().startsWith(f_core.toUpperCase()) && currCol.toUpperCase().endsWith(f_colTemp.toUpperCase())) {
+            startCore = currCol.toUpperCase().startsWith(f_core.toUpperCase());
+
+            endTemp = currCol.toUpperCase().endsWith(f_colTemp.toUpperCase());
+            if (startCore && endTemp) {
                 String symbol = currCol.substring(f_core.length(), f_core.length() + 1);
                 if (Pattern.matches("[0-9]", symbol)) {
-                    currCorenumber = Integer.parseInt(symbol);
+                    currCoreNumber = Integer.parseInt(symbol);
                 }
-                if (currCorenumber == 0) {
-                    tempString[i] = db_colCore + currCorenumber + db_colTemp;
+                if (currCoreNumber == 0) {
+                    tempString[i] = db_colCore + currCoreNumber + db_colTemp;
                     colCount++;
                     continue;
                 } else {
@@ -254,11 +262,15 @@ public class FileParser {
             }
 
             //col Core ?
-            if (currCol.toUpperCase().startsWith(f_core.toUpperCase()) &&
-                    !(currCol.toUpperCase().endsWith(f_colTemp.toUpperCase())) &&
-                    !(currCol.toUpperCase().endsWith(f_colSpeed.toUpperCase())) &&
-                    !(currCol.toUpperCase().endsWith(f_colLoad.toUpperCase()))) {
-                String coreN = currCol.substring(f_core.length(), currCol.length());
+            endSpeed = currCol.toUpperCase().endsWith(f_colSpeed.toUpperCase());
+
+            endLoad = currCol.toUpperCase().endsWith(f_colLoad.toUpperCase());
+
+            if (startCore &&
+                    !endTemp &&
+                    !endSpeed &&
+                    !endLoad) {
+                String coreN = currCol.substring(f_core.length());
                 if (Pattern.matches("[0-9]", coreN)) {
                     currCore = Integer.parseInt(coreN);
                 }
@@ -267,26 +279,26 @@ public class FileParser {
             }
 
             //col Low temp
-            if (currCol.toUpperCase().startsWith("LOW") && currCol.toUpperCase().endsWith(f_colTemp.toUpperCase())) {
+            if (currCol.toUpperCase().startsWith("LOW") && endTemp) {
                 tempString[i] = "";
                 continue;
             }
 
             //col High temp
-            if (currCol.toUpperCase().startsWith("HIGH") && currCol.toUpperCase().endsWith(f_colTemp.toUpperCase())) {
+            if (currCol.toUpperCase().startsWith("HIGH") && endTemp) {
                 tempString[i] = "";
                 continue;
             }
 
             //col Core load
-            if (currCol.toUpperCase().startsWith(f_core.toUpperCase()) && currCol.toUpperCase().endsWith(f_colLoad.toUpperCase())) {
+            if (startCore && endLoad) {
                 tempString[i] = db_colCore + currCore + db_colLoad;
                 colCount++;
                 continue;
             }
 
             //col Core speed
-            if (currCol.toUpperCase().startsWith(f_core.toUpperCase()) && currCol.toUpperCase().endsWith(f_colSpeed.toUpperCase())) {
+            if (startCore && endSpeed) {
                 tempString[i] = db_colCore + currCore + db_colSpeed;
                 colCount++;
                 continue;
@@ -296,7 +308,6 @@ public class FileParser {
             if (currCol.toUpperCase().endsWith(f_colCPUPower.toUpperCase())) {
                 tempString[i] = db_colCPUPower;
                 colCount++;
-                continue;
             }
         }
 
@@ -318,12 +329,11 @@ public class FileParser {
     }
 
     public static String prepareColName(String s) {
-        //        Pattern.matches("[a-z]||[A-Z]||[а-я]||[А-Я]||[ё,Ё]||[\\.\\,]", st)
         String res = "";
         String[] spltStr = s.split("");
 
         for (String a : spltStr) {
-            if (Pattern.matches("[a-z]||[A-Z]||[0-9]", a)) {
+            if (Pattern.matches("[a-z]|[A-Z]|[0-9]", a)) {
                 res = res.concat(a);
             }
         }

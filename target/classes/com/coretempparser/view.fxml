@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--<?scenebuilder-stylesheet 1.css?>-->
-
 <?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-
-<!--<VBox alignment="CENTER" prefHeight="648.0" prefWidth="797.0" spacing="20.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparser.AppController">-->
-<!--    <padding>-->
-<!--        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />-->
-<!--    </padding>-->
-<!--</VBox>-->
 
 <TabPane tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparser.AppController">
      <tabs>
@@ -75,7 +67,7 @@
                   <Label layoutX="1059.0" layoutY="6.0" text="this computer:" />
                   <Label fx:id="thisCompName" layoutX="1142.0" layoutY="3.0" prefHeight="22.0" prefWidth="243.0" />
                   <ChoiceBox fx:id="compChoice" layoutX="1117.0" layoutY="94.0" prefHeight="25.0" prefWidth="269.0" />
-                  <ToggleButton fx:id="autoParse_btn" layoutX="1117.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoparseButtonClick" text="Auto parse" />
+                  <ToggleButton fx:id="autoParse_btn" layoutX="1117.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoParseButtonClick" text="Auto parse" />
                   <ToggleButton fx:id="autoRefresh_btn" layoutX="1197.0" layoutY="155.0" mnemonicParsing="false" onMouseClicked="#onAutoRefreshButtonClick" text="Auto refresh" />
                   </children>
                </AnchorPane>
@@ -93,7 +85,7 @@
                                  <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#onDeleteBaseButtonClick" prefHeight="25.0" prefWidth="100.0" text="Delete all base" textFill="#fc0000" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="72.0" />
                               <Button id="properties" fx:id="properties" layoutX="10.0" layoutY="41.0" mnemonicParsing="false" onAction="#onDefinePropertiesButtonClick" prefHeight="25.0" prefWidth="99.0" text="Properties" />
                               <Button id="stop" fx:id="stop" layoutX="60.0" layoutY="10.0" mnemonicParsing="false" onAction="#onStopButtonClick" prefHeight="25.0" prefWidth="48.0" text="Stop" />
-                              <CheckBox fx:id="showLog" layoutX="113.0" layoutY="11.0" mnemonicParsing="false" onAction="#showLogSetted" prefHeight="24.0" prefWidth="73.0" text="Show log" />
+                              <CheckBox fx:id="showLog" layoutX="113.0" layoutY="11.0" mnemonicParsing="false" onAction="#showLogOn" prefHeight="24.0" prefWidth="73.0" text="Show log" />
                               </children>
                            </AnchorPane>
                          <AnchorPane>

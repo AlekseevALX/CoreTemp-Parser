@@ -2,13 +2,12 @@ package com.coretempparser;
 //start repository
 
 import java.io.*;
-import java.sql.*;
 import java.util.GregorianCalendar;
 
 public class ParsingFile_thread extends Thread {
-    private String fileName = "";
+    private final String fileName;
 
-    private long[] lastFile;
+    private final long[] lastFile;
 
     public ParsingFile_thread(String fileName, long[] lastFile, String threadName) {
         super(threadName);
@@ -20,12 +19,12 @@ public class ParsingFile_thread extends Thread {
     public void run() {
 
         if (fileName.equals("")) {
-            endOfthread();
+            endOfThread();
             return;
         }
 
         GregorianCalendar cal = new GregorianCalendar();
-        MainClass.addToLog("Start parcing " + fileName + " Thread " + Thread.currentThread().getName() + " " + cal.getTime());
+        MainClass.addToLog("Start parsing " + fileName + " Thread " + Thread.currentThread().getName() + " " + cal.getTime());
 
         FileData fd = null;
 
@@ -35,8 +34,12 @@ public class ParsingFile_thread extends Thread {
             e.printStackTrace();
         }
 
-        if (fd == null || fd.getStringcount() == 0) {
-            endOfthread();
+        if (fd != null){
+            MainClass.addToLog("Readed " + fd.getStringCount() + " records in file " + fileName);
+        }
+
+        if (fd == null || fd.getStringCount() == 0) {
+            endOfThread();
             return;
         }
 
@@ -51,24 +54,22 @@ public class ParsingFile_thread extends Thread {
         synchronized (ParsingFile_thread.class) {
             try {
                 dbWriter.writeToBase();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        endOfthread();
+        endOfThread();
 
     }
 
-    void endOfthread() {
+    void endOfThread() {
         synchronized (ParsingFile_thread.class) {
             GregorianCalendar cal = new GregorianCalendar();
-            MainClass.addToLog("Stop parcing " + fileName + " Thread " + Thread.currentThread().getName() + " " + cal.getTime());
-            MainClass.currentWorkingThread -= 1;
-            MainClass.countOfThreads -= 1;
-            if (MainClass.countOfThreads == 0) {
+            MainClass.addToLog("Stop parsing " + fileName + " Thread " + Thread.currentThread().getName() + " " + cal.getTime());
+            MainClass.decreaseCurrentWorkingThread();
+            MainClass.decreaseCountOfThreads();
+            if (MainClass.getCountOfThreads() == 0) {
                 MainClass.done = true;
             }
         }

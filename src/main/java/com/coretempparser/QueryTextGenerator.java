@@ -58,10 +58,8 @@ public class QueryTextGenerator {
     public static String getQueryText_IsDefined() {
         String tableName = MainClass.getTableName();
         String colTime = MainClass.getColdb_time();
-        String text = "SELECT " + colTime + " FROM " + tableName.toUpperCase() + " " +
+        return "SELECT " + colTime + " FROM " + tableName.toUpperCase() + " " +
                 "ORDER BY " + colTime + " DESC LIMIT 1";
-
-        return text;
     }
 
     public static String getQueryText_CheckDBColumns() {
@@ -82,8 +80,8 @@ public class QueryTextGenerator {
         text = text.concat("INSERT INTO " + tableName + " ");
         text = text.concat("(");
 
-        for (int i = 0; i < columnCount; i++) {
-            text = text.concat(columns[i]) + ",";
+        for (String column : columns) {
+            text = text.concat(column) + ",";
         }
 
         if (!compName.isEmpty()) {

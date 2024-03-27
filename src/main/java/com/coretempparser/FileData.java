@@ -3,8 +3,8 @@ package com.coretempparser;
 import java.util.HashMap;
 
 public class FileData {
-    private String fileName = "";
-    private int stringcount;
+    private final String fileName;
+    private int stringCount;
     private HashMap<Integer, String[]> strings = new HashMap<>();
     private boolean needsToFindExistingRecords = true;
 
@@ -18,19 +18,19 @@ public class FileData {
 
     public void setStrings(HashMap<Integer, String[]> strings) {
         this.strings = strings;
-        this.stringcount = strings.size();
+        this.stringCount = strings.size();
     }
 
     public FileData(String nameFile) {
         this.fileName = nameFile;
     }
 
-    public int getStringcount() {
-        return stringcount;
+    public int getStringCount() {
+        return stringCount;
     }
 
-    public void setStringcount(int stringcount) {
-        this.stringcount = stringcount;
+    public void setStringCount(int stringCount) {
+        this.stringCount = stringCount;
     }
 
     public String getFileName() {

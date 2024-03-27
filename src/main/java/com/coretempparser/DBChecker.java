@@ -7,10 +7,10 @@ import java.util.Arrays;
 public class DBChecker {
     private static String[] columns;
 
-    private static String colCompName = MainClass.getColCompName();
+    private static final String colCompName = MainClass.getColCompName();
 
     public DBChecker() {
-        this.columns = MainClass.getColNames("");
+        columns = MainClass.getColNames("");
     }
 
     public boolean checkDB() throws SQLException {
@@ -50,7 +50,6 @@ public class DBChecker {
             stm = MainClass.connectionToDB.createStatement();
             resultSet = stm.executeQuery(queryText);
             resultSet.next();
-            Timestamp d = resultSet.getTimestamp(1);
             MainClass.addToLog("checking db is defined: positive");
             MainClass.addToLog("searching actual files to parsing");
             return true;
@@ -70,7 +69,7 @@ public class DBChecker {
 
         String queryText = QueryTextGenerator.getQueryText_CheckDBColumns();
 
-        int db_colCount = 0;
+        int db_colCount;
 
         try {
             stm = MainClass.connectionToDB.createStatement();
@@ -78,16 +77,16 @@ public class DBChecker {
             ResultSetMetaData metaData = resultSet.getMetaData();
             db_colCount = metaData.getColumnCount();
 
-            if (db_colCount < main_ColNames.length + 1) {  //+1 - because array colnames don't include column 'compname'
+            if (db_colCount < main_ColNames.length + 1) {  //+1 - because array colNames don't include column 'compname'
                 String[] db_ColNames = new String[db_colCount];
 
                 for (int i = 0; i < db_colCount; i++) {
                     db_ColNames[i] = metaData.getColumnName(i + 1);
                 }
 
-                for (int i = 0; i < main_ColNames.length; i++) {
-                    if (!Arrays.asList(db_ColNames).contains(main_ColNames[i])) {
-                        newColumns.add(main_ColNames[i]);
+                for (String mainColName : main_ColNames) {
+                    if (!Arrays.asList(db_ColNames).contains(mainColName)) {
+                        newColumns.add(mainColName);
                     }
                 }
 

@@ -18,9 +18,9 @@ public class DBReader {
         return resSel;
     }
 
-    private String tableName = MainClass.getTableName();
+    private final String tableName = MainClass.getTableName();
 
-    public ArrayList findComputersInDB() throws SQLException {
+    public ArrayList<String> findComputersInDB() throws SQLException {
 
         ArrayList<String> res = new ArrayList<>();
 
@@ -70,7 +70,7 @@ public class DBReader {
         String colTemp = MainClass.getColdb_temp();
         String colLoad = MainClass.getColdb_load();
         String colSpeed = MainClass.getColdb_speed();
-        String colCpuPower = MainClass.getColdb_cpupower();
+        String colCpuPower = MainClass.getColdb_cpuPower();
 
         for (String s : columns) {
             if (s.equals(colTime)) continue;

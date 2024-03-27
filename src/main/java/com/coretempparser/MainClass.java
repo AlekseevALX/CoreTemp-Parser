@@ -12,41 +12,32 @@ public class MainClass {
     public static MainClass mainObject;
     public static String computerName;
     public static volatile boolean dbChecked = false;
-    public static volatile int currentWorkingThread = 0;
-    public static volatile int countOfThreads = 0;
+    private static volatile int currentWorkingThread = 0;
+    private static volatile int countOfThreads = 0;
     public static volatile boolean done = true;
     public static boolean auto;
     public static volatile String log = "";
-    private static HashMap<String, String> userSettingsMap = new HashMap<>();
-    private static HashMap<String, String> systemPropertiesMap = new HashMap<>();
-    private static String ver = "1.0";
+    private static final HashMap<String, String> userSettingsMap = new HashMap<>();
+    private static final HashMap<String, String> systemPropertiesMap = new HashMap<>();
     private static int firstStringOfData;
     private static int[] columns;
-    private static String userSettings = "properties/UserSettings.properties";
-    private static String systemProperties = "properties/SystemProperties.properties";
+    private static final String userSettings = "properties/UserSettings.properties";
+    private static final String systemProperties = "properties/SystemProperties.properties";
     private static boolean propertiesLoaded = false;
     public static Connection connectionToDB = null;
     private static boolean logging = false;
     private static volatile Cache cache = new Cache();
 
     public static MainClass getInstance() {
-        if (mainObject == null) {
-            return new MainClass();
-        } else {
-            return mainObject;
-        }
+        return Objects.requireNonNullElseGet(mainObject, MainClass::new);
     }
 
     public static void setLogging(boolean logging) {
         MainClass.logging = logging;
     }
 
-    public static boolean getLogging() {
-        return logging;
-    }
-
     public static String getVer() {
-        return ver;
+        return "1.0";
     }
 
     public static HashMap<String, String> getUserSettingsMap() {
@@ -68,23 +59,55 @@ public class MainClass {
         }
     }
 
+    synchronized static void increaseCurrentWorkingThreads() {
+        currentWorkingThread++;
+    }
+
+    synchronized static void decreaseCurrentWorkingThread() {
+        currentWorkingThread--;
+    }
+
+    synchronized static void setCurrentWorkingThread(int a) {
+        currentWorkingThread = a;
+    }
+
+    public static int getCurrentWorkingThread(){
+        return currentWorkingThread;
+    }
+
+    synchronized static void increaseCountOfThreads() {
+        countOfThreads++;
+    }
+
+    synchronized static void decreaseCountOfThreads() {
+        countOfThreads--;
+    }
+
+    synchronized static void setCountOfThreads(int a) {
+        countOfThreads = a;
+    }
+
+    public static int getCountOfThreads() {
+        return countOfThreads;
+    }
+
     public static String getComputerName() {
         return computerName;
     }
 
     public static String getUrlDB() {
-        String res = new String();
+        String res = "";
         res = res.concat("jdbc:");
 
-        if (gettypeDB().toUpperCase().equals("PG")) {
+        if (getTypeDB().equalsIgnoreCase("PG")) {
             res = res.concat("postgresql://");
-        } else if (gettypeDB().toUpperCase().equals("MSQL")) {
+        } else if (getTypeDB().equalsIgnoreCase("MSQL")) {
             res = res.concat("mysql://");
         }
 
         res = res.concat(getIPDB())
                 .concat(":")
-                .concat(getportDB())
+                .concat(getPortDB())
                 .concat("/")
                 .concat(getDBName());
         return res;
@@ -98,11 +121,11 @@ public class MainClass {
         return userSettingsMap.get("DBName");
     }
 
-    public static String getportDB() {
+    public static String getPortDB() {
         return userSettingsMap.get("portDB");
     }
 
-    public static String gettypeDB() {
+    public static String getTypeDB() {
         return userSettingsMap.get("typeDB");
     }
 
@@ -138,7 +161,7 @@ public class MainClass {
         return systemPropertiesMap.get("db_core");
     }
 
-    public static String getColdb_cpupower() {
+    public static String getColdb_cpuPower() {
         return systemPropertiesMap.get("db_cpuPower");
     }
 
@@ -162,7 +185,7 @@ public class MainClass {
         return systemPropertiesMap.get("f_speed");
     }
 
-    public static String getColf_cpupower() {
+    public static String getColf_cpuPower() {
         return systemPropertiesMap.get("f_cpuPower");
     }
 
@@ -174,16 +197,12 @@ public class MainClass {
         return Integer.parseInt(userSettingsMap.get("countMinutesPerAutoGraphic"));
     }
 
-    public static Integer getMaxParcingThreads() {
-        return Integer.parseInt(userSettingsMap.get("maxParcingThreads"));
+    public static Integer getMaxParsingThreads() {
+        return Integer.parseInt(userSettingsMap.get("maxParsingThreads"));
     }
 
     public static Integer getCountOfCharPoint() {
         return Integer.parseInt(userSettingsMap.get("countOfCharPoint"));
-    }
-
-    public static int getCountOfCores(String compName) {
-        return cache.getCountOfCoresForOneComputer(compName);
     }
 
     public static boolean isPropertiesLoaded() {
@@ -213,16 +232,12 @@ public class MainClass {
         return cache.getColNamesForOneComputer(compName);
     }
 
-    public static void increaseElapsedTimeCounter(Long time) {
-        cache.setElapsedTime(cache.getElapsedTime() + time);
-    }
-
     public static void clearCache() {
         cache.clearCache();
     }
 
-    public static void setLastFile(Long filetime, Long position) {
-        cache.setLastFile(filetime, position);
+    public static void setLastFile(Long fileTime, Long position) {
+        cache.setLastFile(fileTime, position);
     }
 
     public static long[] getLastFileFromCache() {
@@ -289,7 +304,7 @@ public class MainClass {
             try {
                 properties.store(new FileOutputStream("target/" + userSettings), null); //DEBUG
             } catch (Exception e1) {
-
+                e1.printStackTrace();
             }
         }
 
@@ -302,7 +317,7 @@ public class MainClass {
             try {
                 properties.store(new FileOutputStream("target/" + systemProperties), null);
             } catch (Exception e1) {
-
+                e1.printStackTrace();
             }
         }
 
@@ -312,24 +327,24 @@ public class MainClass {
         if (!propertiesLoaded) loadProperties();
 
         if (args.length == 0) {
-            System.out.println("Start CoreTemp parcer without arguments");
+            System.out.println("Start CoreTemp parser without arguments");
         }
 
-        if (args.length > 0 && args[0].toUpperCase().equals("-a".toUpperCase())) {
-            System.out.println("Start auto parcing");
+        if (args.length > 0 && args[0].equalsIgnoreCase("-a")) {
+            System.out.println("Start auto parsing");
             MainClass mainClass = new MainClass();
-            mainClass.autoParcing();
+            mainClass.autoParsing();
         }
 
-        if (args.length > 0 && args[0].toUpperCase().equals("-p".toUpperCase())) {
-            System.out.println("Start single parcing");
+        if (args.length > 0 && args[0].equalsIgnoreCase("-p")) {
+            System.out.println("Start single parsing");
             MainClass mainClass = new MainClass();
             mainClass.startParseSession(false);
         }
 
     }
 
-    public void autoParcing() {
+    public void autoParsing() {
         startParseSession(true);
     }
 
@@ -343,8 +358,7 @@ public class MainClass {
         DBChecker dbChecker = new DBChecker();
 
         try {
-            if (dbChecker.checkDB()) MainClass.dbChecked = true;
-            else MainClass.dbChecked = false;
+            MainClass.dbChecked = dbChecker.checkDB();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -363,20 +377,20 @@ public class MainClass {
         try {
             stm = connectionToDB.createStatement();
         } catch (SQLException e) {
-            MainClass.addToLog(String.valueOf(e.getStackTrace()));
+            MainClass.addToLog(Arrays.toString(e.getStackTrace()));
             return;
         }
         try {
             stm.execute(queryText);
             MainClass.dbChecked = false;
         } catch (SQLException e) {
-            MainClass.addToLog(String.valueOf(e.getStackTrace()));
+            MainClass.addToLog(Arrays.toString(e.getStackTrace()));
             return;
         }
         MainClass.addToLog("Table " + tableName + " is deleted!");
     }
 
-    public static void addToLog(String log) {
+    public static synchronized void addToLog(String log) {
         if (!logging) return;
         MainClass.log = MainClass.log.concat(log).concat(System.lineSeparator());
     }
@@ -405,7 +419,7 @@ public class MainClass {
         } catch (SQLException e) {
             e.printStackTrace();
             MainClass.addToLog("Don't have connection to database!");
-            MainClass.addToLog(String.valueOf(e.getStackTrace()));
+            MainClass.addToLog(Arrays.toString(e.getStackTrace()));
             MainClass.done = true;
             return false;
         }
@@ -429,7 +443,7 @@ public class MainClass {
         File file = new File(directory);
 
         if (directory.equals("")) {
-            MainClass.addToLog("Directory to parce is not defined!");
+            MainClass.addToLog("Directory to parse is not defined!");
             MainClass.done = true;
             return new File[0];
         }
@@ -442,12 +456,14 @@ public class MainClass {
 
         File[] listFiles = file.listFiles(new MainClass.FileFilter(ext));
 
-        if (listFiles.length == 0) {
-            MainClass.addToLog("Finded 0 files in directory " + directory);
+        if (listFiles != null && listFiles.length == 0) {
+            MainClass.addToLog("Found 0 files in directory " + directory);
             MainClass.done = true;
             return listFiles;
+        } else if (listFiles != null) {
+            MainClass.addToLog("Found " + listFiles.length + " files.");
         } else {
-            MainClass.addToLog("Finded " + listFiles.length + " files.");
+            MainClass.addToLog("Found 0 files in directory " + directory);
         }
 
         return listFiles;
@@ -455,7 +471,7 @@ public class MainClass {
 
     public static class FileFilter implements FilenameFilter {
 
-        private String ext;
+        private final String ext;
 
         public FileFilter(String ext) {
             this.ext = ext;
@@ -473,7 +489,7 @@ class ParsingSession_thread extends Thread {
 
     private static Date lastDate = new Date(); //last date, which has been written in database
 
-    private static HashMap<Long, String> mapFiles = new HashMap<>();
+    private static final HashMap<Long, String> mapFiles = new HashMap<>();
 
     public ParsingSession_thread(boolean auto) {
         MainClass.auto = auto;
@@ -511,10 +527,10 @@ class ParsingSession_thread extends Thread {
             }
 
             if (dbDefined && lastTimeInBase > 0) {
-                Iterator iterator = mapFiles.entrySet().iterator();
+                Iterator<Map.Entry<Long, String>> iterator = mapFiles.entrySet().iterator();
 
                 while (iterator.hasNext()) {
-                    Map.Entry<Long, String> entry = (Map.Entry<Long, String>) iterator.next();
+                    Map.Entry<Long, String> entry = iterator.next();
                     if (entry.getKey() < currentDateOfStartingFile) {
                         iterator.remove();
                     }
@@ -542,10 +558,11 @@ class ParsingSession_thread extends Thread {
                 }
                 continue;
             }
-
+            MainClass.addToLog("************************************************** ");
+            MainClass.addToLog("Start new parsing session ************************ ");
             MainClass.done = false;
 
-            int maxParcingThreads = MainClass.getMaxParcingThreads();
+            int maxParsingThreads = MainClass.getMaxParsingThreads();
 
             long[] lastFile = MainClass.getLastFileFromCache();
 
@@ -572,28 +589,28 @@ class ParsingSession_thread extends Thread {
 
             for (Map.Entry<Long, String> entry : mapFiles.entrySet()) {
 
-                ParsingFile_thread strtSc = new ParsingFile_thread(entry.getValue(), lastFile, "Parcer " + a);
+                ParsingFile_thread fileParseThread = new ParsingFile_thread(entry.getValue(), lastFile, "ParserThread " + a);
 
-                threads.add(strtSc);
+                threads.add(fileParseThread);
                 a += 1;
-                MainClass.countOfThreads += 1;
+                MainClass.increaseCountOfThreads();
             }
 
             for (Thread t : threads) {
-                while (MainClass.currentWorkingThread >= maxParcingThreads) {
+                while (MainClass.getCurrentWorkingThread() >= maxParsingThreads) {
                     //wait
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
-
+                        e.printStackTrace();
                     }
                 }
                 t.start();
-                MainClass.currentWorkingThread += 1;
+                MainClass.increaseCurrentWorkingThreads();
 
             }
 
-            if (MainClass.countOfThreads == 0) {
+            if (MainClass.getCountOfThreads() == 0) {
                 MainClass.done = true;
                 MainClass.closeConnection();
             }
@@ -604,20 +621,19 @@ class ParsingSession_thread extends Thread {
 
     public static long parseFileNameToDate(String s) {
         String[] spltStr = s.split("CT-Log");
-        spltStr[1] = spltStr[1].substring(1, spltStr[1].length());
-        Integer hour = Integer.parseInt(spltStr[1].substring(11, 13));
-        Integer minute = Integer.parseInt(spltStr[1].substring(14, 16));
-        Integer second = Integer.parseInt(spltStr[1].substring(17, 19));
+        spltStr[1] = spltStr[1].substring(1);
+        int hour = Integer.parseInt(spltStr[1].substring(11, 13));
+        int minute = Integer.parseInt(spltStr[1].substring(14, 16));
+        int second = Integer.parseInt(spltStr[1].substring(17, 19));
 
-        Integer month = Integer.parseInt(spltStr[1].substring(5, 7));
-        Integer date = Integer.parseInt(spltStr[1].substring(8, 10));
-        Integer year = Integer.parseInt(spltStr[1].substring(0, 4));
+        int month = Integer.parseInt(spltStr[1].substring(5, 7));
+        int date = Integer.parseInt(spltStr[1].substring(8, 10));
+        int year = Integer.parseInt(spltStr[1].substring(0, 4));
 
         GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
         calendar.set(year, month - 1, date, hour, minute, second);
-        long res = calendar.getTimeInMillis() / 1000;
 
-        return res;
+        return calendar.getTimeInMillis() / 1000;
     }
 
     public static void findLastDateInBase() {
@@ -640,7 +656,7 @@ class ParsingSession_thread extends Thread {
         }
 
         try {
-            if (resultSet.next()) {
+            if (resultSet != null && resultSet.next()) {
                 lastDate = resultSet.getTimestamp(1);
             } else {
                 lastDate = null;

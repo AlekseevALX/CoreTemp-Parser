@@ -38,17 +38,17 @@ public class AppController implements Initializable {
     @FXML
     private TextField dateToS;
     @FXML
-    private ChoiceBox compChoice;
+    private ChoiceBox<String> compChoice;
     @FXML
     private Label thisCompName;
     @FXML
-    LineChart graphicTemp;
+    LineChart<String, Float> graphicTemp;
     @FXML
-    LineChart graphicLoad;
+    LineChart<String, Float> graphicLoad;
     @FXML
-    LineChart graphicSpeed;
+    LineChart<String, Float> graphicSpeed;
     @FXML
-    LineChart graphicPower;
+    LineChart<String, Float> graphicPower;
     @FXML
     private TextArea textLog;
     @FXML
@@ -67,11 +67,11 @@ public class AppController implements Initializable {
     DBReader dbReader = new DBReader();
     ChartsFiller chartsFiller;
 
-    private static String choosenComputer;
-    private static HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData = new HashMap();
+    private static String chosenComputer;
+    private static HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData = new HashMap<>();
     private static boolean chartDataIsDefined = false;
-
-    private static String computerName = MainClass.getComputerName();
+    private static final String computerName = MainClass.getComputerName();
+    private static boolean autoRefreshCharts = false;
     Timeline tl;
     Timeline autoRefreshLineCharts_tl;
     Timeline autoParse_tl;
@@ -89,10 +89,10 @@ public class AppController implements Initializable {
     public void refillForm() {
         MainClass.setLogging(true);
         thisCompName.setText(computerName);
-        String choosenComp = "";
+        String chosenComp = "";
 
         if (compChoice.getValue() != null) {
-            choosenComp = compChoice.getValue().toString();
+            chosenComp = compChoice.getValue();
         }
 
         if (!MainClass.dbChecked) {
@@ -122,7 +122,7 @@ public class AppController implements Initializable {
 
         compChoice.setItems(oList);
 
-        compChoice.setValue(choosenComp);
+        compChoice.setValue(chosenComp);
     }
 
     public void setInitialFormValues() {
@@ -144,13 +144,17 @@ public class AppController implements Initializable {
         AppController.chartDataIsDefined = chartDataIsDefined;
     }
 
+    public static boolean getAutoRefreshCharts() {
+        return autoRefreshCharts;
+    }
+
     @FXML
     protected void onStartButtonClick() {
         this.toParse();
     }
 
     @FXML
-    protected void onAutoparseButtonClick() {
+    protected void onAutoParseButtonClick() {
         startAutoParse();
     }
 
@@ -167,16 +171,14 @@ public class AppController implements Initializable {
             MainClass.log = "";
             MainClass.addToLog("Welcome to the jungle!!");
             MainClass mainClass = new MainClass();
-            mainClass.autoParcing();
+            mainClass.autoParsing();
 
             KeyFrame kfAutoParse;
             if (MainClass.auto) {
                 kfAutoParse = new KeyFrame(Duration.millis(1000.0D),
-                        (actionEvent) -> {
-                            this.autoParse();
-                        },
+                        (actionEvent) -> this.autoParse(),
                         new KeyValue[0]);
-                this.autoParse_tl = new Timeline(new KeyFrame[]{kfAutoParse});
+                this.autoParse_tl = new Timeline(kfAutoParse);
                 this.autoParse_tl.setCycleCount(Timeline.INDEFINITE);
                 this.autoParse_tl.play();
             }
@@ -188,16 +190,16 @@ public class AppController implements Initializable {
     private void startAutoRefresh() {
         if (!checkChosenCompName()) return;
         if (autoRefresh_btn.isSelected()) {
+            autoRefreshCharts = true;
             KeyFrame kfRefresh;
             kfRefresh = new KeyFrame(Duration.millis(1000.0D),
-                    (actionEvent) -> {
-                        this.autoRefreshLineCharts();
-                    },
+                    (actionEvent) -> this.autoRefreshLineCharts(),
                     new KeyValue[0]);
-            this.autoRefreshLineCharts_tl = new Timeline(new KeyFrame[]{kfRefresh});
+            this.autoRefreshLineCharts_tl = new Timeline(kfRefresh);
             this.autoRefreshLineCharts_tl.setCycleCount(Timeline.INDEFINITE);
             this.autoRefreshLineCharts_tl.play();
         } else {
+            autoRefreshCharts = false;
             if (this.autoRefreshLineCharts_tl != null)
                 this.autoRefreshLineCharts_tl.stop();
         }
@@ -210,7 +212,7 @@ public class AppController implements Initializable {
         propertiesApplication.start(stage);
     }
 
-    public void showLogSetted() {
+    public void showLogOn() {
         MainClass.setLogging(showLog.isSelected());
         if (!showLog.isSelected()) {
             MainClass.clearLog();
@@ -221,25 +223,23 @@ public class AppController implements Initializable {
     public void onStopButtonClick() {
         MainClass.done = true;
         MainClass.auto = false;
-        MainClass.countOfThreads = 0;
-        MainClass.currentWorkingThread = 0;
+        MainClass.setCountOfThreads(0);
+        MainClass.setCurrentWorkingThread(0);
         GregorianCalendar cal = new GregorianCalendar();
 
         MainClass.addToLog("User stopped the process " + cal.getTime());
     }
 
     protected void toParse() {
-        if (!MainClass.done) return;
+        if (!MainClass.done || MainClass.auto) return;
         MainClass.setLogging(showLog.isSelected());
         MainClass.log = "";
         MainClass.addToLog("Welcome to the jungle!!");
         MainClass mainObject = MainClass.getInstance();
-        MainClass.countOfThreads = 0;
+        MainClass.setCountOfThreads(0);
         mainObject.startParseSession(false);
-        KeyFrame kf = new KeyFrame(Duration.millis(100.0D), (actionEvent) -> {
-            this.waitTillTheEnd();
-        }, new KeyValue[0]);
-        this.tl = new Timeline(new KeyFrame[]{kf});
+        KeyFrame kf = new KeyFrame(Duration.millis(100.0D), (actionEvent) -> this.waitTillTheEnd(), new KeyValue[0]);
+        this.tl = new Timeline(kf);
         this.tl.setCycleCount(Timeline.INDEFINITE);
         this.tl.play();
     }
@@ -306,11 +306,11 @@ public class AppController implements Initializable {
 
     @FXML
     protected void mainOKButtonClicked() {
-        if (!checkChosenCompName()) {
+        if (!checkChosenCompName() || autoRefresh_btn.isSelected()) {
             return;
         }
 
-        this.refreshLinearChartToPeriod(compChoice.getValue().toString());
+        this.refreshLinearChartToPeriod(compChoice.getValue());
     }
 
     @FXML
@@ -365,7 +365,7 @@ public class AppController implements Initializable {
             Integer countMinutesPerAutoGraphic = MainClass.getCountMinutesPerAutoGraphic();
             calendar = new GregorianCalendar();
             date2 = calendar.getTime();
-            Long timeInMillis = calendar.getTimeInMillis();
+            long timeInMillis = calendar.getTimeInMillis();
             timeInMillis = timeInMillis - (long) (countMinutesPerAutoGraphic * 60 * 1000);
             calendar.setTimeInMillis(timeInMillis);
             date1 = calendar.getTime();
@@ -396,7 +396,7 @@ public class AppController implements Initializable {
                 s = s.substring(0, 2);
             }
 
-            Integer a;
+            int a;
             if (!variant.equals("M") && !variant.equals("S")) {
                 if (variant.equals("H")) {
                     a = Integer.parseInt(s);
@@ -439,7 +439,7 @@ public class AppController implements Initializable {
 
     private void autoRefreshLineCharts() {
         checkChosenCompName();
-        this.refreshLinearChartAuto(compChoice.getValue().toString());
+        this.refreshLinearChartAuto(compChoice.getValue());
     }
 
     private void autoParse() {
@@ -466,14 +466,14 @@ public class AppController implements Initializable {
             return false;
         }
 
-        if (choosenComputer == null || choosenComputer.equals("")) {
-            choosenComputer = compChoice.getValue().toString();
+        if (chosenComputer == null || chosenComputer.equals("")) {
+            chosenComputer = compChoice.getValue();
         }
 
-        if (!choosenComputer.equals(compChoice.getValue().toString())) {
+        if (!chosenComputer.equals(compChoice.getValue())) {
             chartData = new HashMap<>();
             setChartDataIsDefined(false);
-            choosenComputer = compChoice.getValue().toString();
+            chosenComputer = compChoice.getValue();
         }
         return true;
     }

@@ -11,12 +11,12 @@ import java.util.*;
 public class ChartsFiller {
 
     DBReader dbReader;
-    LineChart graphicTemp;
-    LineChart graphicLoad;
-    LineChart graphicSpeed;
-    LineChart graphicPower;
+    LineChart<String, Float> graphicTemp;
+    LineChart<String, Float> graphicLoad;
+    LineChart<String, Float> graphicSpeed;
+    LineChart<String, Float> graphicPower;
 
-    public ChartsFiller(LineChart graphicTemp, LineChart graphicLoad, LineChart graphicSpeed, LineChart graphicPower, DBReader dbReader) {
+    public ChartsFiller(LineChart<String, Float> graphicTemp, LineChart<String, Float> graphicLoad, LineChart<String, Float> graphicSpeed, LineChart<String, Float> graphicPower, DBReader dbReader) {
         this.graphicTemp = graphicTemp;
         this.graphicLoad = graphicLoad;
         this.graphicSpeed = graphicSpeed;
@@ -34,7 +34,7 @@ public class ChartsFiller {
         String colTemp = MainClass.getColdb_temp();
         String colLoad = MainClass.getColdb_load();
         String colSpeed = MainClass.getColdb_speed();
-        String colPower = MainClass.getColdb_cpupower();
+        String colPower = MainClass.getColdb_cpuPower();
 
         while (resSel.next()) {
             Date date = resSel.getTimestamp(colTime);
@@ -45,7 +45,7 @@ public class ChartsFiller {
             fillingOneChart(chartData, resSel, date, colPower);
         }
 
-        if (MainClass.getCountOfCharPoint() > 0) {
+        if (MainClass.getCountOfCharPoint() > 0 && !AppController.getAutoRefreshCharts()) {
             roundTheGraphToTheNumberOfPoints(chartData);
         }
     }
@@ -55,7 +55,7 @@ public class ChartsFiller {
 
         String field;
 
-        Float val;
+        float val;
 
         if (mapCores != null) {
             for (Map.Entry<String, SortedMap<Date, Float>> entry : mapCores.entrySet()) {
@@ -176,7 +176,7 @@ public class ChartsFiller {
         }
     }
 
-    public HashMap<String, HashMap<String, SortedMap<Date, Float>>> prepareChartData(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData, String compName) {
+    public void prepareChartData(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData, String compName) {
 
         try {
             dbReader.readFromDB(chartData, compName);
@@ -189,30 +189,30 @@ public class ChartsFiller {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return chartData;
+
     }
 
     public void fillingChartsData(HashMap<String, HashMap<String, SortedMap<Date, Float>>> chartData) {
         String colTemp = MainClass.getColdb_temp();
         String colLoad = MainClass.getColdb_load();
         String colSpeed = MainClass.getColdb_speed();
-        String colCPUPower = MainClass.getColdb_cpupower();
+        String colCPUPower = MainClass.getColdb_cpuPower();
         HashMap<String, SortedMap<Date, Float>> chartTemp = chartData.get(colTemp);
         HashMap<String, SortedMap<Date, Float>> chartLoad = chartData.get(colLoad);
         HashMap<String, SortedMap<Date, Float>> chartSpeed = chartData.get(colSpeed);
         HashMap<String, SortedMap<Date, Float>> chartCPUPower = chartData.get(colCPUPower);
 
         clearGraphics();
-        SortedMap coreMap;
-        XYChart.Series series;
+        SortedMap<Date, Float> coreMap;
+        XYChart.Series<String, Float> series;
 
         if (chartTemp != null) {
             for (Map.Entry<String, SortedMap<Date, Float>> entry : chartTemp.entrySet()) {
                 coreMap = entry.getValue();
                 if (coreMap.size() > 0) {
-                    series = new XYChart.Series();
+                    series = new XYChart.Series<>();
                     series.setName(entry.getKey());
-                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicTemp);
+                    this.fillForOneCore(coreMap, series, this.graphicTemp);
                 }
             }
         }
@@ -221,9 +221,9 @@ public class ChartsFiller {
             for (Map.Entry<String, SortedMap<Date, Float>> entry : chartLoad.entrySet()) {
                 coreMap = entry.getValue();
                 if (coreMap.size() > 0) {
-                    series = new XYChart.Series();
+                    series = new XYChart.Series<>();
                     series.setName(entry.getKey());
-                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicLoad);
+                    this.fillForOneCore(coreMap, series, this.graphicLoad);
                 }
             }
         }
@@ -232,9 +232,9 @@ public class ChartsFiller {
             for (Map.Entry<String, SortedMap<Date, Float>> entry : chartSpeed.entrySet()) {
                 coreMap = entry.getValue();
                 if (coreMap.size() > 0) {
-                    series = new XYChart.Series();
+                    series = new XYChart.Series<>();
                     series.setName(entry.getKey());
-                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicSpeed);
+                    this.fillForOneCore(coreMap, series, this.graphicSpeed);
                 }
             }
         }
@@ -243,16 +243,16 @@ public class ChartsFiller {
             for (Map.Entry<String, SortedMap<Date, Float>> entry : chartCPUPower.entrySet()) {
                 coreMap = entry.getValue();
                 if (coreMap.size() > 0) {
-                    series = new XYChart.Series();
+                    series = new XYChart.Series<>();
                     series.setName(entry.getKey());
-                    this.fillForOneCore(entry.getKey(), coreMap, series, this.graphicPower);
+                    this.fillForOneCore(coreMap, series, this.graphicPower);
                 }
             }
         }
 
     }
 
-    private void fillForOneCore(String s, SortedMap<Date, Float> coreMap, XYChart.Series series, LineChart chart) {
+    private void fillForOneCore(SortedMap<Date, Float> coreMap, XYChart.Series<String, Float> series, LineChart<String, Float> chart) {
         String dateSer;
         Float value;
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
@@ -260,7 +260,7 @@ public class ChartsFiller {
         for (Map.Entry<Date, Float> entry : coreMap.entrySet()) {
             dateSer = sdf.format(entry.getKey());
             value = entry.getValue();
-            series.getData().add(new XYChart.Data(dateSer, value));
+            series.getData().add(new XYChart.Data<>(dateSer, value));
         }
 
         chart.getData().add(series);

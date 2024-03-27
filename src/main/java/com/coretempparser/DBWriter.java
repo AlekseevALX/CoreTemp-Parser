@@ -6,8 +6,8 @@ import java.util.Date;
 
 
 public class DBWriter {
-    private FileData fileData;
-    private String tableName = MainClass.getTableName();
+    private final FileData fileData;
+    private final String tableName = MainClass.getTableName();
 
     ResultSet resSel;
 
@@ -15,7 +15,7 @@ public class DBWriter {
         this.fileData = fileData;
     }
 
-    public void writeToBase() throws ClassNotFoundException, SQLException {
+    public void writeToBase() throws SQLException {
 
         String compName = MainClass.getComputerName();
 
@@ -40,12 +40,12 @@ public class DBWriter {
         String[] oneString;
 
 
-        for (HashMap.Entry pair : strings.entrySet()) {
+        for (HashMap.Entry<Integer, String[]> pair : strings.entrySet()) {
             if (MainClass.done) {
                 MainClass.addToLog("Can't write record to base, process is stopped! Thread:" + Thread.currentThread().getName());
                 return;
             }
-            oneString = (String[]) pair.getValue();
+            oneString = pair.getValue();
             setupParameters(stm, oneString, compName);
             try {
                 stm.executeUpdate();
@@ -78,7 +78,7 @@ public class DBWriter {
 
         if (resSel.getFetchSize() == strings.size()) {
             fileData.setStrings(new HashMap<>());
-            fileData.setStringcount(0);
+            fileData.setStringCount(0);
             stm.close();
             return;
         }
@@ -126,7 +126,7 @@ public class DBWriter {
             e.printStackTrace();
         }
 
-        java.sql.Timestamp d2 = parseDateToTimeStamp(fileData.getStrings().get(fileData.getStringcount() - 1)[0], fileData.getFileName());
+        java.sql.Timestamp d2 = parseDateToTimeStamp(fileData.getStrings().get(fileData.getStringCount() - 1)[0], fileData.getFileName());
 
         try {
             stm.setTimestamp(1, d1);
@@ -161,20 +161,20 @@ public class DBWriter {
             }
         }
 
-        this.fileData.setStringcount(strings.size());
+        this.fileData.setStringCount(strings.size());
     }
 
     private static java.sql.Timestamp parseDateToTimeStamp(String dateString, String filename) throws ArrayIndexOutOfBoundsException {
         //16:07:11 03/06/22
-        String[] spltDate;
-        String[] spltTime;
-        String[] spltDay;
+        String[] splitDate;
+        String[] splitTime;
+        String[] splitDay;
 
-        spltDate = dateString.split(" ");
+        splitDate = dateString.split(" ");
 
         try {
-            spltTime = spltDate[0].split(":");
-            spltDay = spltDate[1].split("/");
+            splitTime = splitDate[0].split(":");
+            splitDay = splitDate[1].split("/");
         } catch (ArrayIndexOutOfBoundsException e) {
             MainClass.addToLog("Bad data in file " + filename);
             MainClass.addToLog("Original string is " + dateString);
@@ -182,13 +182,13 @@ public class DBWriter {
         }
 
 
-        Integer hour = Integer.parseInt(spltTime[0]);
-        Integer minute = Integer.parseInt(spltTime[1]);
-        Integer second = Integer.parseInt(spltTime[2]);
+        int hour = Integer.parseInt(splitTime[0]);
+        int minute = Integer.parseInt(splitTime[1]);
+        int second = Integer.parseInt(splitTime[2]);
 
-        Integer month = Integer.parseInt(spltDay[0]);
-        Integer date = Integer.parseInt(spltDay[1]);
-        Integer year = 2000 + Integer.parseInt(spltDay[2]); //adding Vladivostok
+        int month = Integer.parseInt(splitDay[0]);
+        int date = Integer.parseInt(splitDay[1]);
+        int year = 2000 + Integer.parseInt(splitDay[2]); //adding Vladivostok
 
         GregorianCalendar calendar = new GregorianCalendar(); ///.set(year, month, date, hour, minute, second);
         calendar.set(year, month - 1, date, hour, minute, second);

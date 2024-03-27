@@ -5,25 +5,21 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Cache {
-    private HashMap<String, String[]> colNames = new HashMap<>();
+    private final HashMap<String, String[]> colNames = new HashMap<>();
 
-    private HashMap<String, Integer> countOfCores = new HashMap<>();
-
-    private Long elapsedTime = (long) 0;
+    private final HashMap<String, Integer> countOfCores = new HashMap<>();
 
     //lastFile[0] - file time in millis (Date dateFile.getTime())
     //lastFile[1] - index of position, where file reading had stopped last time
-    private long[] lastFile = new long[2];
+    private final long[] lastFile = new long[2];
 
     public Cache() {
-        this.lastFile[0] = 0;
-        this.lastFile[1] = 0;
     }
 
-    public void setLastFile(Long filetime, Long position) {
+    public void setLastFile(Long fileTime, Long position) {
         synchronized (Cache.class) {
-            if (filetime >= lastFile[0]) {
-                lastFile[0] = filetime;
+            if (fileTime >= lastFile[0]) {
+                lastFile[0] = fileTime;
                 lastFile[1] = position;
             }
         }
@@ -31,18 +27,6 @@ public class Cache {
 
     public long[] getLastFile() {
         return lastFile;
-    }
-
-    public Long getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public void setElapsedTime(Long elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
-
-    public void clearElapsedTime() {
-        elapsedTime = (long) 0;
     }
 
     public String[] getColNamesForOneComputer(String compName) {
@@ -100,25 +84,23 @@ public class Cache {
 
     private Integer defineCountOfCores(String[] columns) {
         int currCore = 0;
-        int countOfCores = 0;
+        int countOfCores;
         String colCore = MainClass.getColdb_core();
 
-        if (countOfCores == 0) {
-            for (String s : columns) {
-                if (s.length() < 5) continue;
-                if ((s.toUpperCase().contains(colCore.toUpperCase())) && Integer.parseInt(s.substring(4, 5)) > currCore) {
-                    currCore = Integer.parseInt(s.substring(4, 5));
-                }
+        for (String s : columns) {
+            if (s.length() < 5) continue;
+            if ((s.toUpperCase().contains(colCore.toUpperCase())) && Integer.parseInt(s.substring(4, 5)) > currCore) {
+                currCore = Integer.parseInt(s.substring(4, 5));
             }
-            countOfCores = currCore + 1;
         }
+        countOfCores = currCore + 1;
+
         return countOfCores;
     }
 
     public void clearCache() {
         colNames.clear();
         countOfCores.clear();
-        elapsedTime = (long) 0;
         lastFile[0] = 0;
         lastFile[1] = 0;
     }

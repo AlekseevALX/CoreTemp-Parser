@@ -9,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -64,7 +63,7 @@ public class AppControllerProperties implements Initializable {
     @FXML
     private TextField countMinutesPerAutoGraphic;
     @FXML
-    private TextField maxParcingThreads;
+    private TextField maxParsingThreads;
     @FXML
     private TextField tableName;
     @FXML
@@ -93,10 +92,10 @@ public class AppControllerProperties implements Initializable {
         portDB.setText(userProp.get("portDB"));
 
         try {
-            if (userProp.get("typeDB").toUpperCase().equals("PG")) {
+            if (userProp.get("typeDB").equalsIgnoreCase("PG")) {
                 PG.setSelected(true);
                 MSQL.setSelected(false);
-            } else if (userProp.get("typeDB").toUpperCase().equals("MSQL")) {
+            } else if (userProp.get("typeDB").equalsIgnoreCase("MSQL")) {
                 MSQL.setSelected(true);
                 PG.setSelected(false);
             }
@@ -109,7 +108,7 @@ public class AppControllerProperties implements Initializable {
         directoryWithCTLogs.setText(userProp.get("directoryWithCTLogs"));
         countOfCharPoint.setText(userProp.get("countOfCharPoint"));
         countMinutesPerAutoGraphic.setText(userProp.get("countMinutesPerAutoGraphic"));
-        maxParcingThreads.setText(userProp.get("maxParcingThreads"));
+        maxParsingThreads.setText(userProp.get("maxParsingThreads"));
         tableName.setText(userProp.get("tableName"));
 
         //system
@@ -142,7 +141,7 @@ public class AppControllerProperties implements Initializable {
         PG.setSelected(false);
     }
 
-    public void onMouseClickedAcceptButton() throws IOException {
+    public void onMouseClickedAcceptButton() {
         HashMap<String, String> userProp = MainClass.getUserSettingsMap();
         HashMap<String, String> sysSett = MainClass.getSystemPropertiesMap();
 
@@ -157,6 +156,11 @@ public class AppControllerProperties implements Initializable {
         userProp.put("loginDB", loginDB.getText());
         userProp.put("passwordDB", passwordDB.getText());
         userProp.put("directoryWithCTLogs", directoryWithCTLogs.getText());
+
+        userProp.put("countOfCharPoint", countOfCharPoint.getText());
+        userProp.put("countMinutesPerAutoGraphic", countMinutesPerAutoGraphic.getText());
+        userProp.put("maxParsingThreads", maxParsingThreads.getText());
+        userProp.put("tableName", tableName.getText());
 
         sysSett.put("f_time", f_colTime.getText());
         sysSett.put("f_temp", f_colTemp.getText());
@@ -174,13 +178,7 @@ public class AppControllerProperties implements Initializable {
         sysSett.put("db_core", db_core.getText());
         sysSett.put("db_cpuPower", db_cpuPower.getText());
 
-        userProp.put("countOfCharPoint", countOfCharPoint.getText());
-        userProp.put("countMinutesPerAutoGraphic", countMinutesPerAutoGraphic.getText());
-        userProp.put("maxParcingThreads", maxParcingThreads.getText());
-        userProp.put("tableName", tableName.getText());
-
         MainClass.closeConnection();
-        MainClass.clearCache();
 
         MainClass.saveProperties();
         MainClass.loadProperties();
