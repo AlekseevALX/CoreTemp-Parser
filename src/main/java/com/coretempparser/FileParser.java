@@ -4,8 +4,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -17,89 +15,6 @@ public class FileParser {
         fd = fileParsing_withRandomAccess(fileName, lastFile);
 
         return fd;
-    }
-
-    public static FileData fileParsing_withCSVRecord(String file) {
-
-        FileData dataOfFile = new FileData(file);
-
-        int[] columns = MainClass.getColumns();
-        String[] dataString;
-
-        int startStringNumber = MainClass.getFirstStringOfData();
-        int initCh = 1;
-        int ch = 0;
-
-        HashMap<Integer, String[]> readedRecords = new HashMap<>();
-        try (Reader in = new FileReader(file)) {
-            Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
-
-            for (CSVRecord record : records) {
-                dataString = new String[columns.length];
-
-                if (initCh < startStringNumber) {
-                    initCh++;
-                    continue;
-                }
-
-                if (record.values().length < dataString.length) continue;
-
-                for (int i = 0; i < dataString.length; i++) {
-                    dataString[i] = record.get(columns[i]);
-                }
-
-                readedRecords.put(ch, dataString);
-
-                ch++;
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return dataOfFile;
-        }
-
-        dataOfFile.setStrings(readedRecords);
-        return dataOfFile;
-    }
-
-    public static FileData fileParsing_withBufferedReader(String file, long currfTime) {
-
-        FileData dataOfFile = new FileData(file);
-
-        int[] columns = MainClass.getColumns();
-        String[] dataString;
-
-        int startStringNumber = MainClass.getFirstStringOfData();
-        int initCh = 1;
-        int ch = 0;
-
-        HashMap<Integer, String[]> readedRecords = new HashMap<>();
-        try {
-            byte[] buf = Files.readAllBytes(Paths.get(file));
-            String readedFile = new String(buf);
-            String[] spltStr_file = readedFile.split(System.lineSeparator());
-            String[] str;
-            for (String record : spltStr_file) {
-                str = record.split(",");
-                dataString = new String[columns.length];
-                if (initCh < startStringNumber) {
-                    initCh++;
-                    continue;
-                }
-                if (str.length < dataString.length) continue;
-                for (int i = 0; i < dataString.length; i++) {
-                    dataString[i] = str[columns[i]];
-                }
-                readedRecords.put(ch, dataString);
-                ch++;
-            }
-            MainClass.setLastFile(currfTime, (long) buf.length);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        dataOfFile.setStrings(readedRecords);
-        return dataOfFile;
     }
 
     public static FileData fileParsing_withRandomAccess(String file, long[] lastFile) {
