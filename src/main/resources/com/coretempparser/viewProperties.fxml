@@ -11,18 +11,18 @@
       <content>
          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="225.0" prefWidth="600.0">
             <children>
-               <TextField id="IPDB" fx:id="IPDB" layoutX="225.0" layoutY="14.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="DBName" fx:id="DBName" layoutX="225.0" layoutY="39.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="portDB" fx:id="portDB" layoutX="225.0" layoutY="64.0" prefHeight="25.0" prefWidth="290.0" />
-               <RadioButton fx:id="PG" layoutX="225.0" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedPG" text="Postgres" />
-               <RadioButton fx:id="MSQL" layoutX="325" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedMSQL" text="MySQL" />
-               <TextField id="loginDB" fx:id="loginDB" layoutX="225.0" layoutY="114.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="passwordDB" fx:id="passwordDB" layoutX="225.0" layoutY="139.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="directoryWithCTLogs" fx:id="directoryWithCTLogs" layoutX="225.0" layoutY="164.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="countOfCharPoint" fx:id="countOfCharPoint" layoutX="225.0" layoutY="189.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="countMinutesPerAutoGraphic" fx:id="countMinutesPerAutoGraphic" layoutX="225.0" layoutY="214.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="maxParcingThreads" fx:id="maxParsingThreads" layoutX="225.0" layoutY="239.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="tableName" fx:id="tableName" layoutX="225.0" layoutY="264.0" />
+               <TextField id="IPDB" fx:id="IPDB" layoutX="350.0" layoutY="14.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="DBName" fx:id="DBName" layoutX="350.0" layoutY="39.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="portDB" fx:id="portDB" layoutX="350.0" layoutY="64.0" prefHeight="25.0" prefWidth="290.0" />
+               <RadioButton fx:id="PG" layoutX="350.0" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedPG" text="Postgres" />
+               <RadioButton fx:id="MSQL" layoutX="450" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedMSQL" text="MySQL" />
+               <TextField id="loginDB" fx:id="loginDB" layoutX="350.0" layoutY="114.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="passwordDB" fx:id="passwordDB" layoutX="350.0" layoutY="139.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="directoryWithCTLogs" fx:id="directoryWithCTLogs" layoutX="350.0" layoutY="164.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="countOfCharPoint" fx:id="countOfCharPoint" layoutX="350.0" layoutY="189.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="countMinutesPerAutoGraphic" fx:id="countMinutesPerAutoGraphic" layoutX="350.0" layoutY="214.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="maxParcingThreads" fx:id="maxParsingThreads" layoutX="350.0" layoutY="239.0" prefHeight="25.0" prefWidth="290.0" />
+               <TextField id="tableName" fx:id="tableName" layoutX="350.0" layoutY="264.0" />
                <Label layoutX="14.0" layoutY="18.0" text="DataBase IP:" />
                <Label layoutX="14.0" layoutY="43.0" text="DataBase name:" />
                <Label layoutX="14.0" layoutY="68.0" text="DataBase port:" />
@@ -30,12 +30,12 @@
                <Label layoutX="14.0" layoutY="118.0" text="DataBase login:" />
                <Label layoutX="14.0" layoutY="143.0" text="DataBase password:" />
                <Label layoutX="14.0" layoutY="168.0" text="Directory that contains CoreTemp logs:" />
-               <Label layoutX="14.0" layoutY="192.0" text="Max count of points on charts:" />
-               <Label layoutX="14.0" layoutY="217.0" text="Count of minutes, viewing in the charts:" />
+               <Label layoutX="14.0" layoutY="192.0" text="Max count of points on charts (only for non-automatic mode):" />
+               <Label layoutX="14.0" layoutY="217.0" text="Count of minutes, viewing in the charts (only for auto refresh):" />
                <Label layoutX="14.0" layoutY="242.0" text="Max count of thread for parcing:" />
                <Label layoutX="14.0" layoutY="267.0" text="Table name:" />
                <Button fx:id="checkCon" layoutX="14.0" layoutY="293.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedCheckConnection" text="Check connection" />
-               <Label fx:id="checkConnectionResult" layoutX="225.0" layoutY="293.0" text="checkResult" />
+               <Label fx:id="checkConnectionResult" layoutX="350.0" layoutY="293.0" text="checkResult" />
 
             </children></AnchorPane>
       </content>
