@@ -261,7 +261,7 @@ public class MainClass {
             properties.load(new FileInputStream(userSettings));
         } catch (Exception e) {
             try {
-                properties.load(new FileInputStream("target/" + userSettings));
+                properties.load(new FileInputStream("CTP/" + userSettings));
             } catch (Exception e1) {
                 //none
             }
@@ -279,7 +279,7 @@ public class MainClass {
             properties.load(new FileInputStream(systemProperties));
         } catch (Exception e) {
             try {
-                properties.load(new FileInputStream("target/" + systemProperties));
+                properties.load(new FileInputStream("CTP/" + systemProperties));
             } catch (Exception e1) {
                 //none
             }
@@ -302,7 +302,7 @@ public class MainClass {
             properties.store(new FileOutputStream(userSettings), null);
         } catch (Exception e) {
             try {
-                properties.store(new FileOutputStream("target/" + userSettings), null); //DEBUG
+                properties.store(new FileOutputStream("CTP/" + userSettings), null); //DEBUG
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -315,7 +315,7 @@ public class MainClass {
             properties.store(new FileOutputStream(systemProperties), null);
         } catch (Exception e) {
             try {
-                properties.store(new FileOutputStream("target/" + systemProperties), null);
+                properties.store(new FileOutputStream("CTP/" + systemProperties), null);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
