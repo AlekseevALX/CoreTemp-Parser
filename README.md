@@ -16,7 +16,7 @@ This is an educational and experimental project, which does not imply real use a
   <br><p align="center"><a href="https://ibb.co/J7GrZvX"><img src="https://i.ibb.co/9T1yPbR/CTP.png" alt="CTP" border="0"></a></p>
   <br>Records contains data about each CPU core.
   <br>All this can be doing on many computers of the web simultaneously, and collect data in one database.
-  <br>There are two main modes, in which CTP can working: GUI for parcing and seeing the graphs, also defining settings,
+  <br>There are two main modes, in which CTP can working: GUI for parsing and seeing the graphs, also defining settings,
   <br>and command line - for silent parsing only, without GUI.
 </p>
 <h2>What you'll need</h2>
