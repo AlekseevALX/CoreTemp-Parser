@@ -6,82 +6,89 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane id="all" centerShape="false" maxHeight="500.0" maxWidth="700.0" minHeight="500.0" minWidth="435.0" prefHeight="500.0" prefWidth="700.0" scaleShape="false" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparser.AppControllerProperties">
-   <TitledPane fx:id="userSettings_tab" animated="false" expanded="false" onMouseClicked="#onMouseClicked_userSettings_tab" pickOnBounds="false" prefHeight="400.0" prefWidth="700.0" text="User settings">
-      <content>
-         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="225.0" prefWidth="600.0">
-            <children>
-               <TextField id="IPDB" fx:id="IPDB" layoutX="350.0" layoutY="14.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="DBName" fx:id="DBName" layoutX="350.0" layoutY="39.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="portDB" fx:id="portDB" layoutX="350.0" layoutY="64.0" prefHeight="25.0" prefWidth="290.0" />
-               <RadioButton fx:id="PG" layoutX="350.0" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedPG" text="Postgres" />
-               <RadioButton fx:id="MSQL" layoutX="450" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedMSQL" text="MySQL" />
-               <TextField id="loginDB" fx:id="loginDB" layoutX="350.0" layoutY="114.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="passwordDB" fx:id="passwordDB" layoutX="350.0" layoutY="139.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="directoryWithCTLogs" fx:id="directoryWithCTLogs" layoutX="350.0" layoutY="164.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="countOfCharPoint" fx:id="countOfCharPoint" layoutX="350.0" layoutY="189.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="countMinutesPerAutoGraphic" fx:id="countMinutesPerAutoGraphic" layoutX="350.0" layoutY="214.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="maxParsingThreads" fx:id="maxParsingThreads" layoutX="350.0" layoutY="239.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="tableName" fx:id="tableName" layoutX="350.0" layoutY="264.0" />
-               <Label layoutX="14.0" layoutY="18.0" text="DataBase IP:" />
-               <Label layoutX="14.0" layoutY="43.0" text="DataBase name:" />
-               <Label layoutX="14.0" layoutY="68.0" text="DataBase port:" />
-               <Label layoutX="14.0" layoutY="93.0" text="DataBase type: " />
-               <Label layoutX="14.0" layoutY="118.0" text="DataBase login:" />
-               <Label layoutX="14.0" layoutY="143.0" text="DataBase password:" />
-               <Label layoutX="14.0" layoutY="168.0" text="Directory that contains CoreTemp logs:" />
-               <Label layoutX="14.0" layoutY="192.0" text="Max count of points on charts (only for non-automatic mode):" />
-               <Label layoutX="14.0" layoutY="217.0" text="Number of minutes viewed in the chart (only for auto refresh):" />
-               <Label layoutX="14.0" layoutY="242.0" text="Max count of thread for parsing:" />
-               <Label layoutX="14.0" layoutY="267.0" text="Table name:" />
-               <Button fx:id="checkCon" layoutX="14.0" layoutY="293.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedCheckConnection" text="Check connection" />
-               <Label fx:id="checkConnectionResult" layoutX="350.0" layoutY="293.0" text="checkResult" />
+<!--<Pane id="all" centerShape="false" maxHeight="500.0" maxWidth="700.0" minHeight="500.0" minWidth="435.0" prefHeight="500.0" prefWidth="700.0" scaleShape="false" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparser.AppControllerProperties">-->
+<!--   <padding>-->
+<!--      <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />-->
+<!--   </padding>-->
+<!--</Pane>-->
 
-            </children></AnchorPane>
-      </content>
-      <opaqueInsets>
-         <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-      </opaqueInsets>
-   </TitledPane>
-   <TitledPane fx:id="sysProp_tab" animated="false" expanded="false" layoutY="25.0" onMouseClicked="#onMouseClicked_sysProp_tab" pickOnBounds="false" prefHeight="400.0" prefWidth="700.0" text="System properties">
-      <content>
-         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="369.0" prefWidth="600.0">
-            <children>
-               <TextField id="db_colTime" fx:id="db_colTime" layoutX="225.0" layoutY="6.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="db_colTemp" fx:id="db_colTemp" layoutX="225.0" layoutY="31.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="db_colLoad" fx:id="db_colLoad" layoutX="225.0" layoutY="56.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="db_colSpeed" fx:id="db_colSpeed" layoutX="225.0" layoutY="81.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="db_colCpu" fx:id="db_colCpu" layoutX="225.0" layoutY="106.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="db_core" fx:id="db_core" layoutX="225.0" layoutY="131.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="db_cpuPower" fx:id="db_cpuPower" layoutX="225.0" layoutY="156.0" prefHeight="25.0" prefWidth="290.0" />
-               <Label layoutX="14.0" layoutY="10.0" text="Name of &quot;Time&quot; column in DB:" />
-               <Label layoutX="14.0" layoutY="35.0" text="Name of &quot;Temp&quot; column in DB:" />
-               <Label layoutX="14.0" layoutY="60.0" text="Name of &quot;Load&quot; column in DB:" />
-               <Label layoutX="14.0" layoutY="85.0" text="Name of &quot;Speed&quot; column in DB:" />
-               <Label layoutX="14.0" layoutY="110.0" text="Name of &quot;Cpu&quot; column in DB:" />
-               <Label layoutX="14.0" layoutY="135.0" text="Name of &quot;Core&quot; column in DB:" />
-               <Label layoutX="14.0" layoutY="160.0" text="Name of &quot;CPU Power&quot; column in DB:" />
-
-
-               <TextField id="f_colTime" fx:id="f_colTime" layoutX="225.0" layoutY="185.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_colTemp" fx:id="f_colTemp" layoutX="225.0" layoutY="210.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_colLoad" fx:id="f_colLoad" layoutX="225.0" layoutY="235.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_colSpeed" fx:id="f_colSpeed" layoutX="225.0" layoutY="260.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_colCpu" fx:id="f_colCpu" layoutX="225.0" layoutY="285.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_core" fx:id="f_core" layoutX="225.0" layoutY="310.0" prefHeight="25.0" prefWidth="290.0" />
-               <TextField id="f_cpuPower" fx:id="f_cpuPower" layoutX="225.0" layoutY="335.0" prefHeight="25.0" prefWidth="290.0" />
-               <Label layoutX="14.0" layoutY="191.0" text="Name of &quot;Time&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="216.0" text="Name of &quot;Temp&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="241.0" text="Name of &quot;Load&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="266.0" text="Name of &quot;Speed&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="291.0" text="Name of &quot;Cpu&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="316.0" text="Name of &quot;Core&quot; column in file:" />
-               <Label layoutX="14.0" layoutY="341.0" text="Name of &quot;CPU Power&quot; column in file:" />
-            </children></AnchorPane>
-      </content>
-   </TitledPane>
-   <Button fx:id="acceptButton" layoutX="8.0" layoutY="450.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedAcceptButton" text="Accept" />
-   <padding>
-      <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-   </padding>
-</Pane>
+<AnchorPane prefHeight="500.0" prefWidth="700.0" scaleShape="false" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.coretempparser.AppControllerProperties">
+      <children>
+         <TitledPane fx:id="userSettings_tab" animated="false" expanded="false" onMouseClicked="#onMouseClicked_userSettings_tab" pickOnBounds="true" prefHeight="0.0" prefWidth="700.0" text="User settings" AnchorPane.bottomAnchor="26.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="225.0" prefWidth="600.0">
+                  <children>
+                     <TextField id="IPDB" fx:id="IPDB" layoutX="350.0" layoutY="34.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="DBName" fx:id="DBName" layoutX="350.0" layoutY="59.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="portDB" fx:id="portDB" layoutX="350.0" layoutY="84.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <RadioButton fx:id="PG" layoutX="350.0" layoutY="113.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedPG" text="Postgres" AnchorPane.rightAnchor="110.0" />
+                     <RadioButton fx:id="MSQL" layoutX="450" layoutY="113.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedMSQL" text="MySQL" AnchorPane.rightAnchor="200.0" />
+                     <TextField id="loginDB" fx:id="loginDB" layoutX="350.0" layoutY="134.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="passwordDB" fx:id="passwordDB" layoutX="350.0" layoutY="159.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="directoryWithCTLogs" fx:id="directoryWithCTLogs" layoutX="350.0" layoutY="184.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="countOfCharPoint" fx:id="countOfCharPoint" layoutX="350.0" layoutY="209.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="countMinutesPerAutoGraphic" fx:id="countMinutesPerAutoGraphic" layoutX="350.0" layoutY="234.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="maxParsingThreads" fx:id="maxParsingThreads" layoutX="350.0" layoutY="259.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="tableName" fx:id="tableName" layoutX="350.0" layoutY="284.0" AnchorPane.rightAnchor="150.0" />
+                     <Label layoutX="14.0" layoutY="38.0" text="DataBase IP:" />
+                     <Label layoutX="14.0" layoutY="63.0" text="DataBase name:" />
+                     <Label layoutX="14.0" layoutY="88.0" text="DataBase port:" />
+                     <Label layoutX="14.0" layoutY="113.0" text="DataBase type: " />
+                     <Label layoutX="14.0" layoutY="138.0" text="DataBase login:" />
+                     <Label layoutX="14.0" layoutY="163.0" text="DataBase password:" />
+                     <Label layoutX="14.0" layoutY="188.0" text="Directory that contains CoreTemp logs:" />
+                     <Label layoutX="14.0" layoutY="212.0" text="Max count of points on charts (only for non-automatic mode):" />
+                     <Label layoutX="14.0" layoutY="237.0" text="Number of minutes viewed in the chart (only for auto refresh):" />
+                     <Label layoutX="14.0" layoutY="262.0" text="Max count of thread for parsing:" />
+                     <Label layoutX="14.0" layoutY="287.0" text="Table name:" />
+                     <Button fx:id="checkCon" layoutX="14.0" layoutY="313.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedCheckConnection" text="Check connection" />
+                     <Label fx:id="checkConnectionResult" contentDisplay="RIGHT" layoutX="350.0" layoutY="313.0" prefHeight="17.0" prefWidth="203.0" text="checkResult" textAlignment="RIGHT" AnchorPane.rightAnchor="10.0" />
+      
+                  </children>
+               </AnchorPane>
+            </content>
+            <opaqueInsets>
+               <Insets />
+            </opaqueInsets>
+         </TitledPane>
+         <TitledPane fx:id="sysProp_tab" animated="false" expanded="false" layoutY="25.0" onMouseClicked="#onMouseClicked_sysProp_tab" prefHeight="0.0" prefWidth="700.0" text="System properties" AnchorPane.bottomAnchor="26.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+            <content>
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="369.0" prefWidth="600.0">
+                  <children>
+                     <TextField id="db_colTime" fx:id="db_colTime" layoutX="225.0" layoutY="6.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="db_colTemp" fx:id="db_colTemp" layoutX="225.0" layoutY="31.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="db_colLoad" fx:id="db_colLoad" layoutX="225.0" layoutY="56.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="db_colSpeed" fx:id="db_colSpeed" layoutX="225.0" layoutY="81.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="db_colCpu" fx:id="db_colCpu" layoutX="225.0" layoutY="106.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="db_core" fx:id="db_core" layoutX="225.0" layoutY="131.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="db_cpuPower" fx:id="db_cpuPower" layoutX="225.0" layoutY="156.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <Label layoutX="14.0" layoutY="10.0" text="Name of &quot;Time&quot; column in DB:" />
+                     <Label layoutX="14.0" layoutY="35.0" text="Name of &quot;Temp&quot; column in DB:" />
+                     <Label layoutX="14.0" layoutY="60.0" text="Name of &quot;Load&quot; column in DB:" />
+                     <Label layoutX="14.0" layoutY="85.0" text="Name of &quot;Speed&quot; column in DB:" />
+                     <Label layoutX="14.0" layoutY="110.0" text="Name of &quot;Cpu&quot; column in DB:" />
+                     <Label layoutX="14.0" layoutY="135.0" text="Name of &quot;Core&quot; column in DB:" />
+                     <Label layoutX="14.0" layoutY="160.0" text="Name of &quot;CPU Power&quot; column in DB:" />
+      
+      
+                     <TextField id="f_colTime" fx:id="f_colTime" layoutX="225.0" layoutY="185.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="f_colTemp" fx:id="f_colTemp" layoutX="225.0" layoutY="210.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="f_colLoad" fx:id="f_colLoad" layoutX="225.0" layoutY="235.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="f_colSpeed" fx:id="f_colSpeed" layoutX="225.0" layoutY="260.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="f_colCpu" fx:id="f_colCpu" layoutX="225.0" layoutY="285.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="f_core" fx:id="f_core" layoutX="225.0" layoutY="310.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <TextField id="f_cpuPower" fx:id="f_cpuPower" layoutX="225.0" layoutY="335.0" prefHeight="25.0" prefWidth="290.0" AnchorPane.rightAnchor="10.0" />
+                     <Label layoutX="14.0" layoutY="191.0" text="Name of &quot;Time&quot; column in file:" />
+                     <Label layoutX="14.0" layoutY="216.0" text="Name of &quot;Temp&quot; column in file:" />
+                     <Label layoutX="14.0" layoutY="241.0" text="Name of &quot;Load&quot; column in file:" />
+                     <Label layoutX="14.0" layoutY="266.0" text="Name of &quot;Speed&quot; column in file:" />
+                     <Label layoutX="14.0" layoutY="291.0" text="Name of &quot;Cpu&quot; column in file:" />
+                     <Label layoutX="14.0" layoutY="316.0" text="Name of &quot;Core&quot; column in file:" />
+                     <Label layoutX="14.0" layoutY="341.0" text="Name of &quot;CPU Power&quot; column in file:" />
+                  </children>
+               </AnchorPane>
+            </content>
+         </TitledPane>
+         <Button fx:id="acceptButton" layoutY="61.0" mnemonicParsing="false" onMouseClicked="#onMouseClickedAcceptButton" text="Accept" AnchorPane.bottomAnchor="0.0" />
+      </children>
+   </AnchorPane>

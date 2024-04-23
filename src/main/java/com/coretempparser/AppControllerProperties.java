@@ -8,6 +8,7 @@ package com.coretempparser;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
 import java.util.*;
@@ -72,6 +73,8 @@ public class AppControllerProperties implements Initializable {
     private TitledPane sysProp_tab;
     @FXML
     private Label checkConnectionResult;
+    @FXML
+    private Button acceptButton;
 
 //    double initialYOfUserTab = userSettings_tab.getLayoutY();
 
@@ -193,15 +196,30 @@ public class AppControllerProperties implements Initializable {
     }
 
     public void onMouseClicked_userSettings_tab() {
-        sysProp_tab.setExpanded(false);
+
 
         double thisHeight = userSettings_tab.getHeight();
         double thisY = userSettings_tab.getLayoutY();
+        double acceptBtnHeig = acceptButton.getHeight();
 
         if (userSettings_tab.isExpanded()) {
-            sysProp_tab.setLayoutY(thisY + thisHeight);
+            sysProp_tab.setExpanded(false);
+//            sysProp_tab.setLayoutY(thisY + thisHeight - acceptBtnHeig);
+
+            AnchorPane.clearConstraints(sysProp_tab);
+            AnchorPane.setLeftAnchor(sysProp_tab, 0.0);
+            AnchorPane.setRightAnchor(sysProp_tab, 0.0);
+
+            AnchorPane.setBottomAnchor(sysProp_tab, acceptBtnHeig);
+
         } else {
-            sysProp_tab.setLayoutY(initialYOfSystemTab);
+//            sysProp_tab.setLayoutY(initialYOfSystemTab);
+
+            AnchorPane.clearConstraints(sysProp_tab);
+            AnchorPane.setLeftAnchor(sysProp_tab, 0.0);
+            AnchorPane.setRightAnchor(sysProp_tab, 0.0);
+
+            AnchorPane.setTopAnchor(sysProp_tab, initialYOfSystemTab);
         }
 
     }
@@ -209,6 +227,14 @@ public class AppControllerProperties implements Initializable {
     public void onMouseClicked_sysProp_tab() {
         userSettings_tab.setExpanded(false);
 
-        sysProp_tab.setLayoutY(initialYOfSystemTab);
+        AnchorPane.clearConstraints(sysProp_tab);
+        AnchorPane.setLeftAnchor(sysProp_tab, 0.0);
+        AnchorPane.setRightAnchor(sysProp_tab, 0.0);
+
+        AnchorPane.setTopAnchor(sysProp_tab, initialYOfSystemTab);
+        AnchorPane.setBottomAnchor(sysProp_tab, acceptButton.getHeight());
+
+//        sysProp_tab.setLayoutY(initialYOfSystemTab);
+//        AnchorPane.setTopAnchor(sysProp_tab, initialYOfSystemTab);
     }
 }

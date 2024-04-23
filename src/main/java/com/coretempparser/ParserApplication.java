@@ -12,7 +12,7 @@ public class ParserApplication extends Application {
     public void start(Stage stage) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(ParserApplication.class.getResource("view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1400, 700);
+        Scene scene = new Scene(fxmlLoader.load(), 800, 580);
         stage.setTitle("CoreTemp Parser!" + " ver: " + MainClass.getVer());
         stage.setScene(scene);
         stage.show();
