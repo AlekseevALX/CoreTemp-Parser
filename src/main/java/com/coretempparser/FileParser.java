@@ -55,6 +55,7 @@ public class FileParser {
             String readedFile = new String(buf);
             String[] spltStr_file = readedFile.split(System.lineSeparator());
             String[] str;
+            HashSet<String> setOfDates = new HashSet<>();
 
             for (String record : spltStr_file) {
                 str = record.split(",");
@@ -64,6 +65,13 @@ public class FileParser {
                     continue;
                 }
                 if (str.length < dataString.length || str[0].equals(colf_time)) continue;
+
+                if (setOfDates.contains(str[0])) {
+                    continue;
+                } else {
+                    setOfDates.add(str[0]);
+                }
+
                 for (int i = 0; i < dataString.length; i++) {
                     dataString[i] = str[columns[i]];
                 }

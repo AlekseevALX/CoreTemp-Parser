@@ -19,42 +19,84 @@ public class DBWriter {
 
         String compName = MainClass.getComputerName();
 
+        PreparedStatement stm;
+
+        String[] columns = MainClass.getColNames(compName);
+
         if (fileData.isNeedsToFindExistingRecords()) {
             deleteAlreadyExistsRecords(compName);
         }
 
-        String[] columns = MainClass.getColNames(compName);
+        int countColumns = columns.length + 1;
 
-        PreparedStatement stm;
+        int countOfStrings = fileData.getStringCount();
 
-        String queryText = QueryTextGenerator.getQueryText_Insert(columns, compName, tableName);
-
-        if (MainClass.connectionToBase()) {
-            stm = MainClass.connectionToDB.prepareStatement(queryText);
-        } else {
-            MainClass.addToLog("fail write to base");
+        if (countOfStrings == 0){
             return;
         }
 
+        int countVarsPerStatement = 65000;
+
+        int countStringsPerStatement = countVarsPerStatement / countColumns;
+
+        int countOfSteps;
+
+        int remainder = 0;
+
+        if (countStringsPerStatement >= countOfStrings) {
+            countOfSteps = 1;
+        } else {
+            countOfSteps = countOfStrings / countStringsPerStatement;
+            remainder = countOfStrings % countStringsPerStatement;
+            if (remainder != 0) {
+                countOfSteps++;
+            }
+        }
+
+        int countStringsWritten = 0;
+
         HashMap<Integer, String[]> strings = fileData.getStrings();
-        String[] oneString;
 
+        for (int i = 1; i <= countOfSteps; i++) {
 
-        for (HashMap.Entry<Integer, String[]> pair : strings.entrySet()) {
+            int countStringsCurrentStep = 0;
+
+            if (countOfSteps == 1) {
+                countStringsCurrentStep = countOfStrings;
+            } else if (i == countOfSteps && remainder != 0) {
+                countStringsCurrentStep = countOfStrings - countStringsWritten;
+            } else {
+                countStringsCurrentStep = countStringsPerStatement;
+            }
+
+            String queryText = QueryTextGenerator.getQueryText_Insert(columns, compName, tableName, countStringsCurrentStep);
+
+            if (MainClass.connectionToBase()) {
+                stm = MainClass.connectionToDB.prepareStatement(queryText);
+            } else {
+                MainClass.addToLog("fail write to base");
+                return;
+            }
+
+            setupAllParameters(stm, strings, compName, countStringsWritten, countStringsCurrentStep, countColumns);
+
             if (MainClass.done) {
                 MainClass.addToLog("Can't write record to base, process is stopped! Thread:" + Thread.currentThread().getName());
                 return;
             }
-            oneString = pair.getValue();
-            setupParameters(stm, oneString, compName);
+
             try {
                 stm.executeUpdate();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            stm.close();
+
+            countStringsWritten += countStringsCurrentStep;
+
         }
 
-        stm.close();
     }
 
     public void deleteAlreadyExistsRecords(String compName) throws ArrayIndexOutOfBoundsException, SQLException {
@@ -112,6 +154,51 @@ public class DBWriter {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+    }
+
+    private void setupAllParameters(PreparedStatement stm, HashMap<Integer, String[]> strings, String compName, int countStringsWritten, int countStringsCurrentStep, int countColumns) {
+        String[] oneString;
+        int ch = 1;
+        int written = 0;
+        for (HashMap.Entry<Integer, String[]> pair : strings.entrySet()) {
+            written++;
+
+            if (written <= countStringsWritten) {
+                continue;
+            }
+
+            oneString = pair.getValue();
+
+            for (int i = 0; i < oneString.length; i++) {
+                try {
+                    if (i == 0) {
+                        java.sql.Timestamp dd = parseDateToTimeStamp(oneString[i], this.fileData.getFileName());
+                        stm.setTimestamp(ch, dd);
+                    } else {
+                        stm.setString(ch, oneString[i]);
+                    }
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                ch++;
+            }
+
+            if (!compName.isEmpty()) {
+                try {
+                    stm.setString(ch, compName);
+                    ch++;
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            if (ch >= countStringsCurrentStep * countColumns) {
+                break;
+            }
+
         }
 
     }

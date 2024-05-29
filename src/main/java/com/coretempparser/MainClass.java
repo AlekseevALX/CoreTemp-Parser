@@ -37,7 +37,7 @@ public class MainClass {
     }
 
     public static String getVer() {
-        return "1.0";
+        return "1.1";
     }
 
     public static HashMap<String, String> getUserSettingsMap() {
@@ -71,7 +71,7 @@ public class MainClass {
         currentWorkingThread = a;
     }
 
-    public static int getCurrentWorkingThread(){
+    public static int getCurrentWorkingThread() {
         return currentWorkingThread;
     }
 
@@ -302,7 +302,7 @@ public class MainClass {
             properties.store(new FileOutputStream(userSettings), null);
         } catch (Exception e) {
             try {
-                properties.store(new FileOutputStream("CTP/" + userSettings), null); //DEBUG
+                properties.store(new FileOutputStream("CTP/" + userSettings), null); //DEBUG needs to add separate class for properties managing
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -511,7 +511,7 @@ class ParsingSession_thread extends Thread {
                 findLastDateInBase();
                 if (lastDate != null) {
                     MainClass.addToLog("Last record in the database is " + lastDate);
-                    lastTimeInBase = lastDate.getTime();
+                    lastTimeInBase = lastDate.getTime() / 1000;
                 } else {
                     MainClass.addToLog("No records in database from computer " + MainClass.getComputerName() + " yet ");
                 }

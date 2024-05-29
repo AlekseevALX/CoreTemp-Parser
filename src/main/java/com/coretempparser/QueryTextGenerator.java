@@ -21,7 +21,7 @@ public class QueryTextGenerator {
 
         int ch = columns.length;
 
-        for (int i = 1; i < ch; i++) {
+        for (int i = 2; i < ch; i++) {
             colName = columns[i];
             if (colName.equals("")) continue;
 
@@ -30,7 +30,7 @@ public class QueryTextGenerator {
 
         text = text.concat("PRIMARY KEY (")
                 .concat(columns[0])
-                .concat(",")
+                .concat(", ")
                 .concat(colCompName)
                 .concat(")");
 
@@ -72,7 +72,7 @@ public class QueryTextGenerator {
         return text;
     }
 
-    public static String getQueryText_Insert(String[] columns, String compName, String tableName) {
+    public static String getQueryText_Insert(String[] columns, String compName, String tableName, int countOfRecords) {
 
         String text = "";
         int columnCount = columns.length;
@@ -91,18 +91,23 @@ public class QueryTextGenerator {
         text = text.substring(0, text.length() - 1);
         text = text.concat(") ");
         text = text.concat("VALUES ");
-        text = text.concat("(");
 
-        for (int i = 0; i < columnCount; i++) {
-            text = text.concat("?,");
+        for (int i = 0; i < countOfRecords; i++) {
+            text = text.concat("(");
+
+            for (int j = 0; j < columnCount; j++) {
+                text = text.concat("?,");
+            }
+
+            if (!compName.isEmpty()) {
+                text = text.concat("?,");
+            }
+
+            text = text.substring(0, text.length() - 1);
+            text = text.concat("), ");
         }
 
-        if (!compName.isEmpty()) {
-            text = text.concat("?,");
-        }
-
-        text = text.substring(0, text.length() - 1);
-        text = text.concat(") ");
+        text = text.substring(0, text.length() - 2);
 
         return text;
     }
