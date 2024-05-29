@@ -84,6 +84,7 @@ Then, when all settings configured, you can use CTP some of these way:
 </p>
 
 <h2>Version history</h2>
+- 1.1 - increasing productivity, fixing bugs <br>
 - 1.0 - first version
 <h2>Author</h2>
 <a href="https://github.com/AlekseevALX">ALX</a>
